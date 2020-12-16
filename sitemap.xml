@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://thonsun.github.io/contact/index.html</loc>
+    
+    <lastmod>2020-12-16T10:25:42.046Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://thonsun.github.io/about/index.html</loc>
+    
+    <lastmod>2020-12-16T10:24:07.027Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://thonsun.github.io/2019/10/23/useful-trick-for-linuxs-work/</loc>
     
     <lastmod>2020-12-16T09:43:07.789Z</lastmod>
@@ -114,6 +128,20 @@
   </url>
   
   <url>
+    <loc>https://thonsun.github.io/galleries/%E8%83%8C%E6%99%AF%E5%9B%BE%E7%89%873/index.html</loc>
+    
+    <lastmod>2020-07-01T09:09:44.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://thonsun.github.io/archives/index.html</loc>
+    
+    <lastmod>2020-07-01T09:09:44.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://thonsun.github.io/404.html</loc>
     
     <lastmod>2020-07-01T09:09:44.000Z</lastmod>
@@ -128,28 +156,7 @@
   </url>
   
   <url>
-    <loc>https://thonsun.github.io/about/index.html</loc>
-    
-    <lastmod>2020-07-01T09:09:44.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://thonsun.github.io/galleries/%E8%83%8C%E6%99%AF%E5%9B%BE%E7%89%873/index.html</loc>
-    
-    <lastmod>2020-07-01T09:09:44.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://thonsun.github.io/categories/index.html</loc>
-    
-    <lastmod>2020-07-01T09:09:44.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://thonsun.github.io/contact/index.html</loc>
+    <loc>https://thonsun.github.io/galleries/index.html</loc>
     
     <lastmod>2020-07-01T09:09:44.000Z</lastmod>
     
@@ -157,13 +164,6 @@
   
   <url>
     <loc>https://thonsun.github.io/friends/index.html</loc>
-    
-    <lastmod>2020-07-01T09:09:44.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://thonsun.github.io/galleries/index.html</loc>
     
     <lastmod>2020-07-01T09:09:44.000Z</lastmod>
     
@@ -184,7 +184,7 @@
   </url>
   
   <url>
-    <loc>https://thonsun.github.io/archives/index.html</loc>
+    <loc>https://thonsun.github.io/categories/index.html</loc>
     
     <lastmod>2020-07-01T09:09:44.000Z</lastmod>
     

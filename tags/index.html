@@ -585,19 +585,19 @@ $('.bg-cover').css('background-image', 'url(/medias/banner/' + new Date().getDay
                 </a>
                 
                 
-                <a href="/tags/linux/" title="linux: 1">
+                <a href="/tags/linux/" title="-linux: 1">
                     <span class="chip center-align waves-effect waves-light
                              chip-default "
-                            data-tagname="linux" style="background-color: #F5EEF8;">linux
+                            data-tagname="-linux" style="background-color: #F5EEF8;">-linux
                         <span class="tag-length">1</span>
                     </span>
                 </a>
                 
                 
-                <a href="/tags/linux/" title="-linux: 1">
+                <a href="/tags/linux/" title="linux: 1">
                     <span class="chip center-align waves-effect waves-light
                              chip-default "
-                            data-tagname="-linux" style="background-color: #D5F5E3;">-linux
+                            data-tagname="linux" style="background-color: #D5F5E3;">linux
                         <span class="tag-length">1</span>
                     </span>
                 </a>
@@ -707,7 +707,7 @@ $('.bg-cover').css('background-image', 'url(/medias/banner/' + new Date().getDay
 <script type="text/javascript">
     
 
-    $('#tag-wordcloud').jQCloud([{"text":"heap","weight":5,"link":"/tags/heap/"},{"text":"linux","weight":1,"link":"/tags/linux/"},{"text":"-linux","weight":1,"link":"/tags/linux/"},{"text":"工具使用","weight":1,"link":"/tags/工具使用/"},{"text":"blog","weight":1,"link":"/tags/blog/"},{"text":"stack","weight":1,"link":"/tags/stack/"},{"text":"tools","weight":1,"link":"/tags/tools/"},{"text":"pwn basic","weight":2,"link":"/tags/pwn-basic/"},{"text":"环境配置","weight":1,"link":"/tags/环境配置/"},{"text":"pwn patch","weight":1,"link":"/tags/pwn-patch/"},{"text":"basic pwn","weight":1,"link":"/tags/basic-pwn/"},{"text":"Ubuntu","weight":1,"link":"/tags/Ubuntu/"}], {
+    $('#tag-wordcloud').jQCloud([{"text":"heap","weight":5,"link":"/tags/heap/"},{"text":"-linux","weight":1,"link":"/tags/linux/"},{"text":"linux","weight":1,"link":"/tags/linux/"},{"text":"工具使用","weight":1,"link":"/tags/工具使用/"},{"text":"blog","weight":1,"link":"/tags/blog/"},{"text":"stack","weight":1,"link":"/tags/stack/"},{"text":"tools","weight":1,"link":"/tags/tools/"},{"text":"pwn basic","weight":2,"link":"/tags/pwn-basic/"},{"text":"环境配置","weight":1,"link":"/tags/环境配置/"},{"text":"pwn patch","weight":1,"link":"/tags/pwn-patch/"},{"text":"basic pwn","weight":1,"link":"/tags/basic-pwn/"},{"text":"Ubuntu","weight":1,"link":"/tags/Ubuntu/"}], {
         autoResize: true
     });
 </script>
@@ -718,7 +718,7 @@ $('.bg-cover').css('background-image', 'url(/medias/banner/' + new Date().getDay
         <footer class="page-footer bg-color">
     <div class="container row center-align">
         <div class="col s12 m8 l8 copy-right">
-            Copyright&copy; 2019 洪卫. 
+            Copyright&copy; 2019 thonsun. 
 
             <br>
             <span id="sitetime"></span><span class="my-face">ღゝ◡╹)ノ♡</span>
@@ -750,7 +750,7 @@ $('.bg-cover').css('background-image', 'url(/medias/banner/' + new Date().getDay
         </div>
 
         <div class="col s12 m4 l4 social-link social-statis">
-    <a href="https://github.com/https://github.com/thonsun/" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+    <a href="https://github.com/thonsun" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
         <i class="fa fa-github"></i>
     </a>
 
@@ -913,8 +913,6 @@ $(function () {
 
         <!-- 鼠标点击文字特效 洪卫 shw2018 add 2019.09.10-->
         
-            <script src="/js/wenzi.js" type="text/javascript"></script>
-        
 
         <!-- 背景雪花飘落特效 洪卫 shw2018 add 2019.09.10 -->
         
@@ -963,25 +961,11 @@ $(function () {
 
         <!-- 背景 canvas-nest  洪卫 shw 2018  add 2019.09.15-->
         
-            <script type="text/javascript">
-            var windowWidth = $(window).width();
-            if (windowWidth > 992) {
-                document.write('<script type="text/javascript" color="0,0,255" pointColor="0,0,255" opacity= "0.8" zIndex="--1" count="150"src="/libs/background/canvas-nest.js"><\/script>');
-            }
-            </script>
-        
 
         <!-- 背景静止彩带  洪卫 shw 2018  add 2019.09.15-->
         
 
         <!-- 背景动态彩带 洪卫 shw 2018  add 2019.09.15-->
-        
-            <script type="text/javascript">
-            var windowWidth = $(window).width();
-            if (windowWidth > 992) {
-                document.write('<script type="text/javascript" src="/libs/background/ribbon-dynamic.js"><\/script>');
-            }
-            </script>
         
 
     <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script><script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script></body>
