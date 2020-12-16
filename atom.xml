@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>thonsun&#39;s blog</title>
+  
+  <subtitle>thonsun&#39;s blog</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://thonsun.github.io/"/>
+  <updated>2020-12-16T09:06:54.700Z</updated>
+  <id>https://thonsun.github.io/</id>
+  
+  <author>
+    <name>thonsun</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>环境配置</title>
+    <link href="https://thonsun.github.io/2020/12/04/huan-jing-pei-zhi/"/>
+    <id>https://thonsun.github.io/2020/12/04/huan-jing-pei-zhi/</id>
+    <published>2020-12-04T11:59:38.000Z</published>
+    <updated>2020-12-16T09:06:54.700Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;整理常用的win | linux环境，包括开发用环境：Jetbrain全家桶crack过程；&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="环境配置" scheme="https://thonsun.github.io/categories/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"/>
+    
+    
+      <category term="环境配置" scheme="https://thonsun.github.io/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>从安装第三方软件学习Ubuntu配置</title>
+    <link href="https://thonsun.github.io/2019/12/28/cong-an-zhuang-di-san-fang-ruan-jian-xue-xi-ubuntu-pei-zhi/"/>
+    <id>https://thonsun.github.io/2019/12/28/cong-an-zhuang-di-san-fang-ruan-jian-xue-xi-ubuntu-pei-zhi/</id>
+    <published>2019-12-28T08:12:56.000Z</published>
+    <updated>2020-12-16T09:17:22.899Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;在这篇文章中，将学到：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Ubuntu安装软件从系统源到第三方软件源配置&lt;/li&gt;
+&lt;li&gt;Ubuntu安装软件默认配置（路径，环境变量）&lt;/li&gt;
+&lt;li&gt;待添加&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="tools" scheme="https://thonsun.github.io/categories/tools/"/>
+    
+    
+      <category term="Ubuntu" scheme="https://thonsun.github.io/tags/Ubuntu/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Useful trick for linuxs work</title>
+    <link href="https://thonsun.github.io/2019/10/23/useful-trick-for-linuxs-work/"/>
+    <id>https://thonsun.github.io/2019/10/23/useful-trick-for-linuxs-work/</id>
+    <published>2019-10-23T05:20:57.000Z</published>
+    <updated>2020-12-16T09:43:07.789Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+      <category term="os" scheme="https://thonsun.github.io/categories/os/"/>
+    
+    
+      <category term="-linux" scheme="https://thonsun.github.io/tags/linux/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>RedHat基本使用</title>
+    <link href="https://thonsun.github.io/2019/09/20/redhat-ji-ben-shi-yong/"/>
+    <id>https://thonsun.github.io/2019/09/20/redhat-ji-ben-shi-yong/</id>
+    <published>2019-09-20T01:52:33.000Z</published>
+    <updated>2020-12-16T09:41:36.366Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;一、记录RedHat基本使用&quot;&gt;&lt;a href=&quot;#一、记录RedHat基本使用&quot; class=&quot;headerlink&quot; title=&quot;一、记录RedHat基本使用&quot;&gt;&lt;/a&gt;一、记录RedHat基本使用&lt;/h2&gt;&lt;p&gt;用惯Ubuntu还得是要走出舒服区去踩坑RedHat了&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="os" scheme="https://thonsun.github.io/categories/os/"/>
+    
+    
+      <category term="linux" scheme="https://thonsun.github.io/tags/linux/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>LIEF在CTFpatch常用API</title>
+    <link href="https://thonsun.github.io/2019/07/27/lief-zai-ctfpatch-chang-yong-api/"/>
+    <id>https://thonsun.github.io/2019/07/27/lief-zai-ctfpatch-chang-yong-api/</id>
+    <published>2019-07-27T14:16:35.000Z</published>
+    <updated>2020-12-16T09:31:15.010Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot; class=&quot;headerlink&quot; title=&quot;摘要&quot;&gt;&lt;/a&gt;摘要&lt;/h3&gt;&lt;p&gt;​    记录LIEF在CTF中打patch的常用函数，更多详细参考官方文档。 &lt;a href=&quot;https://lief.quarkslab.com/doc/latest/api/python/elf.html#parser&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;链接&lt;/a&gt;，此处记录在CTF方面的应用详细。LIEF不仅仅用于ELF文件的修改，还可以在PE，Mach-o，Android等方面都有应用。按照官方文档的说明，LIEF的目的是提供一个跨平台的库，可以解析，修改和抽象ELF，PE，MachO和Android格式，目前支持的格式有&lt;code&gt;ELF&lt;/code&gt;, &lt;code&gt;PE&lt;/code&gt;, &lt;code&gt;MachO&lt;/code&gt;, &lt;code&gt;DEX&lt;/code&gt;, &lt;code&gt;OAT&lt;/code&gt;, &lt;code&gt;ART&lt;/code&gt; and &lt;code&gt;VDEX&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;在CTF中linux的ELF应用中在于在机器语言级别修改binary的漏洞（patch），下面将介绍常用的LIEF的函数使用，围绕函数API展开接收该函数接收的参数、返回结果、应用代码。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
+    
+    
+      <category term="pwn patch" scheme="https://thonsun.github.io/tags/pwn-patch/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>unlink利用介绍</title>
+    <link href="https://thonsun.github.io/2019/07/25/unlink-li-yong-jie-shao/"/>
+    <id>https://thonsun.github.io/2019/07/25/unlink-li-yong-jie-shao/</id>
+    <published>2019-07-25T12:06:49.000Z</published>
+    <updated>2020-12-16T09:42:59.778Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot; class=&quot;headerlink&quot; title=&quot;摘要&quot;&gt;&lt;/a&gt;摘要&lt;/h3&gt;&lt;p&gt;​    记录当下加入检查机制的unlink宏一般利用思想，主要在glibc pwn下的unlink利用手法。&lt;/p&gt;
+&lt;h3 id=&quot;分析&quot;&gt;&lt;a href=&quot;#分析&quot; class=&quot;headerlink&quot; title=&quot;分析&quot;&gt;&lt;/a&gt;分析&lt;/h3&gt;&lt;h4 id=&quot;unlink的工作&quot;&gt;&lt;a href=&quot;#unlink的工作&quot; class=&quot;headerlink&quot; title=&quot;unlink的工作&quot;&gt;&lt;/a&gt;unlink的工作&lt;/h4&gt;&lt;p&gt;unlink(AV, P, BK, FD)：P是在空闲双向链表中的freed chunk(如small bins,larged bins,unsorted bins)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;在free检查前后是否可以合并的时候，对free(ptr) ptr前后相邻的chunk就是unlink的目标p（即把它从freed chunk链表卸下的一步工作）;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;在malloc检查到size符合small bin等(只有fast bin用fd的单向链表，LIFO的分配管理)，分配chunk 从freed chunk 双向链表拿下&lt;/p&gt;&lt;/li&gt;&lt;/ol&gt;
+    
+    </summary>
+    
+      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
+    
+    
+      <category term="heap" scheme="https://thonsun.github.io/tags/heap/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>off by one 利用原理</title>
+    <link href="https://thonsun.github.io/2019/07/24/off-by-one-li-yong-yuan-li/"/>
+    <id>https://thonsun.github.io/2019/07/24/off-by-one-li-yong-yuan-li/</id>
+    <published>2019-07-24T02:30:25.000Z</published>
+    <updated>2020-12-16T09:40:58.753Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot; class=&quot;headerlink&quot; title=&quot;摘要&quot;&gt;&lt;/a&gt;摘要&lt;/h3&gt;&lt;p&gt;​    记录分析off-by-one(off-by-null，只是覆盖一字节内容不同而已)的漏洞利用原理，使得萌新如我在看ctf-wiki上的pwn的glibc利用手法能够深入的了解off-by-one的原理。此处挑选的是上面的例一：Asis CTF 2016 b00ks进行详细的介绍，说实话，把这道题弄懂确实费了我好多时间，（多少次在放弃heap pwn与断断续续的不甘心中把这道题看完了，一些分析过程中也加深了对Linux下从ELF文件到加载到内存的映射结构的理解，包括动态链接与映射，内存页保护，malloc与mmap的调用分配内存大小的区别 ）。不禁想起俞敏洪在演讲中提到的，愚笨的我只能比其他人一遍又一遍的学，终究我也能够学会。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
+    
+    
+      <category term="heap" scheme="https://thonsun.github.io/tags/heap/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>linux 安全机制</title>
+    <link href="https://thonsun.github.io/2019/07/22/linux-an-quan-ji-zhi/"/>
+    <id>https://thonsun.github.io/2019/07/22/linux-an-quan-ji-zhi/</id>
+    <published>2019-07-22T12:25:51.000Z</published>
+    <updated>2020-12-16T09:32:37.472Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;操作系统提供了许多安全机制来尝试降低或阻止缓冲区溢出攻击带来的安全风险，包括DEP、ASLR等。在编写漏洞利用代码的时候，需要特别注意目标进程是否开启了DEP（Linux下对应NX）、ASLR [Address space layout randomization]（Linux下对应PIE）等机制，例如存在DEP（NX）的话就不能直接执行栈上的数据，存在ASLR的话各个系统调用的地址就是随机化的，RELRO(reloctiaon read only)重定位只读，包括Full，Partial(default)，disabled，分别对应者诸如数据、got表（重定位项，对于动态链接目标文件）不可写，got表可写，全部可写。这对应了从ELF文件格式到加载到内存的映射页保护机制（r,x,w）的具体内容实现。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
+    
+    
+      <category term="basic pwn" scheme="https://thonsun.github.io/tags/basic-pwn/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>glibc heap pwn notes</title>
+    <link href="https://thonsun.github.io/2019/07/20/glibc-heap-pwn-notes/"/>
+    <id>https://thonsun.github.io/2019/07/20/glibc-heap-pwn-notes/</id>
+    <published>2019-07-20T07:27:03.000Z</published>
+    <updated>2020-12-16T09:28:51.950Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot; class=&quot;headerlink&quot; title=&quot;摘要&quot;&gt;&lt;/a&gt;摘要&lt;/h3&gt;&lt;p&gt;​        记录Glibc heap的数据结构与分配过程，转自 先知社区&lt;a href=&quot;https://xz.aliyun.com/t/2307#toc-11&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;《glibc heap pwn notes》&lt;/a&gt; 。freebuf &lt;a href=&quot;https://www.freebuf.com/articles/system/91527.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Glibc堆管理机制与利用手法&lt;/a&gt; 统一说明为glibc-2.23，更多版本添加的安全检查机制与对应绕过手法还得自己找对应libc源码阅读。&lt;/p&gt;
+&lt;h3 id=&quot;heap管理数据结构&quot;&gt;&lt;a href=&quot;#heap管理数据结构&quot; class=&quot;headerlink&quot; title=&quot;heap管理数据结构&quot;&gt;&lt;/a&gt;heap管理数据结构&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;linux下动态链接目标文件与可执行文件在加载（ld）在虚拟内存空间的映射（map）&amp;lt;参考&amp;gt; 《程序员的自我修养》&lt;/p&gt;
+&lt;p&gt;  内存映射段libc.so的全局变量（.bss）的main_arena（malloc_state结构体定义，m_state）记录主线程heap的free_chunk状态。&lt;/p&gt;
+&lt;p&gt;  多线程中arena数据结构为一个环形链表，采用heap_info结构定义。&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
+    
+    
+      <category term="heap" scheme="https://thonsun.github.io/tags/heap/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>fast_bin attack利用解释</title>
+    <link href="https://thonsun.github.io/2019/07/19/fast-bin-attack-li-yong-jie-shi/"/>
+    <id>https://thonsun.github.io/2019/07/19/fast-bin-attack-li-yong-jie-shi/</id>
+    <published>2019-07-19T04:37:07.000Z</published>
+    <updated>2020-12-16T09:15:52.604Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot; class=&quot;headerlink&quot; title=&quot;摘要&quot;&gt;&lt;/a&gt;摘要&lt;/h3&gt;&lt;p&gt;​        主要通过Double Free在fast binY单链中存在两个指向同一内存块的指针，可能的排布（A2-&amp;gt;B-A1）,第一次malloc该大小拿到A2指向该chunk,向其数据data写入&lt;code&gt;__malloc_hook&lt;/code&gt;的地址（同时也修改了A1的fd,即也在该大小的fast bin的尾部增加了一个地址为&lt;code&gt;__malloc_hook&lt;/code&gt;的内存chunk[fake chunk]）,所以当依次拿掉B,A1后，在malloc一次即可获取到指向&lt;code&gt;__malloc_hook&lt;/code&gt;地址的指针，这时候你就爽了，通过修改其为其他函数地址（如one_gadget），malloc函数检查到&lt;code&gt;__malloc_hook&lt;/code&gt;被设置后转向该hook函数进行“自定义”的malloc内存分配，即开了一个shell。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
+    
+    
+      <category term="heap" scheme="https://thonsun.github.io/tags/heap/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Double Free利用解释</title>
+    <link href="https://thonsun.github.io/2019/07/17/double-free-li-yong-jie-shi/"/>
+    <id>https://thonsun.github.io/2019/07/17/double-free-li-yong-jie-shi/</id>
+    <published>2019-07-17T00:29:20.000Z</published>
+    <updated>2020-12-16T09:22:17.161Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot; class=&quot;headerlink&quot; title=&quot;摘要&quot;&gt;&lt;/a&gt;摘要&lt;/h3&gt;&lt;p&gt;​    记录一道Double Free的利用手法，利用Double Free转为UAF达到控制程序流程目的。基本的思想一般是利用大小在fast_bin范围内的内存块间的错误解析，利用Double Free在fast_bin单向列表（后释放的在链表头，即LIFO的精确匹配分配）存放两个相同的内存块（Double free）A2-&amp;gt;B-&amp;gt;A1,在后面的malloc拿走A2,利用A2写入func_pointer，再一次malloc拿走B，在一次malloc一个包含函数调用指针的内存块，通过A2修改的指针已经覆盖了A1的函数指针，此时调用A1-&amp;gt;func即运行写入的func_pointer。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
+    
+    
+      <category term="heap" scheme="https://thonsun.github.io/tags/heap/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>pwntools连gdb调试脚本</title>
+    <link href="https://thonsun.github.io/2019/07/17/pwntools-lian-gdb-diao-shi-jiao-ben/"/>
+    <id>https://thonsun.github.io/2019/07/17/pwntools-lian-gdb-diao-shi-jiao-ben/</id>
+    <published>2019-07-17T00:26:44.000Z</published>
+    <updated>2020-12-16T09:41:28.486Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot; class=&quot;headerlink&quot; title=&quot;摘要&quot;&gt;&lt;/a&gt;摘要&lt;/h3&gt;&lt;p&gt;​    缘起于要了解pwntools编写exp脚本通过send或者sendline发送给二进制程序后，结合gdb调试此刻程序的运行状态，如堆分布。但通过下断点在程序手工输入payload未免太麻烦（也可以说是调试payload吧）。调试的效果如下&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
+    
+    
+      <category term="pwn basic" scheme="https://thonsun.github.io/tags/pwn-basic/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>自选择glibc带符号版本调试</title>
+    <link href="https://thonsun.github.io/2019/07/15/zi-xuan-ze-glibc-dai-fu-hao-ban-ben-diao-shi/"/>
+    <id>https://thonsun.github.io/2019/07/15/zi-xuan-ze-glibc-dai-fu-hao-ban-ben-diao-shi/</id>
+    <published>2019-07-15T13:37:58.000Z</published>
+    <updated>2020-12-16T09:19:24.041Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot; class=&quot;headerlink&quot; title=&quot;摘要&quot;&gt;&lt;/a&gt;摘要&lt;/h3&gt;&lt;p&gt;​    在学习堆内存管理器ptmalloc，想深入的了解各版本的glibc库在malloc,free中做的判断与安全保护（如double free的检测），挖掘一些glibc的漏洞与绕过手法，深入调试带符号的Glibc版本是有必要的（感觉上），在安装环境过程中，发现百度，Google在这方面的资料是在过于匮乏与过时，在此记录一些我在从下载对应版本Glibc库-&amp;gt; 编译带符号glibc库-&amp;gt; 修改当前程序loader-&amp;gt; gdb的lay src源码窗口调试的过程。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
+    
+    
+      <category term="pwn basic" scheme="https://thonsun.github.io/tags/pwn-basic/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>markdown使用</title>
+    <link href="https://thonsun.github.io/2019/06/29/markdown-shi-yong/"/>
+    <id>https://thonsun.github.io/2019/06/29/markdown-shi-yong/</id>
+    <published>2019-06-29T13:26:11.000Z</published>
+    <updated>2020-12-16T09:32:57.468Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;typora的常用markdown语法&quot;&gt;&lt;a href=&quot;#typora的常用markdown语法&quot; class=&quot;headerlink&quot; title=&quot;typora的常用markdown语法&quot;&gt;&lt;/a&gt;typora的常用markdown语法&lt;/h3&gt;
+    
+    </summary>
+    
+    
+      <category term="tools" scheme="https://thonsun.github.io/tags/tools/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>linux下栈溢出的利用手法</title>
+    <link href="https://thonsun.github.io/2019/06/29/linux-xia-zhan-yi-chu-de-li-yong-shou-fa/"/>
+    <id>https://thonsun.github.io/2019/06/29/linux-xia-zhan-yi-chu-de-li-yong-shou-fa/</id>
+    <published>2019-06-29T06:32:03.000Z</published>
+    <updated>2020-12-16T09:32:52.376Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;linux下pwn的入门环境&quot;&gt;&lt;a href=&quot;#linux下pwn的入门环境&quot; class=&quot;headerlink&quot; title=&quot;linux下pwn的入门环境&quot;&gt;&lt;/a&gt;linux下pwn的入门环境&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;Ubuntu16.04&lt;/li&gt;
+&lt;li&gt;pwntools&lt;/li&gt;
+&lt;li&gt;pwndbg&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;即开始pwn的旅程，GitHub上 有在Ubuntu16.04上面一键布置的bash脚本&lt;/p&gt;
+&lt;h3 id=&quot;熟悉linux下的常用命令&quot;&gt;&lt;a href=&quot;#熟悉linux下的常用命令&quot; class=&quot;headerlink&quot; title=&quot;熟悉linux下的常用命令&quot;&gt;&lt;/a&gt;熟悉linux下的常用命令&lt;/h3&gt;&lt;pre&gt;&lt;code class=&quot;shell&quot;&gt;# 可以安装使用terminator分屏
+ctrl+a ctrl+e # 回退左部，右部
+ctrl+shift+c ctrl+shift+v # 控制台复制与粘贴
+ctrl+l #清屏
+
+file xxx
+checksec xxx
+cyclic create 100
+cyclic -l xxxx #定位溢出点&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;虚拟机一些使用技巧&quot;&gt;&lt;a href=&quot;#虚拟机一些使用技巧&quot; class=&quot;headerlink&quot; title=&quot;虚拟机一些使用技巧&quot;&gt;&lt;/a&gt;虚拟机一些使用技巧&lt;/h3&gt;
+    
+    </summary>
+    
+      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
+    
+    
+      <category term="stack" scheme="https://thonsun.github.io/tags/stack/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>hexo便捷网站配置</title>
+    <link href="https://thonsun.github.io/2019/06/28/hexo-bian-jie-wang-zhan-pei-zhi/"/>
+    <id>https://thonsun.github.io/2019/06/28/hexo-bian-jie-wang-zhan-pei-zhi/</id>
+    <published>2019-06-28T13:04:12.000Z</published>
+    <updated>2020-12-16T09:29:57.177Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;本地新建md文章&quot;&gt;&lt;a href=&quot;#本地新建md文章&quot; class=&quot;headerlink&quot; title=&quot;本地新建md文章&quot;&gt;&lt;/a&gt;本地新建md文章&lt;/h3&gt;&lt;pre&gt;&lt;code class=&quot;shell&quot;&gt;# 在hexo 配置好的路经打开窗口
+# D:\MarkdownFiles\blog\source
+
+hexo new &quot;my aticle name&quot;
+# 此时会在博客目录下生成一个./_post/atcitle_name.md的markdown文件，通常就是用typora等markdown编辑器编辑这个文件下的博客文章
+# markdown的语法与hexo的文章格式
+# 以下所有命令都在blog的根目录下运行&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;hexo加密文章&quot;&gt;&lt;a href=&quot;#hexo加密文章&quot; class=&quot;headerlink&quot; title=&quot;hexo加密文章&quot;&gt;&lt;/a&gt;hexo加密文章&lt;/h3&gt;&lt;p&gt;未写完&amp;amp;私密记录分享&lt;/p&gt;
+&lt;p&gt;1.安装插件：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;npm install --save hexo-blog-encrypt&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;2.修改配置 &lt;code&gt;_config.yml&lt;/code&gt; 中启用该插件:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# Security
+##
+encrypt:
+    enable: true&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;3.文章配置&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;---
+title: hello world
+date: 2016-03-30 21:18:02
+tags:
+    - fdsfadsfa
+    - fdsafsdaf
+password: Mike
+abstract: Welcome to my blog, enter password to read.
+message: Welcome to my blog, enter password to read.
+---&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;
+&lt;li&gt;password: 是该博客加密使用的密码&lt;/li&gt;
+&lt;li&gt;abstract: 是该博客的摘要，会显示在博客的列表页&lt;/li&gt;
+&lt;li&gt;message: 这个是博客查看时，密码输入框上面的描述性文字&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;发布到github&quot;&gt;&lt;a href=&quot;#发布到github&quot; class=&quot;headerlink&quot; title=&quot;发布到github&quot;&gt;&lt;/a&gt;发布到github&lt;/h3&gt;&lt;pre&gt;&lt;code class=&quot;shell&quot;&gt;hexo clean 每当有站点、主题的配置更新时刷新所有文件格式
+hexo g # 生成静态的文件
+hexo d # push到github进行展示
+# hexo g -d
+#  hexo s --debug 本地调试样式localhost:4000
+
+# 配置hexo 免密发布
+# 1. add github ssh key;测试 ssh -T git@github.com
+# 2. 编辑_config.yml文件，修改文件里面的deploy，
+deploy:
+type: git
+repo: git@github.com:mykonons/mykonons.github.io.git
+branch: master&lt;/code&gt;&lt;/pre&gt;
+    
+    </summary>
+    
+      <category term="tools" scheme="https://thonsun.github.io/categories/tools/"/>
+    
+    
+      <category term="工具使用" scheme="https://thonsun.github.io/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/"/>
+    
+      <category term="blog" scheme="https://thonsun.github.io/tags/blog/"/>
+    
+  </entry>
+  
+</feed>

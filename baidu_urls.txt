@@ -1,0 +1,10 @@
+https://thonsun.github.io/2020/12/04/huan-jing-pei-zhi/
+https://thonsun.github.io/2019/12/28/cong-an-zhuang-di-san-fang-ruan-jian-xue-xi-ubuntu-pei-zhi/
+https://thonsun.github.io/2019/10/23/useful-trick-for-linuxs-work/
+https://thonsun.github.io/2019/09/20/redhat-ji-ben-shi-yong/
+https://thonsun.github.io/2019/07/27/lief-zai-ctfpatch-chang-yong-api/
+https://thonsun.github.io/2019/07/25/unlink-li-yong-jie-shao/
+https://thonsun.github.io/2019/07/24/off-by-one-li-yong-yuan-li/
+https://thonsun.github.io/2019/07/22/linux-an-quan-ji-zhi/
+https://thonsun.github.io/2019/07/20/glibc-heap-pwn-notes/
+https://thonsun.github.io/2019/07/19/fast-bin-attack-li-yong-jie-shi/
