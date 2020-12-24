@@ -95,29 +95,6 @@
   </entry>
   
   <entry>
-    <title>环境配置</title>
-    <link href="https://thonsun.github.io/2020/12/04/huan-jing-pei-zhi/"/>
-    <id>https://thonsun.github.io/2020/12/04/huan-jing-pei-zhi/</id>
-    <published>2020-12-04T11:59:38.000Z</published>
-    <updated>2020-12-16T09:06:54.700Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;整理常用的win | linux环境，包括开发用环境：Jetbrain全家桶crack过程；&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="环境配置" scheme="https://thonsun.github.io/categories/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"/>
-    
-    
-      <category term="环境配置" scheme="https://thonsun.github.io/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"/>
-    
-  </entry>
-  
-  <entry>
     <title>JavaSec jndi注入利用分析</title>
     <link href="https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/</id>
@@ -270,6 +247,29 @@
     
     </summary>
     
+    
+  </entry>
+  
+  <entry>
+    <title>环境配置</title>
+    <link href="https://thonsun.github.io/2019/12/29/huan-jing-pei-zhi/"/>
+    <id>https://thonsun.github.io/2019/12/29/huan-jing-pei-zhi/</id>
+    <published>2019-12-29T11:59:38.000Z</published>
+    <updated>2020-12-24T13:47:08.885Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;整理常用的win | linux环境，包括开发用环境：Jetbrain全家桶crack过程；&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="环境配置" scheme="https://thonsun.github.io/categories/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"/>
+    
+    
+      <category term="环境配置" scheme="https://thonsun.github.io/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"/>
     
   </entry>
   

@@ -43,31 +43,6 @@
     
     
     <entry>
-      <title>环境配置</title>
-      <link href="/2020/12/04/huan-jing-pei-zhi/"/>
-      <url>/2020/12/04/huan-jing-pei-zhi/</url>
-      
-        <content type="html"><![CDATA[<blockquote><p>使用电脑浏览效果更佳！</p></blockquote><p>整理常用的win | linux环境，包括开发用环境：Jetbrain全家桶crack过程；</p><a id="more"></a><h2 id="Jetbrains全家桶"><a href="#Jetbrains全家桶" class="headerlink" title="Jetbrains全家桶"></a>Jetbrains全家桶</h2><ol><li>关注最新的 <a href="https://github.com/wenyanjun/free" target="_blank" rel="noopener">refer</a> 【重要】</li></ol><p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201204200403.png" alt=""></p><p>2.以IDEA为例</p><p>2.1 官网下载对应版本 2020.2.2并安装</p><p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201204200802.png" alt=""></p><p>2.2 禁止IDEA联网,以win为列【重要】</p><p>hosts：</p><pre><code>127.0.0.1 fls.jetbrains-agent.com0.0.0.0 account.jetbrains.com</code></pre><p>防火墙规则</p><p>win+r -&gt; <code>wf.msc</code> -&gt; 出站规则 -&gt; 右键新建</p><p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201204201209.png" alt=""></p><p>2.3选择evlate free try 30进入编辑界面 ，将最新的java-agent.jar拖入，重启，填入参数，code即可</p><p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201204201356.png" alt=""></p><h2 id="xmind"><a href="#xmind" class="headerlink" title="xmind"></a>xmind</h2><blockquote><p><a href="http://www.52pjb.net/xiazai/image/894.html" target="_blank" rel="noopener">refer</a></p></blockquote><script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
-      
-      
-      <categories>
-          
-          <category> 环境配置 </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> 环境配置 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>JavaSec jndi注入利用分析</title>
       <link href="/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/"/>
       <url>/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/</url>
@@ -140,6 +115,31 @@
         <content type="html"><![CDATA[<script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
       
       
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>环境配置</title>
+      <link href="/2019/12/29/huan-jing-pei-zhi/"/>
+      <url>/2019/12/29/huan-jing-pei-zhi/</url>
+      
+        <content type="html"><![CDATA[<blockquote><p>使用电脑浏览效果更佳！</p></blockquote><p>整理常用的win | linux环境，包括开发用环境：Jetbrain全家桶crack过程；</p><a id="more"></a><h2 id="Jetbrains全家桶"><a href="#Jetbrains全家桶" class="headerlink" title="Jetbrains全家桶"></a>Jetbrains全家桶</h2><ol><li>关注最新的 <a href="https://github.com/wenyanjun/free" target="_blank" rel="noopener">refer</a> 【重要】</li></ol><p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201204200403.png" alt=""></p><p>2.以IDEA为例</p><p>2.1 官网下载对应版本 2020.2.2并安装</p><p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201204200802.png" alt=""></p><p>2.2 禁止IDEA联网,以win为列【重要】</p><p>hosts：</p><pre><code>127.0.0.1 fls.jetbrains-agent.com0.0.0.0 account.jetbrains.com</code></pre><p>防火墙规则</p><p>win+r -&gt; <code>wf.msc</code> -&gt; 出站规则 -&gt; 右键新建</p><p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201204201209.png" alt=""></p><p>2.3选择evlate free try 30进入编辑界面 ，将最新的java-agent.jar拖入，重启，填入参数，code即可</p><p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/20201204201356.png" alt=""></p><h2 id="xmind"><a href="#xmind" class="headerlink" title="xmind"></a>xmind</h2><blockquote><p><a href="http://www.52pjb.net/xiazai/image/894.html" target="_blank" rel="noopener">refer</a></p></blockquote><script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
+      
+      
+      <categories>
+          
+          <category> 环境配置 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 环境配置 </tag>
+            
+        </tags>
       
     </entry>
     
