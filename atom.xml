@@ -45,7 +45,7 @@
     <link href="https://thonsun.github.io/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/"/>
     <id>https://thonsun.github.io/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/</id>
     <published>2020-12-24T13:18:11.000Z</published>
-    <updated>2020-12-25T11:28:44.207Z</updated>
+    <updated>2020-12-25T19:22:17.636Z</updated>
     
     <summary type="html">
     
@@ -61,10 +61,6 @@
     
       <category term="漏洞复现" scheme="https://thonsun.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
     
-    
-      <category term="CVE" scheme="https://thonsun.github.io/tags/CVE/"/>
-    
-      <category term="Mybatis" scheme="https://thonsun.github.io/tags/Mybatis/"/>
     
   </entry>
   
