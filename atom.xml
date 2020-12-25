@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://thonsun.github.io/"/>
-  <updated>2020-12-24T13:44:25.865Z</updated>
+  <updated>2020-12-25T09:28:22.543Z</updated>
   <id>https://thonsun.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://thonsun.github.io/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/"/>
     <id>https://thonsun.github.io/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/</id>
     <published>2020-12-24T13:18:11.000Z</published>
-    <updated>2020-12-24T13:44:25.865Z</updated>
+    <updated>2020-12-25T09:28:22.543Z</updated>
     
     <summary type="html">
     
@@ -73,7 +73,7 @@
     <link href="https://thonsun.github.io/2020/12/04/rmi-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/04/rmi-li-yong-fen-xi/</id>
     <published>2020-12-04T12:52:13.000Z</published>
-    <updated>2020-12-24T13:44:02.087Z</updated>
+    <updated>2020-12-25T11:04:55.027Z</updated>
     
     <summary type="html">
     
@@ -81,15 +81,13 @@
       
         
         
-          &lt;script&gt;
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return; }
-       
+          &lt;p&gt;在《JNDI注入利用分析》中支持，JNDI支持访问多种命名与目录服务，其中就有利用RMI达成RCE的目的。RMI（Remote Method
         
       
     
     </summary>
+    
+      <category term="javasec" scheme="https://thonsun.github.io/categories/javasec/"/>
     
     
   </entry>
@@ -99,7 +97,7 @@
     <link href="https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/</id>
     <published>2020-12-02T12:52:02.000Z</published>
-    <updated>2020-12-24T13:43:51.161Z</updated>
+    <updated>2020-12-25T03:04:13.641Z</updated>
     
     <summary type="html">
     
@@ -107,15 +105,15 @@
       
         
         
-          &lt;script&gt;
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return; }
+          &lt;p&gt;在fastjson反序列化漏洞利用的学习中引出了JNDI的利用攻击方式，JNDI(Java Naming and Directory Interface)实际可以理解为一个编程接口，&lt;/p&gt;
+&lt;script&gt;
        
         
       
     
     </summary>
+    
+      <category term="javasec" scheme="https://thonsun.github.io/categories/javasec/"/>
     
     
   </entry>
