@@ -75,7 +75,7 @@
     <link href="https://thonsun.github.io/2020/12/04/rmi-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/04/rmi-li-yong-fen-xi/</id>
     <published>2020-12-04T12:52:13.000Z</published>
-    <updated>2020-12-25T11:15:58.853Z</updated>
+    <updated>2020-12-25T15:01:24.783Z</updated>
     
     <summary type="html">
     
@@ -99,7 +99,7 @@
     <link href="https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/</id>
     <published>2020-12-02T12:52:02.000Z</published>
-    <updated>2020-12-25T03:04:13.641Z</updated>
+    <updated>2020-12-25T19:09:03.096Z</updated>
     
     <summary type="html">
     
@@ -107,9 +107,7 @@
       
         
         
-          &lt;p&gt;在fastjson反序列化漏洞利用的学习中引出了JNDI的利用攻击方式，JNDI(Java Naming and Directory Interface)实际可以理解为一个编程接口，&lt;/p&gt;
-&lt;script&gt;
-       
+          &lt;p&gt;在fastjson反序列化漏洞利用的学习中引出了JNDI的利用攻击方式，JNDI(Java Naming and Directory
         
       
     
