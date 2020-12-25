@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>JaveSec javaagent技术研究</title>
+      <link href="/2020/12/26/javaagent-ji-zhu-yan-jiu/"/>
+      <url>/2020/12/26/javaagent-ji-zhu-yan-jiu/</url>
+      
+        <content type="html"><![CDATA[<p>JVMTI （JVM Tool  Interface）是Java虚拟机对外提供的Native编程接口，通过JVMTI，外部进程可以获取到运行时JVM的诸多信息，比如线程、GC等。Agent是一个运行在目标JVM的特定程序，它的职责是负责从目标JVM中获取数据，然后将数据传递给外部进程。加载Agent的时机可以是目标JVM启动之时，也可以是在目标JVM运行时进行加载，而在目标JVM运行时进行Agent加载具备动态性，对于时机未知的Debug场景来说非常实用。下面将详细分析Java Agent技术的实现细节。</p><script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
+      
+      
+      <categories>
+          
+          <category> JavaSec </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CVE-2020-26945 Mybatis远程代码执行漏洞复现</title>
       <link href="/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/"/>
       <url>/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/</url>
@@ -35,8 +54,14 @@
       <link href="/2020/12/10/tomcat-nei-cun-webshell-fen-xi/"/>
       <url>/2020/12/10/tomcat-nei-cun-webshell-fen-xi/</url>
       
-        <content type="html"><![CDATA[<script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
+        <content type="html"><![CDATA[<p>随着各种JAVA指定环境RCE漏洞的出现，Java  Web的安全逐渐被人们所重视，与漏洞相关的还有用于后期维持权限的Webshell。与PHP不同的是，JSP的语言特性较为严格，属于强类型语言，并且在JDK9以前并没有所谓的eval函数。一般而言JSP的变形免杀较为困难，但是依旧存在很多的”黑魔法”。</p><script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
       
+      
+      <categories>
+          
+          <category> JavaSec </category>
+          
+      </categories>
       
       
     </entry>

@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://thonsun.github.io/"/>
-  <updated>2020-12-25T11:28:44.207Z</updated>
+  <updated>2020-12-25T19:14:26.663Z</updated>
   <id>https://thonsun.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>JaveSec javaagent技术研究</title>
+    <link href="https://thonsun.github.io/2020/12/26/javaagent-ji-zhu-yan-jiu/"/>
+    <id>https://thonsun.github.io/2020/12/26/javaagent-ji-zhu-yan-jiu/</id>
+    <published>2020-12-25T19:13:08.000Z</published>
+    <updated>2020-12-25T19:14:26.663Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;JVMTI （JVM Tool 
+        
+      
+    
+    </summary>
+    
+      <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>CVE-2020-26945 Mybatis远程代码执行漏洞复现</title>
@@ -49,7 +73,7 @@
     <link href="https://thonsun.github.io/2020/12/10/tomcat-nei-cun-webshell-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/10/tomcat-nei-cun-webshell-fen-xi/</id>
     <published>2020-12-10T13:24:24.000Z</published>
-    <updated>2020-12-24T13:44:13.942Z</updated>
+    <updated>2020-12-25T19:18:44.491Z</updated>
     
     <summary type="html">
     
@@ -57,15 +81,13 @@
       
         
         
-          &lt;script&gt;
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return; }
-       
+          &lt;p&gt;随着各种JAVA指定环境RCE漏洞的出现，Java 
         
       
     
     </summary>
+    
+      <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
     
     
   </entry>
@@ -482,29 +504,6 @@
 &lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h3 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot; class=&quot;headerlink&quot; title=&quot;摘要&quot;&gt;&lt;/a&gt;摘要&lt;/h3&gt;&lt;p&gt;​        主要通过Double Free在fast binY单链中存在两个指向同一内存块的指针，可能的排布（A2-&amp;gt;B-A1）,第一次malloc该大小拿到A2指向该chunk,向其数据data写入&lt;code&gt;__malloc_hook&lt;/code&gt;的地址（同时也修改了A1的fd,即也在该大小的fast bin的尾部增加了一个地址为&lt;code&gt;__malloc_hook&lt;/code&gt;的内存chunk[fake chunk]）,所以当依次拿掉B,A1后，在malloc一次即可获取到指向&lt;code&gt;__malloc_hook&lt;/code&gt;地址的指针，这时候你就爽了，通过修改其为其他函数地址（如one_gadget），malloc函数检查到&lt;code&gt;__malloc_hook&lt;/code&gt;被设置后转向该hook函数进行“自定义”的malloc内存分配，即开了一个shell。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
-    
-    
-      <category term="heap" scheme="https://thonsun.github.io/tags/heap/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Double Free利用解释</title>
-    <link href="https://thonsun.github.io/2019/07/17/double-free-li-yong-jie-shi/"/>
-    <id>https://thonsun.github.io/2019/07/17/double-free-li-yong-jie-shi/</id>
-    <published>2019-07-17T00:29:20.000Z</published>
-    <updated>2020-12-16T09:22:17.161Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h3 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot; class=&quot;headerlink&quot; title=&quot;摘要&quot;&gt;&lt;/a&gt;摘要&lt;/h3&gt;&lt;p&gt;​    记录一道Double Free的利用手法，利用Double Free转为UAF达到控制程序流程目的。基本的思想一般是利用大小在fast_bin范围内的内存块间的错误解析，利用Double Free在fast_bin单向列表（后释放的在链表头，即LIFO的精确匹配分配）存放两个相同的内存块（Double free）A2-&amp;gt;B-&amp;gt;A1,在后面的malloc拿走A2,利用A2写入func_pointer，再一次malloc拿走B，在一次malloc一个包含函数调用指针的内存块，通过A2修改的指针已经覆盖了A1的函数指针，此时调用A1-&amp;gt;func即运行写入的func_pointer。&lt;/p&gt;
     
     </summary>
     
