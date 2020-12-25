@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://thonsun.github.io/"/>
-  <updated>2020-12-25T09:28:22.543Z</updated>
+  <updated>2020-12-25T11:28:44.207Z</updated>
   <id>https://thonsun.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://thonsun.github.io/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/"/>
     <id>https://thonsun.github.io/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/</id>
     <published>2020-12-24T13:18:11.000Z</published>
-    <updated>2020-12-25T09:28:22.543Z</updated>
+    <updated>2020-12-25T11:28:44.207Z</updated>
     
     <summary type="html">
     
@@ -29,16 +29,18 @@
       
         
         
-          &lt;script&gt;
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return; }
-       
+          &lt;h2 id=&quot;一、简介&quot;&gt;&lt;a href=&quot;#一、简介&quot; class=&quot;headerlink&quot; title=&quot;一、简介&quot;&gt;&lt;/a&gt;一、简介&lt;/h2&gt;&lt;p&gt;MyBatis 本是Apache的一个开源项目iBatis, 2010年这个项目由Apache Software
         
       
     
     </summary>
     
+      <category term="漏洞复现" scheme="https://thonsun.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
+    
+    
+      <category term="CVE" scheme="https://thonsun.github.io/tags/CVE/"/>
+    
+      <category term="Mybatis" scheme="https://thonsun.github.io/tags/Mybatis/"/>
     
   </entry>
   
@@ -73,7 +75,7 @@
     <link href="https://thonsun.github.io/2020/12/04/rmi-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/04/rmi-li-yong-fen-xi/</id>
     <published>2020-12-04T12:52:13.000Z</published>
-    <updated>2020-12-25T11:04:55.027Z</updated>
+    <updated>2020-12-25T11:15:58.853Z</updated>
     
     <summary type="html">
     
