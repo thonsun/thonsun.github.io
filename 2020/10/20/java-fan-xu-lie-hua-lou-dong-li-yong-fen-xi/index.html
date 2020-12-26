@@ -698,7 +698,7 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        3.4k
+                        3.5k
                     </div>
                     
 
@@ -1131,7 +1131,7 @@ AnnotationInvocationHandler<span class="token punctuation">.</span><span class="
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>虽然JDK1.8u1之后的<code>AnnotationInvocationHandler.readObject()</code>还有对<code>AnnotationInvocationHandler</code>的map进行get操作</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201226145008097.png" alt="image-20201226145008097"></p>
-<p>但是若该序列化AnnotationInvocationHandler对象的时候，LazyMap触发get回调是get不到key对应的值，map没有任何内容是不会将它的类型信息写入到序列化字节流中。</p>
+<p>但是若该序列化AnnotationInvocationHandler对象的时候，LazyMap触发get回调是get不到key对应的值，map没有任何内容是不会将它的类型信息写入到序列化字节流中。且map在取出Entry被强制转化为Entry类型，在getValue时候没有不会触发，即没有再对map(LazyMap)直接的get 与 set了</p>
 <p>分析ysoserial的利用是，AnnotationInvocationHandler其实是一个代理handler，在invoke有对map的get操作，触发transformer</p>
 <pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">package</span> org<span class="token punctuation">.</span>sec<span class="token punctuation">.</span>cc04<span class="token punctuation">;</span>
 
