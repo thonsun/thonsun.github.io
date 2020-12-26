@@ -163,11 +163,11 @@
   </entry>
   
   <entry>
-    <title>JavaSec Fastjson反序列漏洞攻防历史</title>
-    <link href="https://thonsun.github.io/2020/11/10/fastjson-fan-xu-lie-lou-dong-gong-fang-li-shi/"/>
-    <id>https://thonsun.github.io/2020/11/10/fastjson-fan-xu-lie-lou-dong-gong-fang-li-shi/</id>
+    <title>JavaSec Fastjson反序列漏洞复现</title>
+    <link href="https://thonsun.github.io/2020/11/10/fastjson-fan-xu-lie-lou-dong-fu-xian/"/>
+    <id>https://thonsun.github.io/2020/11/10/fastjson-fan-xu-lie-lou-dong-fu-xian/</id>
     <published>2020-11-10T13:23:29.000Z</published>
-    <updated>2020-12-24T13:43:13.411Z</updated>
+    <updated>2020-12-26T07:02:07.999Z</updated>
     
     <summary type="html">
     
@@ -215,11 +215,11 @@
   </entry>
   
   <entry>
-    <title>JavaSec Jackjson反序列漏洞攻防历史</title>
-    <link href="https://thonsun.github.io/2020/10/24/jackjson-fan-xu-lie-lou-dong-gong-fang-li-shi/"/>
-    <id>https://thonsun.github.io/2020/10/24/jackjson-fan-xu-lie-lou-dong-gong-fang-li-shi/</id>
+    <title>JavaSec Jackjson反序列漏洞复现</title>
+    <link href="https://thonsun.github.io/2020/10/24/jackjson-fan-xu-lie-lou-dong-fu-xian/"/>
+    <id>https://thonsun.github.io/2020/10/24/jackjson-fan-xu-lie-lou-dong-fu-xian/</id>
     <published>2020-10-24T13:23:59.000Z</published>
-    <updated>2020-12-24T13:42:56.633Z</updated>
+    <updated>2020-12-26T07:01:41.741Z</updated>
     
     <summary type="html">
     
