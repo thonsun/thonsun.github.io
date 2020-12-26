@@ -47,7 +47,7 @@
     <link href="https://thonsun.github.io/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/"/>
     <id>https://thonsun.github.io/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/</id>
     <published>2020-12-24T13:18:11.000Z</published>
-    <updated>2020-12-26T02:18:23.236Z</updated>
+    <updated>2020-12-26T08:37:51.370Z</updated>
     
     <summary type="html">
     
@@ -63,6 +63,8 @@
     
       <category term="漏洞复现" scheme="https://thonsun.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
     
+    
+      <category term="漏洞复现" scheme="https://thonsun.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
     
   </entry>
   
@@ -149,7 +151,7 @@
     <link href="https://thonsun.github.io/2020/11/20/fastjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/"/>
     <id>https://thonsun.github.io/2020/11/20/fastjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/</id>
     <published>2020-11-20T13:23:15.000Z</published>
-    <updated>2020-12-26T07:46:00.261Z</updated>
+    <updated>2020-12-26T09:31:07.863Z</updated>
     
     <summary type="html">
     
@@ -175,7 +177,7 @@
     <link href="https://thonsun.github.io/2020/11/10/fastjson-fan-xu-lie-lou-dong-fu-xian/"/>
     <id>https://thonsun.github.io/2020/11/10/fastjson-fan-xu-lie-lou-dong-fu-xian/</id>
     <published>2020-11-10T13:23:29.000Z</published>
-    <updated>2020-12-26T08:19:01.020Z</updated>
+    <updated>2020-12-26T08:35:47.669Z</updated>
     
     <summary type="html">
     
@@ -183,7 +185,8 @@
       
         
         
-          &lt;p&gt;在《JavaSec
+          &lt;p&gt;在《JavaSec FastJson反序列化漏洞利用原理》中分析了FastJson的反序列化漏洞成因，也总结了FastJson的反序列化利用方式，这里将复现一些有关FastJson的漏洞利用，以清晰了解FastJson的漏洞发展史，从中吸取攻防经验。&lt;/p&gt;
+&lt;h2
         
       
     
@@ -201,7 +204,7 @@
     <link href="https://thonsun.github.io/2020/11/02/jackjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/"/>
     <id>https://thonsun.github.io/2020/11/02/jackjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/</id>
     <published>2020-11-02T13:23:43.000Z</published>
-    <updated>2020-12-26T08:19:32.736Z</updated>
+    <updated>2020-12-26T08:36:10.373Z</updated>
     
     <summary type="html">
     
@@ -227,7 +230,7 @@
     <link href="https://thonsun.github.io/2020/10/24/jackjson-fan-xu-lie-lou-dong-fu-xian/"/>
     <id>https://thonsun.github.io/2020/10/24/jackjson-fan-xu-lie-lou-dong-fu-xian/</id>
     <published>2020-10-24T13:23:59.000Z</published>
-    <updated>2020-12-26T08:20:07.743Z</updated>
+    <updated>2020-12-26T08:26:20.353Z</updated>
     
     <summary type="html">
     
@@ -236,8 +239,7 @@
         
         
           &lt;p&gt;在《JavaSec Jackson反序列化漏洞原理》中分析Jackson反序列化漏洞的成因，也总结了一些了Jackson的反序列化漏洞利用方式，这里将以Jackson的漏洞复现为主，以理清Jackson的漏洞发展史，从中吸取一些攻防经验。&lt;/p&gt;
-&lt;script&gt;
-   
+&lt;h2
         
       
     
