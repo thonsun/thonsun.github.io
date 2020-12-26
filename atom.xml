@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://thonsun.github.io/"/>
-  <updated>2020-12-25T19:14:26.663Z</updated>
+  <updated>2020-12-26T07:32:29.103Z</updated>
   <id>https://thonsun.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://thonsun.github.io/2020/12/26/javaagent-ji-zhu-yan-jiu/"/>
     <id>https://thonsun.github.io/2020/12/26/javaagent-ji-zhu-yan-jiu/</id>
     <published>2020-12-25T19:13:08.000Z</published>
-    <updated>2020-12-25T19:14:26.663Z</updated>
+    <updated>2020-12-26T07:32:29.103Z</updated>
     
     <summary type="html">
     
@@ -37,6 +37,8 @@
     
       <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
     
+    
+      <category term="JavaSec" scheme="https://thonsun.github.io/tags/JavaSec/"/>
     
   </entry>
   
@@ -69,7 +71,7 @@
     <link href="https://thonsun.github.io/2020/12/10/tomcat-nei-cun-webshell-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/10/tomcat-nei-cun-webshell-fen-xi/</id>
     <published>2020-12-10T13:24:24.000Z</published>
-    <updated>2020-12-26T07:03:02.525Z</updated>
+    <updated>2020-12-26T07:32:46.384Z</updated>
     
     <summary type="html">
     
@@ -86,6 +88,8 @@
       <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
     
     
+      <category term="JavaSec" scheme="https://thonsun.github.io/tags/JavaSec/"/>
+    
   </entry>
   
   <entry>
@@ -93,7 +97,7 @@
     <link href="https://thonsun.github.io/2020/12/04/rmi-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/04/rmi-li-yong-fen-xi/</id>
     <published>2020-12-04T12:52:13.000Z</published>
-    <updated>2020-12-25T19:20:54.788Z</updated>
+    <updated>2020-12-26T07:33:13.848Z</updated>
     
     <summary type="html">
     
@@ -101,7 +105,7 @@
       
         
         
-          &lt;p&gt;在《JNDI注入利用分析》中支持，JNDI支持访问多种命名与目录服务，其中就有利用RMI达成RCE的目的。RMI（Remote Method
+          &lt;p&gt;在《JavaSec JNDI注入利用分析》中JNDI支持访问多种命名与目录服务，其中就有利用RMI达成RCE的目的。RMI（Remote Method
         
       
     
@@ -110,6 +114,8 @@
       <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
     
     
+      <category term="JavaSec" scheme="https://thonsun.github.io/tags/JavaSec/"/>
+    
   </entry>
   
   <entry>
@@ -117,7 +123,7 @@
     <link href="https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/</id>
     <published>2020-12-02T12:52:02.000Z</published>
-    <updated>2020-12-25T19:21:05.717Z</updated>
+    <updated>2020-12-26T07:32:40.232Z</updated>
     
     <summary type="html">
     
@@ -134,6 +140,8 @@
       <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
     
     
+      <category term="JavaSec" scheme="https://thonsun.github.io/tags/JavaSec/"/>
+    
   </entry>
   
   <entry>
@@ -141,7 +149,7 @@
     <link href="https://thonsun.github.io/2020/11/20/fastjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/"/>
     <id>https://thonsun.github.io/2020/11/20/fastjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/</id>
     <published>2020-11-20T13:23:15.000Z</published>
-    <updated>2020-12-26T07:02:33.087Z</updated>
+    <updated>2020-12-26T07:46:00.261Z</updated>
     
     <summary type="html">
     
@@ -149,11 +157,7 @@
       
         
         
-          &lt;script&gt;
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return; }
-       
+          &lt;p&gt;在上篇《JavaSec Java反序列化漏洞利用》中指出，不安全的输入字节流参与甚至改变了程序的执行流是Java反序列化漏洞利用的成因，对于从字节序列反向实例化对象除了Java
         
       
     
@@ -161,6 +165,8 @@
     
       <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
     
+    
+      <category term="JavaSec" scheme="https://thonsun.github.io/tags/JavaSec/"/>
     
   </entry>
   
@@ -169,7 +175,7 @@
     <link href="https://thonsun.github.io/2020/11/10/fastjson-fan-xu-lie-lou-dong-fu-xian/"/>
     <id>https://thonsun.github.io/2020/11/10/fastjson-fan-xu-lie-lou-dong-fu-xian/</id>
     <published>2020-11-10T13:23:29.000Z</published>
-    <updated>2020-12-26T07:02:26.620Z</updated>
+    <updated>2020-12-26T08:19:01.020Z</updated>
     
     <summary type="html">
     
@@ -177,11 +183,7 @@
       
         
         
-          &lt;script&gt;
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return; }
-       
+          &lt;p&gt;在《JavaSec
         
       
     
@@ -189,6 +191,8 @@
     
       <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
     
+    
+      <category term="JavaSec" scheme="https://thonsun.github.io/tags/JavaSec/"/>
     
   </entry>
   
@@ -197,7 +201,7 @@
     <link href="https://thonsun.github.io/2020/11/02/jackjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/"/>
     <id>https://thonsun.github.io/2020/11/02/jackjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/</id>
     <published>2020-11-02T13:23:43.000Z</published>
-    <updated>2020-12-26T07:02:39.635Z</updated>
+    <updated>2020-12-26T08:19:32.736Z</updated>
     
     <summary type="html">
     
@@ -205,11 +209,7 @@
       
         
         
-          &lt;script&gt;
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return; }
-       
+          &lt;p&gt;在上篇《JavaSec
         
       
     
@@ -217,6 +217,8 @@
     
       <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
     
+    
+      <category term="JavaSec" scheme="https://thonsun.github.io/tags/JavaSec/"/>
     
   </entry>
   
@@ -225,7 +227,7 @@
     <link href="https://thonsun.github.io/2020/10/24/jackjson-fan-xu-lie-lou-dong-fu-xian/"/>
     <id>https://thonsun.github.io/2020/10/24/jackjson-fan-xu-lie-lou-dong-fu-xian/</id>
     <published>2020-10-24T13:23:59.000Z</published>
-    <updated>2020-12-26T07:02:45.681Z</updated>
+    <updated>2020-12-26T08:20:07.743Z</updated>
     
     <summary type="html">
     
@@ -233,11 +235,9 @@
       
         
         
-          &lt;script&gt;
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return; }
-       
+          &lt;p&gt;在《JavaSec Jackson反序列化漏洞原理》中分析Jackson反序列化漏洞的成因，也总结了一些了Jackson的反序列化漏洞利用方式，这里将以Jackson的漏洞复现为主，以理清Jackson的漏洞发展史，从中吸取一些攻防经验。&lt;/p&gt;
+&lt;script&gt;
+   
         
       
     
@@ -246,6 +246,8 @@
       <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
     
     
+      <category term="JavaSec" scheme="https://thonsun.github.io/tags/JavaSec/"/>
+    
   </entry>
   
   <entry>
@@ -253,7 +255,7 @@
     <link href="https://thonsun.github.io/2020/10/20/java-fan-xu-lie-hua-lou-dong-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/10/20/java-fan-xu-lie-hua-lou-dong-li-yong-fen-xi/</id>
     <published>2020-10-20T12:18:19.000Z</published>
-    <updated>2020-12-26T07:18:18.405Z</updated>
+    <updated>2020-12-26T07:32:24.712Z</updated>
     
     <summary type="html">
     
@@ -269,6 +271,8 @@
     
       <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
     
+    
+      <category term="JavaSec" scheme="https://thonsun.github.io/tags/JavaSec/"/>
     
   </entry>
   

@@ -9,10 +9,7 @@
     <meta name="keywords" content="JavaSec Fastjson反序列漏洞复现, BUPT PWN Web安全 Java安全">
     <meta name="baidu-site-verification" content="fmlEuI34ir">
     <meta name="google-site-verification" content="KeoTn_OFy4ndJwXNmm2gMeQfPhd7alqE9vQDwI32KCY">
-    <meta name="description" content="
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return">
+    <meta name="description" content="在《JavaSec FastJson反序列化漏洞利用原理》中分析了FastJson的反序列化漏洞成因，也总结了FastJson的反序列化利用方式，这里将复现一些有关FastJson的漏洞利用，以清晰了解FastJson的漏洞发展史，从中吸取">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -665,9 +662,13 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                          <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
-                          </div>
+                    <div class="article-tag">
+                        
+                            <a href="/tags/JavaSec/" target="_blank">
+                                <span class="chip bg-color">JavaSec</span>
+                            </a>
+                        
+                    </div>
                     
                 </div>
                 <div class="col s5 right-align">
@@ -701,7 +702,7 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        52
+                        128
                     </div>
                     
 
@@ -725,7 +726,8 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <script>
+                <p>在《JavaSec FastJson反序列化漏洞利用原理》中分析了FastJson的反序列化漏洞成因，也总结了FastJson的反序列化利用方式，这里将复现一些有关FastJson的漏洞利用，以清晰了解FastJson的漏洞发展史，从中吸取攻防经验。</p>
+<script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
             if (!el.dataset.src) { return; }
@@ -1251,10 +1253,7 @@
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
-        document.querySelectorAll('.github-emoji')
-          .forEach(el => {
-            if (!el.dataset.src) { return
+                            在上篇《JavaSec Java反序列化漏洞利用》中指出，不安全的输入字节流参与甚至改变了程序的执行流是Java反序列化漏洞利用的成因，对于从字节序列反向实例化对象除了Java Serialize外，还有json,xml等传输数据格式，其中
                         
                     </div>
                     <div class="publish-info">
@@ -1272,6 +1271,14 @@
                             
                         </span>
                     </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/JavaSec/" target="_blank">
+                        <span class="chip bg-color">JavaSec</span>
+                    </a>
+                    
                 </div>
                 
             </div>
@@ -1295,10 +1302,7 @@
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
-        document.querySelectorAll('.github-emoji')
-          .forEach(el => {
-            if (!el.dataset.src) { return
+                            在上篇《JavaSec FastJson反序列化漏洞利用原理》中介绍了FastJson的基本使用与及fastjson在解析json串还原对象状态的逻辑及其中的利用点，而FastJson的修复方式也是仅仅加一些黑名单限制和一些字符处理，但都有
                         
                     </div>
                     <div class="publish-info">
@@ -1316,6 +1320,14 @@
                             
                         </span>
                     </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/JavaSec/" target="_blank">
+                        <span class="chip bg-color">JavaSec</span>
+                    </a>
+                    
                 </div>
                 
             </div>
@@ -1488,7 +1500,7 @@
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">34.8k</span> 字
+                <span class="white-color">35.5k</span> 字
             
 
             

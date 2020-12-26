@@ -9,10 +9,8 @@
     <meta name="keywords" content="JavaSec Jackjson反序列漏洞复现, BUPT PWN Web安全 Java安全">
     <meta name="baidu-site-verification" content="fmlEuI34ir">
     <meta name="google-site-verification" content="KeoTn_OFy4ndJwXNmm2gMeQfPhd7alqE9vQDwI32KCY">
-    <meta name="description" content="
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return">
+    <meta name="description" content="在《JavaSec Jackson反序列化漏洞原理》中分析Jackson反序列化漏洞的成因，也总结了一些了Jackson的反序列化漏洞利用方式，这里将以Jackson的漏洞复现为主，以理清Jackson的漏洞发展史，从中吸取一些攻防经验。
+">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -665,9 +663,13 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                          <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
-                          </div>
+                    <div class="article-tag">
+                        
+                            <a href="/tags/JavaSec/" target="_blank">
+                                <span class="chip bg-color">JavaSec</span>
+                            </a>
+                        
+                    </div>
                     
                 </div>
                 <div class="col s5 right-align">
@@ -701,7 +703,7 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        52
+                        127
                     </div>
                     
 
@@ -725,7 +727,8 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <script>
+                <p>在《JavaSec Jackson反序列化漏洞原理》中分析Jackson反序列化漏洞的成因，也总结了一些了Jackson的反序列化漏洞利用方式，这里将以Jackson的漏洞复现为主，以理清Jackson的漏洞发展史，从中吸取一些攻防经验。</p>
+<script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
             if (!el.dataset.src) { return; }
@@ -1251,10 +1254,7 @@
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
-        document.querySelectorAll('.github-emoji')
-          .forEach(el => {
-            if (!el.dataset.src) { return
+                            在上篇《JavaSec FastJson反序列化漏洞利用原理》中介绍了FastJson的基本使用与及fastjson在解析json串还原对象状态的逻辑及其中的利用点，而FastJson的修复方式也是仅仅加一些黑名单限制和一些字符处理，但都有
                         
                     </div>
                     <div class="publish-info">
@@ -1272,6 +1272,14 @@
                             
                         </span>
                     </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/JavaSec/" target="_blank">
+                        <span class="chip bg-color">JavaSec</span>
+                    </a>
+                    
                 </div>
                 
             </div>
@@ -1313,6 +1321,14 @@
                             
                         </span>
                     </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/JavaSec/" target="_blank">
+                        <span class="chip bg-color">JavaSec</span>
+                    </a>
+                    
                 </div>
                 
             </div>
@@ -1485,7 +1501,7 @@
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">34.8k</span> 字
+                <span class="white-color">35.5k</span> 字
             
 
             
