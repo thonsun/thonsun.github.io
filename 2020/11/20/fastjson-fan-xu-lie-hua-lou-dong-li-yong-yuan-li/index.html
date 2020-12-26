@@ -702,14 +702,14 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        1k
+                        1.1k
                     </div>
                     
 
                     
                     <div class="info-break-policy">
                         <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        4 分
+                        5 分
                     </div>
                     
                 
@@ -871,7 +871,8 @@
 <p>对于<code>JSONObject.parse()</code>与<code>JSONObject.parseObject()</code>的区别联系可以：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201226171040764.png" alt="image-20201226171040764"></p>
 <p>只是多了一层对obj的处理。</p>
-<h2 id="二、FastJson反序列化分析"><a href="#二、FastJson反序列化分析" class="headerlink" title="二、FastJson反序列化分析"></a>二、FastJson反序列化分析</h2><p>上面的demo演示了Fastjson在序列化与反序列的标准调用时通过get,set方法，这里的标准是对于一个JavaBean，每个成员都有getter &amp; setter方法。所以要利用FastJson的反序列化漏洞，在fastjson 1.2.24默认开启autoType时候。</p>
+<h2 id="二、FastJson反序列化分析"><a href="#二、FastJson反序列化分析" class="headerlink" title="二、FastJson反序列化分析"></a>二、FastJson反序列化分析</h2><p>上面的demo演示了Fastjson在序列化与反序列的标准调用时通过get,set方法，这里的标准是对于一个JavaBean，每个成员都有getter &amp; setter方法。所以要利用FastJson的反序列化漏洞，在fastjson 1.2.24默认开启autoType时候，攻击者可以控制服务器以哪个类进行还原，这个target 类的属性也可以在json的field中控制，所以所以只需找到target 类的set或get方法存在利用即可。</p>
+<p>下面以JSONObject.parseObject(string) 为例，在源码层分析FastJson的反序列化过程：</p>
 <h2 id="三、FastJson反序列化利用"><a href="#三、FastJson反序列化利用" class="headerlink" title="三、FastJson反序列化利用"></a>三、FastJson反序列化利用</h2><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.<a href="https://github.com/alibaba/fastjson/wiki/security_update_20170315" target="_blank" rel="noopener">fastjson 安全公告</a></p>
 <script>
         document.querySelectorAll('.github-emoji')
@@ -1646,7 +1647,7 @@
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">36.2k</span> 字
+                <span class="white-color">36.7k</span> 字
             
 
             
