@@ -9,10 +9,7 @@
     <meta name="keywords" content="JavaSec java反序列化漏洞利用分析, BUPT PWN Web安全 Java安全">
     <meta name="baidu-site-verification" content="fmlEuI34ir">
     <meta name="google-site-verification" content="KeoTn_OFy4ndJwXNmm2gMeQfPhd7alqE9vQDwI32KCY">
-    <meta name="description" content="
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return">
+    <meta name="description" content="Java反序列是一个将对象转换为字节流的机制，是在json,xml数据格式之外的一个数据传输格式，是Java原生支持的。但是不安全的序列化与反序列使用存在安全风险，这是对不可信的输入数据没有严格的校验改变了程序的执行流程，达到任意代码执行等">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -672,6 +669,15 @@
                 </div>
                 <div class="col s5 right-align">
                     
+                    <div class="post-cate">
+                        <i class="fa fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/JavaSec/" class="post-category" target="_blank">
+                                JavaSec
+                            </a>
+                        
+                    </div>
+                    
                 </div>
             </div>
             
@@ -692,7 +698,7 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        52
+                        337
                     </div>
                     
 
@@ -716,7 +722,21 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <script>
+                <p>Java反序列是一个将对象转换为字节流的机制，是在json,xml数据格式之外的一个数据传输格式，是Java原生支持的。但是不安全的序列化与反序列使用存在安全风险，这是对不可信的输入数据没有严格的校验改变了程序的执行流程，达到任意代码执行等目标，从这个Java反序列化漏洞的原理可以拓展很多漏洞利用，本质都是差不多的，任何的输入数据只要参与了程序的执行流程就有可能存在安全风险，如XSS，SQL注入，Fastjson等。</p>
+<p>这里将以下对Java反序列的漏洞原理进行介绍</p>
+<blockquote>
+<p>1.Java序列化与反序列化的基本概念</p>
+<p>2.Java反序列利用链认识</p>
+<p>3.JDK1.8u71的绕过</p>
+<p>4.寻找利用链</p>
+</blockquote>
+<h2 id="一、Java序列化与反序列"><a href="#一、Java序列化与反序列" class="headerlink" title="一、Java序列化与反序列"></a>一、Java序列化与反序列</h2><h2 id="二、Java利用链的认识"><a href="#二、Java利用链的认识" class="headerlink" title="二、Java利用链的认识"></a>二、Java利用链的认识</h2><h2 id="三、JDK1-8u71的绕过"><a href="#三、JDK1-8u71的绕过" class="headerlink" title="三、JDK1.8u71的绕过"></a>三、JDK1.8u71的绕过</h2><h2 id="四、利用链的寻找"><a href="#四、利用链的寻找" class="headerlink" title="四、利用链的寻找"></a>四、利用链的寻找</h2><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.<a href="https://docs.oracle.com/javase/8/docs/platform/serialization/spec/protocol.html" target="_blank" rel="noopener">Object Serialization Stream Protocol</a></p>
+<p>2.<a href="https://github.com/NickstaDB/SerializationDumper" target="_blank" rel="noopener">SerializationDumper</a></p>
+<p>3.<a href="https://github.com/frohoff/ysoserial" target="_blank" rel="noopener">ysoserial</a></p>
+<p>4.<a href="https://github.com/mbechler/marshalsec" target="_blank" rel="noopener">marshalsec</a></p>
+<p>5.<a href="https://github.com/JackOfMostTrades/gadgetinspector" target="_blank" rel="noopener">gadget inspector</a></p>
+<p>6.<a href="https://i.blackhat.com/us-18/Thu-August-9/us-18-Haken-Automated-Discovery-of-Deserialization-Gadget-Chains-wp.pdf" target="_blank" rel="noopener">Blackhat-Automated Disovery of Deserialization Gadget Chains wp</a></p>
+<script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
             if (!el.dataset.src) { return; }
@@ -1488,7 +1508,7 @@ Jetbrains全家桶
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">31.4k</span> 字
+                <span class="white-color">31.7k</span> 字
             
 
             

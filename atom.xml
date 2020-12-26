@@ -45,7 +45,7 @@
     <link href="https://thonsun.github.io/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/"/>
     <id>https://thonsun.github.io/2020/12/24/cve-2020-26945-mybatis-yuan-cheng-dai-ma-zhi-xing-lou-dong-fu-xian/</id>
     <published>2020-12-24T13:18:11.000Z</published>
-    <updated>2020-12-25T19:22:17.636Z</updated>
+    <updated>2020-12-26T02:18:23.236Z</updated>
     
     <summary type="html">
     
@@ -245,7 +245,7 @@
     <link href="https://thonsun.github.io/2020/10/20/java-fan-xu-lie-hua-lou-dong-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/10/20/java-fan-xu-lie-hua-lou-dong-li-yong-fen-xi/</id>
     <published>2020-10-20T12:18:19.000Z</published>
-    <updated>2020-12-24T13:42:30.520Z</updated>
+    <updated>2020-12-26T03:00:35.549Z</updated>
     
     <summary type="html">
     
@@ -253,15 +253,13 @@
       
         
         
-          &lt;script&gt;
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return; }
-       
+          &lt;p&gt;Java反序列是一个将对象转换为字节流的机制，是在json,xml数据格式之外的一个数据传输格式，是Java原生支持的。但是不安全的序列化与反序列使用存在安全风险，这是对不可信的输入数据没有严格的校验改变了程序的执行流程，达到任意代码执行等目标，从这个Java反序列化漏洞的
         
       
     
     </summary>
+    
+      <category term="JavaSec" scheme="https://thonsun.github.io/categories/JavaSec/"/>
     
     
   </entry>
