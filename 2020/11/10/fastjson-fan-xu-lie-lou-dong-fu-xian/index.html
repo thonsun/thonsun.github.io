@@ -702,7 +702,7 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        618
+                        590
                     </div>
                     
 
@@ -730,12 +730,12 @@
 <p>在FastJson的官方公告中出现两次安全公告：</p>
 <p>1.<code>security_update_20170315</code></p>
 <blockquote>
-<p>最近发现<strong>fastjson在1.2.24</strong>以及之前版本存在远程代码执行高危安全漏洞，为了保证系统安全，请升级到1.2.28/1.2.29/1.2.30/1.2.31或者更新版本。</p>
-<p>安全升级包<strong>禁用了部分autotype的功能</strong>，也就是”@type”这种指定类型的功能会被限制在一定范围内使用。如果你使用场景中包括了这个功能，<a href="https://github.com/alibaba/fastjson/wiki/enable_autotype" target="_blank" rel="noopener">https://github.com/alibaba/fastjson/wiki/enable_autotype</a> 这里有一个介绍如何添加白名单或者打开autotype功能</p>
+<p>最近发现<strong>fastjson在1.2.24</strong> 以及之前版本存在远程代码执行高危安全漏洞，为了保证系统安全，请升级到1.2.28/1.2.29/1.2.30/1.2.31或者更新版本。</p>
+<p>安全升级包<strong>禁用了部分autotype的功能</strong>，也就是”@type”这种指定类型的功能会被限制在一定范围内使用。如果你使用场景中包括了这个功能， <a href="https://github.com/alibaba/fastjson/wiki/enable_autotype" target="_blank" rel="noopener">这里</a>有一个介绍如何添加白名单或者打开autotype功能</p>
 </blockquote>
 <p>2.security_update_20200601</p>
 <blockquote>
-<p>近日，阿里云应急响应中心监测到fastjson爆发新的反序列化远程代码执行漏洞，黑客利用漏洞，可绕过autoType限制，直接远程执行任意命令攻击服务器，风险极大。</p>
+<p>最近发现<strong>fastjson在1.2.68</strong>黑客利用漏洞，可绕过autoType限制，直接远程执行任意命令攻击服务器，风险极大。</p>
 <p>fastjson采用黑白名单的方法来防御反序列化漏洞，导致当黑客不断发掘新的反序列化Gadgets类时，在autoType关闭的情况下仍然可能可以绕过黑白名单防御机制，造成远程命令执行漏洞。经研究，该漏洞利用门槛较低，<strong>可绕过autoType限制</strong>，风险影响较大。阿里云应急响应中心提醒fastjson用户尽快采取安全措施阻止漏洞攻击.</p>
 <p>影响版本：</p>
 <ul>
@@ -743,17 +743,18 @@
 <li>fastjson sec版本 &lt;= sec9</li>
 </ul>
 <p>safeMode加固：</p>
-<p>fastjson在1.2.68及之后的版本中引入了safeMode，配置safeMode后，无论白名单和黑名单，都不支持autoType，可一定程度上缓解反序列化Gadgets类变种攻击（关闭autoType注意评估对业务的影响）</p>
+<p>fastjson在1.2.68及之后的版本中引入了safeMode，<a href="https://github.com/alibaba/fastjson/wiki/fastjson_safemode" target="_blank" rel="noopener">配置safeMode</a>后，无论白名单和黑名单，都不支持autoType，可一定程度上缓解反序列化Gadgets类变种攻击（关闭autoType注意评估对业务的影响）</p>
 </blockquote>
 <p>从安全的公告中可以看出这两个关键的节点：</p>
 <ul>
-<li><p><a href="https://www.cvedetails.com/cve/CVE-2017-18349/" target="_blank" rel="noopener">CVE-2017-18349</a></p>
+<li><p>autoType的利用</p>
 </li>
 <li><p>autoType的绕过</p>
 </li>
 </ul>
-<h2 id="一、Fastjson-lt-1-2-24"><a href="#一、Fastjson-lt-1-2-24" class="headerlink" title="一、Fastjson <= 1.2.24"></a>一、Fastjson &lt;= 1.2.24</h2><h2 id="二、Fastjson-断续的一些修补"><a href="#二、Fastjson-断续的一些修补" class="headerlink" title="二、Fastjson 断续的一些修补"></a>二、Fastjson 断续的一些修补</h2><p>fastjson 1.2.47 缓存绕过</p>
+<h2 id="一、Fastjson-lt-1-2-24"><a href="#一、Fastjson-lt-1-2-24" class="headerlink" title="一、Fastjson <= 1.2.24"></a>一、Fastjson &lt;= 1.2.24</h2><h2 id="二、Fastjson-blacklist"><a href="#二、Fastjson-blacklist" class="headerlink" title="二、Fastjson blacklist"></a>二、Fastjson blacklist</h2><p>fastjson 1.2.47 缓存绕过</p>
 <h2 id="三、Fastjson-lt-1-2-68"><a href="#三、Fastjson-lt-1-2-68" class="headerlink" title="三、Fastjson <= 1.2.68"></a>三、Fastjson &lt;= 1.2.68</h2><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.<a href="https://github.com/alibaba/fastjson/wiki/security_update_20170315" target="_blank" rel="noopener">fastjson 安全公告</a></p>
+<p>2.<a href="https://help.aliyun.com/noticelist/articleid/1060613676.html?spm=a2c4g.789213612.n2.16.46346141x9sQ6h" target="_blank" rel="noopener">阿里云安全公告</a></p>
 <script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
@@ -1527,7 +1528,7 @@
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">41.2k</span> 字
+                <span class="white-color">44.1k</span> 字
             
 
             
@@ -1754,5 +1755,5 @@ $(function () {
         <!-- 背景动态彩带 洪卫 shw 2018  add 2019.09.15-->
         
 
-    <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script><script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script></body>
+    <script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>
