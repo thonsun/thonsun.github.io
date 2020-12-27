@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://thonsun.github.io/"/>
-  <updated>2020-12-26T07:32:29.103Z</updated>
+  <updated>2020-12-27T11:53:54.566Z</updated>
   <id>https://thonsun.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://thonsun.github.io/2020/12/26/javaagent-ji-zhu-yan-jiu/"/>
     <id>https://thonsun.github.io/2020/12/26/javaagent-ji-zhu-yan-jiu/</id>
     <published>2020-12-25T19:13:08.000Z</published>
-    <updated>2020-12-26T07:32:29.103Z</updated>
+    <updated>2020-12-27T11:53:54.566Z</updated>
     
     <summary type="html">
     
@@ -29,7 +29,7 @@
       
         
         
-          &lt;p&gt;JVMTI （JVM Tool 
+          &lt;h2 id=&quot;一、前言&quot;&gt;&lt;a href=&quot;#一、前言&quot; class=&quot;headerlink&quot; title=&quot;一、前言&quot;&gt;&lt;/a&gt;一、前言&lt;/h2&gt;&lt;p&gt;在学习java反序列化漏洞的时候，看到有采用 &lt;a
         
       
     
