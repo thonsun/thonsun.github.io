@@ -177,7 +177,7 @@
     <link href="https://thonsun.github.io/2020/11/10/fastjson-fan-xu-lie-lou-dong-fu-xian/"/>
     <id>https://thonsun.github.io/2020/11/10/fastjson-fan-xu-lie-lou-dong-fu-xian/</id>
     <published>2020-11-10T13:23:29.000Z</published>
-    <updated>2020-12-26T13:49:06.717Z</updated>
+    <updated>2020-12-27T10:34:32.986Z</updated>
     
     <summary type="html">
     
@@ -229,7 +229,7 @@
     <link href="https://thonsun.github.io/2020/10/24/jackjson-fan-xu-lie-lou-dong-fu-xian/"/>
     <id>https://thonsun.github.io/2020/10/24/jackjson-fan-xu-lie-lou-dong-fu-xian/</id>
     <published>2020-10-24T13:23:59.000Z</published>
-    <updated>2020-12-26T08:26:20.353Z</updated>
+    <updated>2020-12-27T10:34:44.648Z</updated>
     
     <summary type="html">
     
@@ -237,8 +237,7 @@
       
         
         
-          &lt;p&gt;在《JavaSec Jackson反序列化漏洞原理》中分析Jackson反序列化漏洞的成因，也总结了一些了Jackson的反序列化漏洞利用方式，这里将以Jackson的漏洞复现为主，以理清Jackson的漏洞发展史，从中吸取一些攻防经验。&lt;/p&gt;
-&lt;h2
+          &lt;p&gt;在《JavaSec
         
       
     
