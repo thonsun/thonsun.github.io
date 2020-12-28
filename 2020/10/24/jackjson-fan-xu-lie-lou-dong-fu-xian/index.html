@@ -534,7 +534,7 @@
 <script src="/libs/cryptojs/crypto-js.min.js"></script>
 <script>
     (function() {
-        let pwd = '80a9bc22b0c73cc4577bb06accc750dc46b40920b36270874d18eb6e8fa75ccd';
+        let pwd = '';
         if (pwd && pwd.length > 0) {
             if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
                 alert('密码错误，将返回主页！');
@@ -703,14 +703,14 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        849
+                        1.2k
                     </div>
                     
 
                     
                     <div class="info-break-policy">
                         <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        3 分
+                        4 分
                     </div>
                     
                 
@@ -741,7 +741,40 @@
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>jackson-databind<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>2.8.8<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="一、com-sun-rowset-JdbcRowSetImpl"><a href="#一、com-sun-rowset-JdbcRowSetImpl" class="headerlink" title="一、com.sun.rowset.JdbcRowSetImpl"></a>一、com.sun.rowset.JdbcRowSetImpl</h2><h2 id="二、com-sun-org-apache-xalan-internal-xsltc-TemplateImpl"><a href="#二、com-sun-org-apache-xalan-internal-xsltc-TemplateImpl" class="headerlink" title="二、com.sun.org.apache.xalan.internal.xsltc.TemplateImpl"></a>二、com.sun.org.apache.xalan.internal.xsltc.TemplateImpl</h2><h2 id="三、CVE-amp-POC"><a href="#三、CVE-amp-POC" class="headerlink" title="三、CVE &amp; POC"></a>三、CVE &amp; POC</h2><p>下面是一些关于Jackson的CVE截取</p>
+<h2 id="一、com-sun-rowset-JdbcRowSetImpl"><a href="#一、com-sun-rowset-JdbcRowSetImpl" class="headerlink" title="一、com.sun.rowset.JdbcRowSetImpl"></a>一、com.sun.rowset.JdbcRowSetImpl</h2><p>这个利用链的过程是</p>
+<pre class="line-numbers language-java"><code class="language-java">JdbcRowsetImpl#setAutoCommit
+    JdbcRowsetImpl#connect
+        JdbcRowsetImpl#getDataSourceName
+        InitialContext#lookup<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>利用链 com.sun.rowset.JdbcRowSetImpl说明存在Jackson反序列化漏洞的JNDI注入利用，涉及的有</p>
+<blockquote>
+<ol>
+<li>RMI Reference JNDI注入利用</li>
+<li>LDAP JNDI注入利用</li>
+<li>CORBA JNDI注入利用</li>
+</ol>
+</blockquote>
+<p>关于他们的纤细解析可以看《JavaSec JNDI注入利用分析》</p>
+<h2 id="二、com-sun-org-apache-xalan-internal-xsltc-TemplateImpl"><a href="#二、com-sun-org-apache-xalan-internal-xsltc-TemplateImpl" class="headerlink" title="二、com.sun.org.apache.xalan.internal.xsltc.TemplateImpl"></a>二、com.sun.org.apache.xalan.internal.xsltc.TemplateImpl</h2><p>这个Template利用链的过程是：</p>
+<pre class="line-numbers language-java"><code class="language-java">TemplatesImpl<span class="token punctuation">.</span><span class="token function">getOutputProperties</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  TemplatesImpl<span class="token punctuation">.</span><span class="token function">newTransformer</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    TemplatesImpl<span class="token punctuation">.</span><span class="token function">getTransletInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+      TemplatesImpl<span class="token punctuation">.</span><span class="token function">defineTransletClasses</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        ClassLoader<span class="token punctuation">.</span><span class="token function">defineClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        Class<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这里总结下过程</p>
+<blockquote>
+<ol>
+<li><code>_outputProperties</code> 触发<code>getOutputProperties()</code></li>
+<li><code>getOutputProperties()</code>进入<code>newTransformer()</code></li>
+<li><code>newTranformer()</code>进入<code>getTransletInstance()</code>获取Transformer</li>
+<li><code>getTransletInstance()</code>由于json串中指定了_name=”xxx”,_class 为空，所以进入了 进入 <code>defineTransletClasses()</code> 生成payload对应的Class类</li>
+<li><code>defineTransletClasses()</code> 主要从json串_bytecodes属性字节码中通过 <code>ClassLoader.defineClass</code> 定义一个类，也就是我们的利用Exploit类，这里会检查defineClass的返回值，即检查payload 加载为类的父类是否<code>”com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet“</code>所以我们的payload在生成的时候要是这个(ABSTRACT_TRANSLET）类的子类</li>
+<li>最后回到<code>getTransletInstance()</code> 函数利用<code>defineTransletClassed()</code>生成的Class对象，也就是我们的利用利用，通过 <code>newInstance()</code>实例化，所以payload只需要放在Class的默认构造函数即可触发RCE。</li>
+</ol>
+</blockquote>
+<p>详细请看《javaSec Jackson的反序列化漏洞利用原理》，分析了这个利用链通过getter方法触发的原理，与及利用的环境的注意点。</p>
+<h2 id="三、CVE-amp-POC"><a href="#三、CVE-amp-POC" class="headerlink" title="三、CVE &amp; POC"></a>三、CVE &amp; POC</h2><p>下面是一些关于Jackson的CVE截取</p>
 <h3 id="1-CVE-2020-24616"><a href="#1-CVE-2020-24616" class="headerlink" title="1.CVE-2020-24616"></a>1.CVE-2020-24616</h3><p>jackson-databind是一套开源java高性能JSON处理器，受影响版本的jackson-databind中由于缺少黑名单类，如br.com.anteros:Anteros-DBCP，可导致攻击者实现远程代码执行，其相关CVE号为CVE-2020-24616，漏洞需要相关jar组件才能成功利用，<strong>影响面适中</strong>。此次版本升级官方还修复了多处利用链，包含org.arrahtec:profiler-core、com.nqadmin.rowset:jdbcrowsetimpl、com.pastdev.httpcomponents:configuration等。</p>
 <blockquote>
 <ul>
@@ -1547,7 +1580,7 @@
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">45.2k</span> 字
+                <span class="white-color">45.5k</span> 字
             
 
             
@@ -1774,5 +1807,5 @@ $(function () {
         <!-- 背景动态彩带 洪卫 shw 2018  add 2019.09.15-->
         
 
-    <script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+    <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script><script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script></body>
 </html>
