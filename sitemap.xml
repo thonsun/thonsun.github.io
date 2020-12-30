@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://thonsun.github.io/2020/12/29/jvm-yun-xing-ji-zhi-yu-lei-jia-zai-ying-yong/</loc>
+    
+    <lastmod>2020-12-30T06:47:08.313Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://thonsun.github.io/2020/11/10/fastjson-fan-xu-lie-lou-dong-fu-xian/</loc>
     
     <lastmod>2020-12-29T04:43:06.996Z</lastmod>
@@ -198,7 +205,7 @@
   </url>
   
   <url>
-    <loc>https://thonsun.github.io/galleries/%E8%83%8C%E6%99%AF%E5%9B%BE%E7%89%874/index.html</loc>
+    <loc>https://thonsun.github.io/tags/index.html</loc>
     
     <lastmod>2020-07-01T09:09:44.000Z</lastmod>
     
@@ -226,7 +233,7 @@
   </url>
   
   <url>
-    <loc>https://thonsun.github.io/friends/index.html</loc>
+    <loc>https://thonsun.github.io/404.html</loc>
     
     <lastmod>2020-07-01T09:09:44.000Z</lastmod>
     
@@ -240,7 +247,7 @@
   </url>
   
   <url>
-    <loc>https://thonsun.github.io/tags/index.html</loc>
+    <loc>https://thonsun.github.io/friends/index.html</loc>
     
     <lastmod>2020-07-01T09:09:44.000Z</lastmod>
     
@@ -254,7 +261,7 @@
   </url>
   
   <url>
-    <loc>https://thonsun.github.io/404.html</loc>
+    <loc>https://thonsun.github.io/galleries/%E8%83%8C%E6%99%AF%E5%9B%BE%E7%89%874/index.html</loc>
     
     <lastmod>2020-07-01T09:09:44.000Z</lastmod>
     
