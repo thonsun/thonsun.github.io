@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://thonsun.github.io/"/>
-  <updated>2020-12-30T06:47:08.313Z</updated>
+  <updated>2021-01-09T03:56:23.218Z</updated>
   <id>https://thonsun.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>JavaSec Java安全系列</title>
+    <link href="https://thonsun.github.io/2021/01/09/java-an-quan-xi-lie/"/>
+    <id>https://thonsun.github.io/2021/01/09/java-an-quan-xi-lie/</id>
+    <published>2021-01-09T01:13:50.000Z</published>
+    <updated>2021-01-09T03:56:23.218Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;这里作为Java安全系列的提纲，总结在学Web安全的过程，在复现环境，调试代码加深对原理的理解&lt;/p&gt;
+&lt;h2 id=&quot;一、JavaWeb技术&quot;&gt;&lt;a href=&quot;#一、JavaWeb技术&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+      <category term="javasec" scheme="https://thonsun.github.io/categories/javasec/"/>
+    
+    
+      <category term="javasec" scheme="https://thonsun.github.io/tags/javasec/"/>
+    
+  </entry>
   
   <entry>
     <title>JavaSec jvm运行机制与类加载应用</title>
@@ -284,7 +311,7 @@
     <link href="https://thonsun.github.io/2020/10/20/java-fan-xu-lie-hua-lou-dong-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/10/20/java-fan-xu-lie-hua-lou-dong-li-yong-fen-xi/</id>
     <published>2020-10-20T12:18:19.000Z</published>
-    <updated>2020-12-28T02:38:58.719Z</updated>
+    <updated>2020-12-30T09:25:35.195Z</updated>
     
     <summary type="html">
     
@@ -496,33 +523,6 @@
     
     
       <category term="basic pwn" scheme="https://thonsun.github.io/tags/basic-pwn/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>glibc heap pwn notes</title>
-    <link href="https://thonsun.github.io/2019/07/20/glibc-heap-pwn-notes/"/>
-    <id>https://thonsun.github.io/2019/07/20/glibc-heap-pwn-notes/</id>
-    <published>2019-07-20T07:27:03.000Z</published>
-    <updated>2020-12-16T09:28:51.950Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h3 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot; class=&quot;headerlink&quot; title=&quot;摘要&quot;&gt;&lt;/a&gt;摘要&lt;/h3&gt;&lt;p&gt;​        记录Glibc heap的数据结构与分配过程，转自 先知社区&lt;a href=&quot;https://xz.aliyun.com/t/2307#toc-11&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;《glibc heap pwn notes》&lt;/a&gt; 。freebuf &lt;a href=&quot;https://www.freebuf.com/articles/system/91527.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Glibc堆管理机制与利用手法&lt;/a&gt; 统一说明为glibc-2.23，更多版本添加的安全检查机制与对应绕过手法还得自己找对应libc源码阅读。&lt;/p&gt;
-&lt;h3 id=&quot;heap管理数据结构&quot;&gt;&lt;a href=&quot;#heap管理数据结构&quot; class=&quot;headerlink&quot; title=&quot;heap管理数据结构&quot;&gt;&lt;/a&gt;heap管理数据结构&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;linux下动态链接目标文件与可执行文件在加载（ld）在虚拟内存空间的映射（map）&amp;lt;参考&amp;gt; 《程序员的自我修养》&lt;/p&gt;
-&lt;p&gt;  内存映射段libc.so的全局变量（.bss）的main_arena（malloc_state结构体定义，m_state）记录主线程heap的free_chunk状态。&lt;/p&gt;
-&lt;p&gt;  多线程中arena数据结构为一个环形链表，采用heap_info结构定义。&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;
-    
-    </summary>
-    
-      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
-    
-    
-      <category term="heap" scheme="https://thonsun.github.io/tags/heap/"/>
     
   </entry>
   

@@ -1205,6 +1205,18 @@ AnnotationInvocationHandler<span class="token punctuation">.</span><span class="
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="一个对Java反序列化的了解："><a href="#一个对Java反序列化的了解：" class="headerlink" title="一个对Java反序列化的了解："></a>一个对Java反序列化的了解：</h3><p>对于原对象</p>
+<pre class="line-numbers language-java"><code class="language-java">Class <span class="token class-name">A</span> <span class="token punctuation">{</span>
+    Class <span class="token class-name">B</span>
+<span class="token punctuation">}</span>
+
+Class <span class="token class-name">B</span> <span class="token punctuation">{</span>
+    Class <span class="token class-name">C</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>反序列化的 顺序：</p>
+<pre class="line-numbers language-java"><code class="language-java">C<span class="token punctuation">.</span><span class="token function">readObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token operator">-</span><span class="token operator">></span> B<span class="token punctuation">.</span><span class="token function">readObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token operator">-</span><span class="token operator">></span> A<span class="token punctuation">.</span><span class="token function">readObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <h2 id="四、利用链的寻找"><a href="#四、利用链的寻找" class="headerlink" title="四、利用链的寻找"></a>四、利用链的寻找</h2><p>从上面的分析可以知道，Java的反序列漏洞利用其实是在找jvm classpath类的利用，从readObject()开始，通过对象的属性控制进入一些威胁操作，这个过程就是一个寻找Gadget的流程，究竟哪些类可以利用，怎么利用，在庞大的第三方依赖库与程序代码人工分析类的每个函数不太现实，上面提到的ysoserial和marshal的反序列利用gadget生成其实是基于已知的生成，Blackhack会议上提出<a href="https://i.blackhat.com/us-18/Thu-August-9/us-18-Haken-Automated-Discovery-of-Deserialization-Gadget-Chains-wp.pdf" target="_blank" rel="noopener">Blackhat-Automated Disovery of Deserialization Gadget Chains wp</a>，自动化的寻找gadget的工具：<a href="https://github.com/JackOfMostTrades/gadgetinspector" target="_blank" rel="noopener">gadget inspector</a>，有机会研究一下。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.<a href="https://docs.oracle.com/javase/8/docs/platform/serialization/spec/protocol.html" target="_blank" rel="noopener">Object Serialization Stream Protocol</a></p>
 <p>2.<a href="https://github.com/NickstaDB/SerializationDumper" target="_blank" rel="noopener">SerializationDumper</a></p>
@@ -1997,7 +2009,7 @@ Jetbrains全家桶
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">51k</span> 字
+                <span class="white-color">51.4k</span> 字
             
 
             

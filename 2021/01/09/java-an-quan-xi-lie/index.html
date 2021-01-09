@@ -6,13 +6,15 @@
 
 <head><meta name="generator" content="Hexo 3.9.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="LIEF在CTFpatch常用API, BUPT PWN Web安全 Java安全">
+    <meta name="keywords" content="JavaSec Java安全系列, BUPT PWN Web安全 Java安全">
     <meta name="baidu-site-verification" content="fmlEuI34ir">
     <meta name="google-site-verification" content="KeoTn_OFy4ndJwXNmm2gMeQfPhd7alqE9vQDwI32KCY">
-    <meta name="description" content="
-使用电脑浏览效果更佳！
+    <meta name="description" content="这里作为Java安全系列的提纲，总结在学Web安全的过程，在复现环境，调试代码加深对原理的理解
+一、JavaWeb技术java 在web系统的发展与应用
 
-摘要​    记录LIEF在CTF中打patch的常用函数，更多详细参考官方文档。 链接，此处记录在CTF方面的应用详细。LIEF不仅仅用于ELF文件的修改，还可以在PE，Mach-o，Android等方面都有应">
+java servlet的应用与jsp技术：工程组织：即MVC思想
+
+javaweb">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -20,7 +22,7 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>LIEF在CTFpatch常用API | thonsun&#39;s blog</title>
+    <title>JavaSec Java安全系列 | thonsun&#39;s blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
@@ -549,13 +551,13 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/19.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/6.jpg')">
     <div class="container">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
                     <div class="description center-align post-title">
-                        LIEF在CTFpatch常用API
+                        JavaSec Java安全系列
                     </div>
                 </div>
             </div>
@@ -667,8 +669,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/pwn-patch/" target="_blank">
-                                <span class="chip bg-color">pwn patch</span>
+                            <a href="/tags/javasec/" target="_blank">
+                                <span class="chip bg-color">javasec</span>
                             </a>
                         
                     </div>
@@ -679,8 +681,8 @@
                     <div class="post-cate">
                         <i class="fa fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/pwn/" class="post-category" target="_blank">
-                                pwn
+                            <a href="/categories/javasec/" class="post-category" target="_blank">
+                                javasec
                             </a>
                         
                     </div>
@@ -691,7 +693,7 @@
             <div class="post-info">
                 <div class="post-date info-break-policy">
                     <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2019-07-27
+                    2021-01-09
                 </div>
 
                 <div class="post-author info-break-policy">
@@ -705,14 +707,14 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        1.9k
+                        354
                     </div>
                     
 
                     
                     <div class="info-break-policy">
                         <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        9 分
+                        1 分
                     </div>
                     
                 
@@ -729,202 +731,55 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <blockquote>
-<p>使用电脑浏览效果更佳！</p>
-</blockquote>
-<h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>​    记录LIEF在CTF中打patch的常用函数，更多详细参考官方文档。 <a href="https://lief.quarkslab.com/doc/latest/api/python/elf.html#parser" target="_blank" rel="noopener">链接</a>，此处记录在CTF方面的应用详细。LIEF不仅仅用于ELF文件的修改，还可以在PE，Mach-o，Android等方面都有应用。按照官方文档的说明，LIEF的目的是提供一个跨平台的库，可以解析，修改和抽象ELF，PE，MachO和Android格式，目前支持的格式有<code>ELF</code>, <code>PE</code>, <code>MachO</code>, <code>DEX</code>, <code>OAT</code>, <code>ART</code> and <code>VDEX</code>。</p>
-<p>在CTF中linux的ELF应用中在于在机器语言级别修改binary的漏洞（patch），下面将介绍常用的LIEF的函数使用，围绕函数API展开接收该函数接收的参数、返回结果、应用代码。</p>
-<a id="more"></a>
-
-<h3 id="详细"><a href="#详细" class="headerlink" title="详细"></a>详细</h3><h4 id="LIEF的体系架构"><a href="#LIEF的体系架构" class="headerlink" title="LIEF的体系架构"></a>LIEF的体系架构</h4><p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/archi.png" alt="archi"></p>
-<p>一个paser把参数目标文件按照对应文件格式进行解释，并提供API对其进行查询，修改。</p>
-<h4 id="Linux下ELF文件格式基础"><a href="#Linux下ELF文件格式基础" class="headerlink" title="Linux下ELF文件格式基础"></a>Linux下ELF文件格式基础</h4><p>LIEF的编程对应了ELF的文件格式，paser的解释相当于一个readelf的过程，返回一个Binary对象（object）。在CTF的patch中是以链接视角对目标文件进行修改，有关于目标文件格式的链接视角与加载视角可以参阅《程序员的自我修养》，在这里只需知道链接(编译)视角用到的是.section（节），而加载(运行)视角用的是.segment（段），如在binary中hook一个函数就用到增加binary.add(segment)，即只使用Binary对象中方法add的一个实现。下面是常用的函数与对象</p>
+                <p>这里作为Java安全系列的提纲，总结在学Web安全的过程，在复现环境，调试代码加深对原理的理解</p>
+<h2 id="一、JavaWeb技术"><a href="#一、JavaWeb技术" class="headerlink" title="一、JavaWeb技术"></a>一、JavaWeb技术</h2><p>java 在web系统的发展与应用</p>
 <ol>
-<li><p>parser</p>
-<p> 通常是便写lief脚本patch的开始，parse对ELF按格式解释，返回一个Bianry对象，Binary对象存在函数返回Section、Segment对象。</p>
-</li>
-<li><p>Binary对象</p>
-<pre class="line-numbers language-python"><code class="language-python"> <span class="token comment" spellcheck="true"># binary = lief.parse("./vul")</span>
- <span class="token keyword">class</span> <span class="token class-name">lief</span><span class="token punctuation">.</span>ELF<span class="token punctuation">.</span>Binary
- <span class="token comment" spellcheck="true"># 常用方法</span>
- <span class="token number">1.</span>add<span class="token punctuation">(</span>self<span class="token punctuation">:</span> lief<span class="token punctuation">.</span>ELF<span class="token punctuation">.</span>Binary<span class="token punctuation">,</span> segment<span class="token punctuation">:</span> LIEF<span class="token punctuation">:</span><span class="token punctuation">:</span>ELF<span class="token punctuation">:</span><span class="token punctuation">:</span>Segment<span class="token punctuation">,</span> base<span class="token punctuation">:</span> int<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> LIEF<span class="token punctuation">:</span><span class="token punctuation">:</span>ELF<span class="token punctuation">:</span><span class="token punctuation">:</span>Segment
-     Add a segment <span class="token keyword">in</span> the binary（patch usually add segment）
-
- <span class="token number">2.</span>get_symbol<span class="token punctuation">(</span>self<span class="token punctuation">:</span> lief<span class="token punctuation">.</span>Binary<span class="token punctuation">,</span> symbol_name<span class="token punctuation">:</span> str<span class="token punctuation">)</span> → LIEF<span class="token punctuation">:</span><span class="token punctuation">:</span>Symbol
-     Return the Symbol <span class="token keyword">with</span> the given name
-
- <span class="token number">3.</span>get_section<span class="token punctuation">(</span>self<span class="token punctuation">:</span> lief<span class="token punctuation">.</span>ELF<span class="token punctuation">.</span>Binary<span class="token punctuation">,</span> section_name<span class="token punctuation">:</span> str<span class="token punctuation">)</span> → LIEF<span class="token punctuation">:</span><span class="token punctuation">:</span>ELF<span class="token punctuation">:</span><span class="token punctuation">:</span>Section
-     Return the Section <span class="token keyword">with</span> the given name
-
- <span class="token number">4.</span>patch_address<span class="token punctuation">(</span>self<span class="token punctuation">:</span> lief<span class="token punctuation">.</span>Binary<span class="token punctuation">,</span> address<span class="token punctuation">:</span> int<span class="token punctuation">,</span> patch_value<span class="token punctuation">:</span> List<span class="token punctuation">[</span>int<span class="token punctuation">]</span><span class="token punctuation">,</span> va_type<span class="token punctuation">:</span> lief<span class="token punctuation">.</span>Binary<span class="token punctuation">.</span>VA_TYPES<span class="token operator">=</span>VA_TYPES<span class="token punctuation">.</span>AUTO<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> None
-     Virtual address <span class="token keyword">is</span> specified <span class="token keyword">in</span> the first argument <span class="token operator">and</span> the content <span class="token keyword">in</span> the second <span class="token punctuation">(</span><span class="token keyword">as</span> a list of bytes<span class="token punctuation">)</span><span class="token punctuation">.</span> If the underlying binary <span class="token keyword">is</span> a PE<span class="token punctuation">,</span> one can specify <span class="token keyword">if</span> the virtual address <span class="token keyword">is</span> a RVA <span class="token operator">or</span> a VA<span class="token punctuation">.</span> By default it <span class="token keyword">is</span> set to AUTO
-
- <span class="token number">5.</span>patch_pltgot<span class="token punctuation">(</span>self<span class="token punctuation">:</span> lief<span class="token punctuation">.</span>ELF<span class="token punctuation">.</span>Binary<span class="token punctuation">,</span> symbol_name<span class="token punctuation">:</span> str<span class="token punctuation">,</span> address<span class="token punctuation">:</span> int<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> None
-     Patch the imported symbol’s name <span class="token keyword">with</span> the address
-
- <span class="token number">6.</span>write<span class="token punctuation">(</span>self<span class="token punctuation">:</span> lief<span class="token punctuation">.</span>ELF<span class="token punctuation">.</span>Binary<span class="token punctuation">,</span> output<span class="token punctuation">:</span> str<span class="token punctuation">)</span> → None
-     Rebuild the binary <span class="token operator">and</span> write it <span class="token keyword">in</span> a file<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-</li>
-<li><p>Segment对象</p>
-<pre class="line-numbers language-python"><code class="language-python"> <span class="token keyword">class</span> <span class="token class-name">lief</span><span class="token punctuation">.</span>ELF<span class="token punctuation">.</span>Segment
- property content
-     Segment’s raw data
- property virtual_address
-     Address where the segment will be mapped<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-</li>
-<li><p>Section对象</p>
-<pre class="line-numbers language-python"><code class="language-python"> <span class="token keyword">class</span> <span class="token class-name">lief</span><span class="token punctuation">.</span>ELF<span class="token punctuation">.</span>Section
- property content
-     section raw content
- property name
-     section name
- property virtual_address
-     Return address where the section will be mapped <span class="token keyword">in</span> memory<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-</li>
-<li><p>Symbol对象</p>
-<pre class="line-numbers language-python"><code class="language-python"> <span class="token keyword">class</span> <span class="token class-name">lief</span><span class="token punctuation">.</span>ELF<span class="token punctuation">.</span>Symbol<span class="token punctuation">(</span>self<span class="token punctuation">:</span> lief<span class="token punctuation">.</span>ELF<span class="token punctuation">.</span>Symbol<span class="token punctuation">)</span> 
- property name
-     symbol name
- property value
-     This member have slightly different interpretations
-     In relocatable files<span class="token punctuation">,</span> value holds alignment constraints <span class="token keyword">for</span> a symbol whose section index <span class="token keyword">is</span> SHN_COMMON<span class="token punctuation">.</span>
-
-     In relocatable files<span class="token punctuation">,</span> value holds a section offset <span class="token keyword">for</span> a defined symbol<span class="token punctuation">.</span> That <span class="token keyword">is</span><span class="token punctuation">,</span> value <span class="token keyword">is</span> an offset <span class="token keyword">from</span> the beginning of the section associated <span class="token keyword">with</span> this symbol<span class="token punctuation">.</span>
-
-     In executable <span class="token operator">and</span> shared object files<span class="token punctuation">,</span> value holds a virtual address<span class="token punctuation">.</span> To make these files’ssymbols more useful <span class="token keyword">for</span> the dynamic linker<span class="token punctuation">,</span> the section offset <span class="token punctuation">(</span>file interpretation<span class="token punctuation">)</span> gives way to a virtual address <span class="token punctuation">(</span>memory interpretation<span class="token punctuation">)</span> <span class="token keyword">for</span> which the section number <span class="token keyword">is</span> irrelevant<span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-</li>
-</ol>
-<h3 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h3><h4 id="dmeo准备"><a href="#dmeo准备" class="headerlink" title="dmeo准备"></a>dmeo准备</h4><ol>
-<li><p>源码文件</p>
-<pre class="line-numbers language-C"><code class="language-C"> #include<stdio.h>
- int main(){
-     printf("hello world\n");
-     puts("test of lief");
-     printf("hhhhhh");
-     return 0;
- }<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p> 编译成二进制文件</p>
-<pre class="line-numbers language-shell"><code class="language-shell"> gcc -o vulner vulner.c<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-</li>
-<li><p>编译hook</p>
-<p> 通过手写A&amp;T格式的汇编指令文件，实现对vulner中函数的逻辑修改，包括重写函数，添加逻辑处理等。编译成位置无关的无其他库函数链接的第三方patch二进制文件。</p>
-<ul>
-<li><p>对于call、jmp的指令地址跳转根据生成的指令长度使用nop进行占位，如call指令占5 bytes,对于jmp有近跳转、短跳转、远跳转之分，通常是2bytes或者5bytes。</p>
-</li>
-<li><p>汇编指令的编写要符合A&amp;T格式要求：如立即数不能直接赋值段寄存器等。</p>
-<pre class="line-numbers language-C"><code class="language-C">void myprintf(){
-  asm(
-      "mov $0xa6e75736e6f6874,%rsi\n"
-      "mov $0x0,%rdi\n"
-      "mov $0x8,%rdx\n"
-      "mov $0x1,%rax\n"
-      "syscall"
-  );
-}<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>编译：</p>
-<pre class="line-numbers language-shell"><code class="language-shell">gcc -nostdlib -nodefaultlibs -fPIC -Wl,-shared hook.c -o hook<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-</li>
-</ul>
-</li>
-</ol>
-<h4 id="通过增加segment进行patch"><a href="#通过增加segment进行patch" class="headerlink" title="通过增加segment进行patch"></a>通过增加segment进行patch</h4><h5 id="hook指定地址函数调用"><a href="#hook指定地址函数调用" class="headerlink" title="hook指定地址函数调用"></a>hook指定地址函数调用</h5><p>对原binary中一个call func进行修改，改变该call func的行为（只改变这次的调用，后面其他的call func没有被改变，因为只指定这次地址处的函数修改hook）</p>
-<pre class="line-numbers language-python"><code class="language-python"><span class="token comment" spellcheck="true"># coding:utf-8</span>
-<span class="token keyword">import</span> lief
-<span class="token keyword">from</span> pwn <span class="token keyword">import</span> <span class="token operator">*</span>
-
-<span class="token keyword">def</span> <span class="token function">patch_call</span><span class="token punctuation">(</span>file<span class="token punctuation">,</span>srcaddr<span class="token punctuation">,</span>dstaddr<span class="token punctuation">,</span>arch <span class="token operator">=</span> <span class="token string">"amd64"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">print</span> hex<span class="token punctuation">(</span>dstaddr<span class="token punctuation">)</span>
-    length <span class="token operator">=</span> p32<span class="token punctuation">(</span><span class="token punctuation">(</span>dstaddr <span class="token operator">-</span> <span class="token punctuation">(</span>srcaddr <span class="token operator">+</span> <span class="token number">5</span> <span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token number">0xffffffff</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># dst-(src+5)的一个补码call形式</span>
-    order <span class="token operator">=</span> <span class="token string">'\xe8'</span><span class="token operator">+</span>length
-    <span class="token keyword">print</span> disasm<span class="token punctuation">(</span>order<span class="token punctuation">,</span>arch<span class="token operator">=</span>arch<span class="token punctuation">)</span>
-    file<span class="token punctuation">.</span>patch_address<span class="token punctuation">(</span>srcaddr<span class="token punctuation">,</span><span class="token punctuation">[</span>ord<span class="token punctuation">(</span>i<span class="token punctuation">)</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> order<span class="token punctuation">]</span><span class="token punctuation">)</span>
-
-binary <span class="token operator">=</span> lief<span class="token punctuation">.</span>parse<span class="token punctuation">(</span><span class="token string">"./vulner"</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># gcc -o vulner vulner.c</span>
-hook <span class="token operator">=</span> lief<span class="token punctuation">.</span>parse<span class="token punctuation">(</span><span class="token string">'./hook'</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># gcc -nostdlib -nodefaultlibs -fPIC -Wl,-shared hook.c -o hook</span>
-<span class="token comment" spellcheck="true"># inject hook program to binary</span>
-segment_added  <span class="token operator">=</span> binary<span class="token punctuation">.</span>add<span class="token punctuation">(</span>hook<span class="token punctuation">.</span>segments<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
-hook_fun      <span class="token operator">=</span> hook<span class="token punctuation">.</span>get_symbol<span class="token punctuation">(</span><span class="token string">"myprintf"</span><span class="token punctuation">)</span>
-
-
-dstaddr <span class="token operator">=</span> segment_added<span class="token punctuation">.</span>virtual_address <span class="token operator">+</span> hook_fun<span class="token punctuation">.</span>value <span class="token comment" spellcheck="true"># 计算添加后该函数在binary的地址（相当于一个reloacation过程）</span>
-srcaddr <span class="token operator">=</span> <span class="token number">0x40056f</span> <span class="token comment" spellcheck="true"># 指定修改的地址</span>
-
-patch_call<span class="token punctuation">(</span>binary<span class="token punctuation">,</span>srcaddr<span class="token punctuation">,</span>dstaddr<span class="token punctuation">)</span>
-
-binary<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string">'vulner.patched'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h5 id="hook全部该函数的调用"><a href="#hook全部该函数的调用" class="headerlink" title="hook全部该函数的调用"></a>hook全部该函数的调用</h5><p>对原binary的全部调用函数进行修改，即通过改写plt的地址</p>
-<pre class="line-numbers language-python"><code class="language-python"><span class="token comment" spellcheck="true"># coding:utf-8</span>
-<span class="token keyword">import</span> lief
-
-binary <span class="token operator">=</span> lief<span class="token punctuation">.</span>parse<span class="token punctuation">(</span><span class="token string">"./vulner"</span><span class="token punctuation">)</span>
-hook <span class="token operator">=</span> lief<span class="token punctuation">.</span>parse<span class="token punctuation">(</span><span class="token string">'./hook'</span><span class="token punctuation">)</span>
-<span class="token comment" spellcheck="true"># inject hook program to binary</span>
-segment_added  <span class="token operator">=</span> binary<span class="token punctuation">.</span>add<span class="token punctuation">(</span>hook<span class="token punctuation">.</span>segments<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
-
-<span class="token comment" spellcheck="true"># hook got</span>
-my_printf      <span class="token operator">=</span> hook<span class="token punctuation">.</span>get_symbol<span class="token punctuation">(</span><span class="token string">"myprintf"</span><span class="token punctuation">)</span>
-my_printf_addr <span class="token operator">=</span> segment_added<span class="token punctuation">.</span>virtual_address <span class="token operator">+</span> my_printf<span class="token punctuation">.</span>value <span class="token comment" spellcheck="true"># 加段后映射的基址 + 函数的偏移</span>
-
-binary<span class="token punctuation">.</span>patch_pltgot<span class="token punctuation">(</span><span class="token string">'printf'</span><span class="token punctuation">,</span> my_printf_addr<span class="token punctuation">)</span>
-binary<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string">'vulner_patch_plt'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="通过改写eh-frame段内容"><a href="#通过改写eh-frame段内容" class="headerlink" title="通过改写eh_frame段内容"></a>通过改写eh_frame段内容</h4><p>上面通过增加section使得binary的变化很大，我们可以通过把代码写入eh_frame中（覆盖其原来的内容）可以实现binary大小基本没有变化。有关于.eh_frame的作用 <a href="https://stackoverflow.com/questions/26300819/why-gcc-compiled-c-program-needs-eh-frame-section" target="_blank" rel="noopener">详情</a>，这里只需知道若存在该段，我们能够进行改写并无影响。</p>
-<pre class="line-numbers language-python"><code class="language-python"><span class="token comment" spellcheck="true"># coding:utf-8</span>
-<span class="token keyword">import</span> lief
-<span class="token keyword">from</span> pwn <span class="token keyword">import</span> <span class="token operator">*</span>
-
-<span class="token keyword">def</span> <span class="token function">patch_call</span><span class="token punctuation">(</span>file<span class="token punctuation">,</span>srcaddr<span class="token punctuation">,</span>dstaddr<span class="token punctuation">,</span>arch <span class="token operator">=</span> <span class="token string">"amd64"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">print</span> hex<span class="token punctuation">(</span>dstaddr<span class="token punctuation">)</span>
-    length <span class="token operator">=</span> p32<span class="token punctuation">(</span><span class="token punctuation">(</span>dstaddr <span class="token operator">-</span> <span class="token punctuation">(</span>srcaddr <span class="token operator">+</span> <span class="token number">5</span> <span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token number">0xffffffff</span><span class="token punctuation">)</span>
-    order <span class="token operator">=</span> <span class="token string">'\xe8'</span><span class="token operator">+</span>length
-    <span class="token keyword">print</span> disasm<span class="token punctuation">(</span>order<span class="token punctuation">,</span>arch<span class="token operator">=</span>arch<span class="token punctuation">)</span>
-    file<span class="token punctuation">.</span>patch_address<span class="token punctuation">(</span>srcaddr<span class="token punctuation">,</span><span class="token punctuation">[</span>ord<span class="token punctuation">(</span>i<span class="token punctuation">)</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> order<span class="token punctuation">]</span><span class="token punctuation">)</span>
-
-binary <span class="token operator">=</span> lief<span class="token punctuation">.</span>parse<span class="token punctuation">(</span><span class="token string">"./vulner"</span><span class="token punctuation">)</span>
-hook <span class="token operator">=</span> lief<span class="token punctuation">.</span>parse<span class="token punctuation">(</span><span class="token string">'./hook'</span><span class="token punctuation">)</span>
-
-<span class="token comment" spellcheck="true"># write hook's .text content to binary's .eh_frame content </span>
-sec_ehrame <span class="token operator">=</span> binary<span class="token punctuation">.</span>get_section<span class="token punctuation">(</span><span class="token string">'.eh_frame'</span><span class="token punctuation">)</span>
-<span class="token keyword">print</span> sec_ehrame<span class="token punctuation">.</span>content
-sec_text <span class="token operator">=</span> hook<span class="token punctuation">.</span>get_section<span class="token punctuation">(</span><span class="token string">'.text'</span><span class="token punctuation">)</span>
-<span class="token keyword">print</span> sec_text<span class="token punctuation">.</span>content
-sec_ehrame<span class="token punctuation">.</span>content <span class="token operator">=</span> sec_text<span class="token punctuation">.</span>content
-<span class="token keyword">print</span> binary<span class="token punctuation">.</span>get_section<span class="token punctuation">(</span><span class="token string">'.eh_frame'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>content
-
-<span class="token comment" spellcheck="true"># hook target call</span>
-dstaddr <span class="token operator">=</span> sec_ehrame<span class="token punctuation">.</span>virtual_address
-srcaddr <span class="token operator">=</span> <span class="token number">0x400584</span>
-
-patch_call<span class="token punctuation">(</span>binary<span class="token punctuation">,</span>srcaddr<span class="token punctuation">,</span>dstaddr<span class="token punctuation">)</span>
-
-binary<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string">'vulner_patched_ehframe'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>上述对vuler的修改运行如图所示:</p>
-<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/1564725589944.png" alt="1564725589944"></p>
-<p>三者对原来binary的改动变化：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="https://cdn.jsdelivr.net/gh/thonsun/images/img/1564725664221.png" alt="1564725664221"></p>
-<p>可以看到对原有的.eh_frame的修改改动最小。（通常CTF中大小不变，此处是因为hook.c编写的是一个函数，.text段内容包括初始化等代码，大小超过了vulner的.eh_frame，所以变大，但是我们可以不用写一个my_printf函数直接在hook.c写asm()那部分是通常的修改.eh_frame的做法。）</p>
-<h3 id="补充：Reloacation-file-与-Executable-file、Shared-Object-File的区别"><a href="#补充：Reloacation-file-与-Executable-file、Shared-Object-File的区别" class="headerlink" title="补充：Reloacation file 与 Executable file、Shared Object File的区别"></a>补充：Reloacation file 与 Executable file、Shared Object File的区别</h3><pre><code>The file header Type field tells us what the purpose of the file is. There are a few common file types.(readelf -h binary)
-
-CORE (value 4)
-DYN (Shared object file), for libraries (value 3)
-EXEC (Executable file), for binaries (value 2)
-REL (Relocatable file), before linked into an executable file (value 1)</code></pre><blockquote>
-<p>Relocation entries for different object files have slightly different interpretations for the <code>r_offset</code>member.</p>
-<ul>
-<li>In relocatable files, <code>r_offset</code> holds a section offset. That is, the relocation section itself describes how to modify another section in the file; relocation offsets designate a storage unit within the second section.</li>
-<li>In executable and shared object files, <code>r_offset</code> holds a virtual address. To make these files’ relocation entries more useful for the dynamic linker, the section offset (file interpretation) gives way to a virtual address (memory interpretation).</li>
-</ul>
+<li><p>java servlet的应用与jsp技术：工程组织：即MVC思想</p>
+<blockquote>
+<p>javaweb/</p>
+<p>​    pojo/</p>
+<p>​    dao/</p>
+<p>​    controller/</p>
+<p>​    filter/</p>
+<p>​    utils</p>
 </blockquote>
-<p>Relocatable files are still fully relocatable, whereas shared objects are one step further along the linking process and have been largely relocated. Shared objects are only relocatable if their code is position-independent (<em>e.g.</em> it was built with GCC’s <code>-fPIC</code> option).</p>
-<ol>
-<li><p>Relocatalbe file是只编译还没有链接的文件： <code>gcc -c -o xxx xxx.c</code></p>
-<p> 里面的符号只是对应一个section基址的offset</p>
 </li>
-<li><p>Executable file是经过编译、链接的文件，里面的符号（变量、函数）是经过重定位之后的虚拟内存地址</p>
+<li><p>SSH框架 ：</p>
 </li>
-<li><p>Shared object file只有编译时带 -PIC的选项才保存的是一个对应一个section基址的offset</p>
+<li><p>SSM框架：Spring + SpringMVC + Mybatis</p>
+</li>
+<li><p>SpringBoot：SpringSecurity</p>
+</li>
+<li><p>SpringCloud</p>
 </li>
 </ol>
-<p>这就可以解释在LIEF给elf binary(executable file)增加一个段之后，call funtion_address的函数地址计算</p>
+<h2 id="二、web安全基础"><a href="#二、web安全基础" class="headerlink" title="二、web安全基础"></a>二、web安全基础</h2><ol>
+<li><p>SQLi注入利用、防御与绕过：包括SQL union注入利用，limit注入利用，绕过关键字利用等，SQL预编译过程原理，SQL预编译防御利用</p>
+</li>
+<li><p>XSS攻击利用、防御与绕过：CORS原理，CSP利用</p>
+</li>
+<li><p>SSRF</p>
+</li>
+<li><p>CSRF</p>
+</li>
+<li><p>XXE</p>
+</li>
+<li><p>反序列化：java对象序列化，json,xml等反序列链利用</p>
+</li>
+</ol>
+<h2 id="三、Java安全"><a href="#三、Java安全" class="headerlink" title="三、Java安全"></a>三、Java安全</h2><p>《Java反序列化漏洞利用分析》</p>
+<p>《JNDI注入利用分析》</p>
+<p>《RMI注入利用分析》</p>
+<p>《Jackson反序列化漏洞利用原理》</p>
+<p>《Jackson反序列化漏洞复现》</p>
+<p>《FastJson反序列化漏洞利用原理》</p>
+<p>《Fastjson反序列化漏洞复现》</p>
+<p>《Xstream反序列化漏洞利用原理》</p>
+<p>《Dubbo反序列化漏洞利用原理》</p>
+<p>《Java Agent技术研究》</p>
+<p>《RASP 技术研究》</p>
+<p>《Tomcat内存webshell分析》 </p>
+<p>TODO：研究Spring，SpringMVC，SpringBoot，Mybatis框架的漏洞与原理分析</p>
 <script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
@@ -1093,7 +948,7 @@ REL (Relocatable file), before linked into an executable file (value 1)</code></
                     </span>
                     <a href="https://thonsun.github.io" class="b-link-green">thonsun's blog</a>
                     <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
-                    <a href="/2019/07/27/lief-zai-ctfpatch-chang-yong-api/" class="b-link-green">LIEF在CTFpatch常用API</a>
+                    <a href="/2021/01/09/java-an-quan-xi-lie/" class="b-link-green">JavaSec Java安全系列</a>
                 </p>
             </div>
 
@@ -1116,7 +971,7 @@ REL (Relocatable file), before linked into an executable file (value 1)</code></
         repo: 'thonsun.github.io',
         owner: 'thonsun',
         admin: ["thonsun"],
-        id: '2019/07/27/lief-zai-ctfpatch-chang-yong-api/',
+        id: '2021/01/09/java-an-quan-xi-lie/',
         distractionFreeMode: false  // Facebook-like distraction free mode
     });
 
@@ -1435,53 +1290,53 @@ REL (Relocatable file), before linked into an executable file (value 1)</code></
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="fa fa-dot-circle-o"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2019/09/20/redhat-ji-ben-shi-yong/">
+                <a href="/2021/01/09/java-an-quan-xi-lie/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="RedHat基本使用">
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="JavaSec Java安全系列">
                         
-                        <span class="card-title">RedHat基本使用</span>
+                        <span class="card-title">JavaSec Java安全系列</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
-使用电脑浏览效果更佳！
+                            这里作为Java安全系列的提纲，总结在学Web安全的过程，在复现环境，调试代码加深对原理的理解
+一、JavaWeb技术java 在web系统的发展与应用
 
-一、记录RedHat基本使用用惯Ubuntu还得是要走出舒服区去踩坑RedHat了
+java servlet的应用与jsp技术：工程组织：即MVC思想
 
-
-二、RedHat使用bug记录2.1 yum软件源与软件安全使用yum安装软件报错
-This system is not r
+javaweb
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-09-20
-                        </span>
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2021-01-09
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fa fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/os/" class="post-category" target="_blank">
-                                    os
+                            <a href="/categories/javasec/" class="post-category" target="_blank">
+                                    javasec
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/linux/" target="_blank">
-                        <span class="chip bg-color">linux</span>
+                    <a href="/tags/javasec/" target="_blank">
+                        <span class="chip bg-color">javasec</span>
                     </a>
                     
                 </div>
@@ -1495,35 +1350,34 @@ This system is not r
                 下一篇&nbsp;<i class="fa fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2019/07/25/unlink-li-yong-jie-shao/">
+                <a href="/2020/12/29/jvm-yun-xing-ji-zhi-yu-lei-jia-zai-ying-yong/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/4.jpg" class="responsive-img" alt="unlink利用介绍">
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="JavaSec jvm运行机制与类加载应用">
                         
-                        <span class="card-title">unlink利用介绍</span>
+                        <span class="card-title">JavaSec jvm运行机制与类加载应用</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
-使用电脑浏览效果更佳！
+                            在这边文章将讲述：
 
-摘要​    记录当下加入检查机制的unlink宏一般利用思想，主要在glibc pwn下的unlink利用手法。
-分析unlink的工作unlink(AV, P, BK, FD)：P是在空闲双向链表中的free
+1.Java语言的基础，从JVM角度讲述java程序运行的模型，如jvm内存模型，在脑海形成java语言编程到运行的概念；
+2.类加载与应用：理解作为Java程序的基本元素Class字节码，Class对象，Class对
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-07-25
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-12-29
                             </span>
                         <span class="publish-author">
                             
                             <i class="fa fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/pwn/" class="post-category" target="_blank">
-                                    pwn
+                            <a href="/categories/javasec/" class="post-category" target="_blank">
+                                    javasec
                                 </a>
                             
                             
@@ -1533,8 +1387,8 @@ This system is not r
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/heap/" target="_blank">
-                        <span class="chip bg-color">heap</span>
+                    <a href="/tags/javasec/" target="_blank">
+                        <span class="chip bg-color">javasec</span>
                     </a>
                     
                 </div>
