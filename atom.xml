@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://thonsun.github.io/"/>
-  <updated>2021-01-09T04:04:26.568Z</updated>
+  <updated>2021-04-08T06:55:35.928Z</updated>
   <id>https://thonsun.github.io/</id>
   
   <author>
@@ -17,11 +17,37 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>shiro反序列化漏洞分析</title>
+    <link href="https://thonsun.github.io/2021/04/08/shiro-fan-xu-lie-hua-lou-dong-fen-xi/"/>
+    <id>https://thonsun.github.io/2021/04/08/shiro-fan-xu-lie-hua-lou-dong-fen-xi/</id>
+    <published>2021-04-08T06:55:35.000Z</published>
+    <updated>2021-04-08T06:55:35.928Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;script&gt;
+        document.querySelectorAll(&#39;.github-emoji&#39;)
+          .forEach(el =&gt; {
+            if (!el.dataset.src) { return; }
+       
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>JavaSec Java安全系列</title>
     <link href="https://thonsun.github.io/2021/01/09/java-an-quan-xi-lie/"/>
     <id>https://thonsun.github.io/2021/01/09/java-an-quan-xi-lie/</id>
     <published>2021-01-09T01:13:50.000Z</published>
-    <updated>2021-01-09T04:04:26.568Z</updated>
+    <updated>2021-01-09T10:24:05.174Z</updated>
     
     <summary type="html">
     
@@ -155,7 +181,7 @@
     <link href="https://thonsun.github.io/2020/12/04/rmi-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/04/rmi-li-yong-fen-xi/</id>
     <published>2020-12-04T12:52:13.000Z</published>
-    <updated>2020-12-28T02:39:31.386Z</updated>
+    <updated>2021-03-18T16:11:29.021Z</updated>
     
     <summary type="html">
     
@@ -181,7 +207,7 @@
     <link href="https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/</id>
     <published>2020-12-02T12:52:02.000Z</published>
-    <updated>2020-12-28T02:39:17.386Z</updated>
+    <updated>2021-03-18T16:13:52.715Z</updated>
     
     <summary type="html">
     
@@ -203,11 +229,11 @@
   </entry>
   
   <entry>
-    <title>JavaSec Fastjson反序列化漏洞利用原理</title>
+    <title></title>
     <link href="https://thonsun.github.io/2020/11/20/fastjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/"/>
     <id>https://thonsun.github.io/2020/11/20/fastjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/</id>
     <published>2020-11-20T13:23:15.000Z</published>
-    <updated>2020-12-28T02:42:32.338Z</updated>
+    <updated>2021-04-02T06:39:44.506Z</updated>
     
     <summary type="html">
     
@@ -311,7 +337,7 @@
     <link href="https://thonsun.github.io/2020/10/20/java-fan-xu-lie-hua-lou-dong-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/10/20/java-fan-xu-lie-hua-lou-dong-li-yong-fen-xi/</id>
     <published>2020-10-20T12:18:19.000Z</published>
-    <updated>2020-12-30T09:25:35.195Z</updated>
+    <updated>2021-04-08T13:19:30.579Z</updated>
     
     <summary type="html">
     
@@ -500,29 +526,6 @@
     
     
       <category term="heap" scheme="https://thonsun.github.io/tags/heap/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>linux 安全机制</title>
-    <link href="https://thonsun.github.io/2019/07/22/linux-an-quan-ji-zhi/"/>
-    <id>https://thonsun.github.io/2019/07/22/linux-an-quan-ji-zhi/</id>
-    <published>2019-07-22T12:25:51.000Z</published>
-    <updated>2020-12-16T09:32:37.472Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;使用电脑浏览效果更佳！&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;操作系统提供了许多安全机制来尝试降低或阻止缓冲区溢出攻击带来的安全风险，包括DEP、ASLR等。在编写漏洞利用代码的时候，需要特别注意目标进程是否开启了DEP（Linux下对应NX）、ASLR [Address space layout randomization]（Linux下对应PIE）等机制，例如存在DEP（NX）的话就不能直接执行栈上的数据，存在ASLR的话各个系统调用的地址就是随机化的，RELRO(reloctiaon read only)重定位只读，包括Full，Partial(default)，disabled，分别对应者诸如数据、got表（重定位项，对于动态链接目标文件）不可写，got表可写，全部可写。这对应了从ELF文件格式到加载到内存的映射页保护机制（r,x,w）的具体内容实现。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="pwn" scheme="https://thonsun.github.io/categories/pwn/"/>
-    
-    
-      <category term="basic pwn" scheme="https://thonsun.github.io/tags/basic-pwn/"/>
     
   </entry>
   

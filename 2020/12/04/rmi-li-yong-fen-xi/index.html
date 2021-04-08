@@ -703,7 +703,7 @@
                     
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        3.5k
+                        3.6k
                     </div>
                     
 
@@ -974,7 +974,9 @@ Contents
 <p>即础数据类型的数据，如整数、浮点数等，会在流中使用blockdata格式进行表示。</p>
 <p>这里Call &amp; ReturnData 后面可以看到参数2，3，5；</p>
 <p><strong>这里可以提一下对于参数&amp;返回值是一个对象的时候，则是classdata的反序列形式，若本地JVM不存在class文件若满足可以加载远程codebase的运行条件（将在下面讨论）将从远程codebase下载class文件加载进行反序列化</strong>。</p>
-<h3 id="2-2-RMI-Reference"><a href="#2-2-RMI-Reference" class="headerlink" title="2.2 RMI Reference"></a>2.2 RMI Reference</h3><p>这个流程放在RMI Reference讨论</p>
+<p>这里的漏洞利用：</p>
+<p>对于可控的lookup参数，通过指向攻击者的远程对象，在readObject反序列通过利用java原生反序列漏洞利用链触发RCE，如AnnotationInvocationHandle或者Hashmap的TiredMapEntry为key的利用</p>
+<h3 id="2-2-RMI-Reference"><a href="#2-2-RMI-Reference" class="headerlink" title="2.2 RMI Reference"></a>2.2 RMI Reference</h3><p>这个流程放在JNDI　RMI Reference利用讨论</p>
 <h2 id="三、RMI利用方式"><a href="#三、RMI利用方式" class="headerlink" title="三、RMI利用方式"></a>三、RMI利用方式</h2><p>这里以利用方式进行分类叙述</p>
 <h3 id="3-1-利用RMI威胁功能函数"><a href="#3-1-利用RMI威胁功能函数" class="headerlink" title="3.1 利用RMI威胁功能函数"></a>3.1 利用RMI威胁功能函数</h3><p>利用条件：</p>
 <blockquote>
@@ -1054,10 +1056,11 @@ Contents
         <span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 
+    <span class="token comment" spellcheck="true">//测试</span>
     <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token function">exec</span><span class="token punctuation">(</span><span class="token string">"123"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
-<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>注意：ExecTest不要写包名</p>
 <p>编译成class文件：<code>javac ExecTest.java</code><br>部署在web服务上：<code>py -3 -m http.server 8081</code></p>
 <p>受害者的客户端（攻击者可控lookup参数指向攻击者的恶意Reference）</p>
@@ -1880,7 +1883,7 @@ NamingManager<span class="token punctuation">.</span>getObjectFactoryFromReferen
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">51.5k</span> 字
+                <span class="white-color">52k</span> 字
             
 
             
@@ -2107,5 +2110,5 @@ $(function () {
         <!-- 背景动态彩带 洪卫 shw 2018  add 2019.09.15-->
         
 
-    <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script><script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script></body>
+    <script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>
