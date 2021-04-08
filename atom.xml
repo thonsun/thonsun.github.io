@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://thonsun.github.io/"/>
-  <updated>2021-04-08T06:55:35.928Z</updated>
+  <updated>2021-04-08T14:07:03.129Z</updated>
   <id>https://thonsun.github.io/</id>
   
   <author>
@@ -17,11 +17,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>shiro反序列化漏洞分析</title>
+    <title>javasec shiro反序列化漏洞分析</title>
     <link href="https://thonsun.github.io/2021/04/08/shiro-fan-xu-lie-hua-lou-dong-fen-xi/"/>
     <id>https://thonsun.github.io/2021/04/08/shiro-fan-xu-lie-hua-lou-dong-fen-xi/</id>
     <published>2021-04-08T06:55:35.000Z</published>
-    <updated>2021-04-08T06:55:35.928Z</updated>
+    <updated>2021-04-08T14:07:03.129Z</updated>
     
     <summary type="html">
     
@@ -39,6 +39,10 @@
     
     </summary>
     
+      <category term="javasec" scheme="https://thonsun.github.io/categories/javasec/"/>
+    
+    
+      <category term="javasec" scheme="https://thonsun.github.io/tags/javasec/"/>
     
   </entry>
   
@@ -207,7 +211,7 @@
     <link href="https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/"/>
     <id>https://thonsun.github.io/2020/12/02/jndi-zhu-ru-li-yong-fen-xi/</id>
     <published>2020-12-02T12:52:02.000Z</published>
-    <updated>2021-03-18T16:13:52.715Z</updated>
+    <updated>2021-04-08T14:01:37.665Z</updated>
     
     <summary type="html">
     
@@ -229,11 +233,11 @@
   </entry>
   
   <entry>
-    <title></title>
+    <title>JavaSec Fastjson反序列化漏洞利用原理</title>
     <link href="https://thonsun.github.io/2020/11/20/fastjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/"/>
     <id>https://thonsun.github.io/2020/11/20/fastjson-fan-xu-lie-hua-lou-dong-li-yong-yuan-li/</id>
     <published>2020-11-20T13:23:15.000Z</published>
-    <updated>2021-04-02T06:39:44.506Z</updated>
+    <updated>2021-04-08T14:06:30.592Z</updated>
     
     <summary type="html">
     
